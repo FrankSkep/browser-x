@@ -5,9 +5,11 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 import javax.swing.*;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 public class InterfazHistorialNavegacion extends JFrame {
     private JTextField urlTextField;
@@ -20,8 +22,16 @@ public class InterfazHistorialNavegacion extends JFrame {
     public InterfazHistorialNavegacion() {
         historial = new HistorialNavegacion();
 
-        setTitle("Gestor de Historial de Navegación");
-        setSize(800, 600);
+        try {
+            // UIManager.getSystemLookAndFeelClassName() establece el aspecto del sistema
+            UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+        } catch (
+                Exception e) {
+            System.err.println("No se pudo establecer el aspecto del sistema.");
+        }
+
+        setTitle("SimpleBrowse");
+        setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -29,11 +39,18 @@ public class InterfazHistorialNavegacion extends JFrame {
         JPanel panelSuperior = new JPanel();
         panelSuperior.setLayout(new FlowLayout());
 
+        // iconos para los botones
+//        ImageIcon retrocederIcon = new ImageIcon("src/main/resources/icons/retroceder.png");
+//        ImageIcon avanzarIcon = new ImageIcon("src/main/resources/icons/avanzar.png");
+        ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/refresh.png", 20, 20)));
+        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/search.png", 20, 20)));
+
         JButton retrocederButton = new JButton("Retroceder");
         JButton avanzarButton = new JButton("Avanzar");
-        JButton refrescarButton = new JButton("Refrescar");
-        urlTextField = new JTextField(30);
-        JButton visitarButton = new JButton("Visitar");
+        JButton refrescarButton = new JButton(refrescarIcon);
+        urlTextField = new JTextField(40);
+        urlTextField.setPreferredSize(new Dimension(400, 30));
+        JButton visitarButton = new JButton(visitarIcon);
 
         panelSuperior.add(retrocederButton);
         panelSuperior.add(avanzarButton);
