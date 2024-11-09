@@ -29,17 +29,18 @@ public class InterfazHistorialNavegacion extends JFrame {
         JPanel panelSuperior = new JPanel();
         panelSuperior.setLayout(new FlowLayout());
 
-        urlTextField = new JTextField(30);
-        JButton visitarButton = new JButton("Visitar");
         JButton retrocederButton = new JButton("Retroceder");
         JButton avanzarButton = new JButton("Avanzar");
+        JButton refrescarButton = new JButton("Refrescar");
+        urlTextField = new JTextField(30);
+        JButton visitarButton = new JButton("Visitar");
 
+        panelSuperior.add(retrocederButton);
+        panelSuperior.add(avanzarButton);
+        panelSuperior.add(refrescarButton);
         panelSuperior.add(new JLabel("URL:"));
         panelSuperior.add(urlTextField);
         panelSuperior.add(visitarButton);
-        panelSuperior.add(retrocederButton);
-        panelSuperior.add(avanzarButton);
-
         add(panelSuperior, BorderLayout.NORTH);
 
         // Panel central para mostrar el contenido web usando WebView (JavaFX)
@@ -82,6 +83,13 @@ public class InterfazHistorialNavegacion extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 avanzarPagina();
+            }
+        });
+
+        refrescarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refrescarPagina();
             }
         });
 
@@ -129,6 +137,13 @@ public class InterfazHistorialNavegacion extends JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas siguientes.");
         }
+    }
+
+    // refrescar la página actual
+    private void refrescarPagina() {
+        Platform.runLater(() -> {
+            webEngine.reload(); // recarga la página web actual
+        });
     }
 
     // actualizar la interfaz grafica
