@@ -1,3 +1,4 @@
+import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
@@ -32,8 +33,10 @@ public class InterfazHistorialNavegacion extends JFrame {
         historial = new HistorialNavegacion();
 
         try {
+            FlatLightLaf.setup(); // Para el tema claro
+            UIManager.setLookAndFeel(new FlatLightLaf());
             // UIManager.getSystemLookAndFeelClassName() establece el aspecto del sistema
-            UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
+//            UIManager.setLookAndFeel(new NimbusLookAndFeel());
             Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browser.png")));
             setIconImage(icon);
         } catch (
@@ -55,12 +58,12 @@ public class InterfazHistorialNavegacion extends JFrame {
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/left.png", 20, 20)));
-        ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/right.png", 20, 20)));
-        ImageIcon homeIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 20, 20)));
-        ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 20, 20)));
-        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/search.png", 20, 20)));
-        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 20, 20)));
+        ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/left.png", 25, 25)));
+        ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/right.png", 25, 25)));
+        ImageIcon homeIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 25, 25)));
+        ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 25, 25)));
+        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/search.png", 25, 25)));
+        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 25, 25)));
 
         // Creación de los botones y campos de texto
         JButton retrocederButton = new JButton(retrocederIcon);
