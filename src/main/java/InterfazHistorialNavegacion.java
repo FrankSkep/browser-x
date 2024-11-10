@@ -11,8 +11,6 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,9 +20,9 @@ public class InterfazHistorialNavegacion extends JFrame {
     private WebView webView;
     private WebEngine webEngine;
 
-    private Map<String, String> programUrls = Map.of(
-            "Home", "file:///C:/Users/fran/Documents/Development/Java/SimpleBrowse/target/classes/templates/home.html",
-            "Error", "file:///C:/Users/fran/Documents/Development/Java/SimpleBrowse/target/classes/templates/error.html"
+    private Map<String, String> defaultPages = Map.of(
+            "Home", Objects.requireNonNull(getClass().getResource("/templates/home.html")).toExternalForm(),
+            "Error", Objects.requireNonNull(getClass().getResource("/templates/error.html")).toExternalForm()
     );
 
     // bandera para saber si la navegación fue realizada por el usuario o por el historial
@@ -36,17 +34,11 @@ public class InterfazHistorialNavegacion extends JFrame {
         try {
             // UIManager.getSystemLookAndFeelClassName() establece el aspecto del sistema
             UIManager.setLookAndFeel(NimbusLookAndFeel.class.getName());
-        } catch (
-                Exception e) {
-            System.err.println("No se pudo establecer el aspecto del sistema.");
-        }
-
-        try {
             Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browser.png")));
             setIconImage(icon);
         } catch (
-                IOException e) {
-            e.printStackTrace();
+                Exception e) {
+            System.err.println("Ocurrio un error: " + e.getMessage());
         }
 
         setTitle("SimpleBrowse");
@@ -112,7 +104,7 @@ public class InterfazHistorialNavegacion extends JFrame {
             webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
                 if (newState == Worker.State.SUCCEEDED) {
                     String finalUrl = webEngine.getLocation();
-                    if (!navegacionUsuario && !programUrls.containsValue(finalUrl)) {
+                    if (!navegacionUsuario && !defaultPages.containsValue(finalUrl)) {
                         historial.visitar(finalUrl);
                     }
                     navegacionUsuario = false;
@@ -250,7 +242,7 @@ public class InterfazHistorialNavegacion extends JFrame {
         } else {
             urlTextField.setText(""); // or set to a default message
             Platform.runLater(() -> {
-                String homeUrl = Objects.requireNonNull(getClass().getResource("/templates/home.html")).toExternalForm();
+                String homeUrl = defaultPages.get("Home");
                 webEngine.load(homeUrl);
             });
         }
