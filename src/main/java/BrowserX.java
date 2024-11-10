@@ -34,7 +34,7 @@ public class BrowserX extends JFrame {
             UIManager.setLookAndFeel(new FlatLightLaf());
             // UIManager.getSystemLookAndFeelClassName() // Establece el aspecto del sistema
             // UIManager.setLookAndFeel(new NimbusLookAndFeel()); // Establece el aspecto Nimbus
-            Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browser.png")));
+            Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browserx-icon.png")));
             setIconImage(icon);
         } catch (
                 Exception e) {
@@ -60,7 +60,7 @@ public class BrowserX extends JFrame {
         ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/right.png", 25, 25)));
         ImageIcon homeIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 25, 25)));
         ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 25, 25)));
-        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/search.png", 25, 25)));
+        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/navegar.png", 25, 25)));
         ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 25, 25)));
 
         // Creación de los botones y campos de texto
@@ -115,7 +115,7 @@ public class BrowserX extends JFrame {
                     navegacionUsuario = false;
                     actualizarInterfaz();
                 } else if (newState == Worker.State.FAILED) {
-                    urlTextField.setText("Ingresa una URL valida");
+                    urlTextField.setText("Ingrese una URL valida");
                     urlTextField.setForeground(Color.RED);
                 }
             });
@@ -125,7 +125,12 @@ public class BrowserX extends JFrame {
         });
 
         // Listeners para los botones
-        visitarButton.addActionListener(e -> visitarPagina());
+        visitarButton.addActionListener(e -> {
+            if (urlTextField.getText().equals("Ingrese una URL") || urlTextField.getText().equals("Ingrese una URL valida")) {
+                urlTextField.setText("");
+            }
+            visitarPagina();
+        });
 
         retrocederButton.addActionListener(e -> retrocederPagina());
 
@@ -176,7 +181,7 @@ public class BrowserX extends JFrame {
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
-                if (urlTextField.getText().equals("Ingresa una URL")) {
+                if (urlTextField.getText().equals("Ingrese una URL") || urlTextField.getText().equals("Ingrese una URL valida")) {
                     urlTextField.setText("");
                     urlTextField.setForeground(Color.BLACK);
                 }
@@ -185,7 +190,7 @@ public class BrowserX extends JFrame {
             @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (urlTextField.getText().isEmpty()) {
-                    urlTextField.setText("Ingresa una URL");
+                    urlTextField.setText("Ingrese una URL");
                     urlTextField.setForeground(Color.GRAY);
                 }
             }
@@ -213,13 +218,14 @@ public class BrowserX extends JFrame {
     // visitar una página nueva
     private void visitarPagina() {
         String url = urlTextField.getText();
-        if (!url.isEmpty()) {
+        if (!url.isEmpty() || !url.isBlank()) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 url = "http://" + url;
-
-                String finalUrl = url;
-                Platform.runLater(() -> webEngine.load(finalUrl));
             }
+            String finalUrl = url;
+            Platform.runLater(() -> webEngine.load(finalUrl));
+        } else {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese una URL valida.");
         }
     }
 
@@ -262,9 +268,7 @@ public class BrowserX extends JFrame {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
         } else {
-            urlTextField.setText("Ingrese una URL o realiza una busqueda");
-            urlTextField.setForeground(Color.GRAY);
-            Platform.runLater(() -> webEngine.load(defaultPages.get("Home")));
+            Platform.runLater(() -> webEngine.load("https://www.google.com"));
         }
     }
 
