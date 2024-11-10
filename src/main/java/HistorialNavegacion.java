@@ -49,16 +49,24 @@ public class HistorialNavegacion {
 
     // obtiene la URL actual
     public String obtenerURLActual() {
+        if (historialCompleto.isEmpty()) {
+            return null;
+        }
         return historialCompleto.getLast();
     }
 
     // obtiene el historial completo como un string para mostrarlo en la interfaz
     public String obtenerHistorialCompleto() {
         StringBuilder historial = new StringBuilder();
-        for (int i = 0; i < historialCompleto.size(); i++) {
-            historial.append(i + 1).append(". ").append(historialCompleto.getFirst()).append("\n");
-            historialCompleto.addLast(historialCompleto.removeLast()); // Rota la lista para obtener el siguiente
+        for (String url : historialCompleto) {
+            historial.append(url).append("\n");
         }
         return historial.toString();
+    }
+
+    public void deleteHistory() {
+        historialCompleto = new LinkedList<>();
+        pilaAtras = new Stack<>();
+        pilaAdelante = new Stack<>();
     }
 }
