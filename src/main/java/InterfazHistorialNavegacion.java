@@ -1,23 +1,34 @@
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class InterfazHistorialNavegacion extends JFrame {
-    private JTextField urlTextField;
-    private JTextArea historialTextArea;
-    private JLabel paginaActualLabel;
-    private HistorialNavegacion historial;
+    private final JTextField urlTextField;
+    private final HistorialNavegacion historial;
     private WebView webView;
     private WebEngine webEngine;
+
+    private Map<String, String> programUrls = Map.of(
+            "Home", "file:///C:/Users/fran/Documents/Development/Java/SimpleBrowse/target/classes/templates/home.html",
+            "Error", "file:///C:/Users/fran/Documents/Development/Java/SimpleBrowse/target/classes/templates/error.html"
+    );
+
+    // bandera para saber si la navegación fue realizada por el usuario o por el historial
+    private boolean navegacionUsuario = false;
 
     public InterfazHistorialNavegacion() {
         historial = new HistorialNavegacion();
@@ -30,34 +41,61 @@ public class InterfazHistorialNavegacion extends JFrame {
             System.err.println("No se pudo establecer el aspecto del sistema.");
         }
 
+        try {
+            Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browser.png")));
+            setIconImage(icon);
+        } catch (
+                IOException e) {
+            e.printStackTrace();
+        }
+
         setTitle("SimpleBrowse");
-        setSize(1280, 720);
+        setSize(1280, 760);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Panel superior para la URL y botones de navegación
         JPanel panelSuperior = new JPanel();
-        panelSuperior.setLayout(new FlowLayout());
+        panelSuperior.setLayout(new BorderLayout());
 
-        // iconos para los botones
-//        ImageIcon retrocederIcon = new ImageIcon("src/main/resources/icons/retroceder.png");
-//        ImageIcon avanzarIcon = new ImageIcon("src/main/resources/icons/avanzar.png");
+        // Panel para botones de navegacion
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/left.png", 20, 20)));
+        ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/right.png", 20, 20)));
         ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/refresh.png", 20, 20)));
         ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/search.png", 20, 20)));
+        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/historial.png", 20, 20)));
 
-        JButton retrocederButton = new JButton("Retroceder");
-        JButton avanzarButton = new JButton("Avanzar");
+        // Creación de los botones y campos de texto
+        JButton retrocederButton = new JButton(retrocederIcon);
+        JButton avanzarButton = new JButton(avanzarIcon);
         JButton refrescarButton = new JButton(refrescarIcon);
-        urlTextField = new JTextField(40);
-        urlTextField.setPreferredSize(new Dimension(400, 30));
-        JButton visitarButton = new JButton(visitarIcon);
+        panelBotones.add(retrocederButton);
+        panelBotones.add(avanzarButton);
+        panelBotones.add(refrescarButton);
 
-        panelSuperior.add(retrocederButton);
-        panelSuperior.add(avanzarButton);
-        panelSuperior.add(refrescarButton);
-        panelSuperior.add(new JLabel("URL:"));
-        panelSuperior.add(urlTextField);
-        panelSuperior.add(visitarButton);
+        // Panel para el campo de texto y los botones de visitar e historial
+        JPanel panelURL = new JPanel();
+        panelURL.setLayout(new BorderLayout());
+        urlTextField = new JTextField(40);
+        panelURL.add(urlTextField, BorderLayout.CENTER);
+
+        JPanel panelVisitarHistorial = new JPanel();
+        panelVisitarHistorial.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton visitarButton = new JButton(visitarIcon);
+        JButton toggleHistorialButton = new JButton(toggleHistorialIcon);
+        panelVisitarHistorial.add(visitarButton);
+        panelVisitarHistorial.add(toggleHistorialButton);
+
+        panelURL.add(panelVisitarHistorial, BorderLayout.EAST);
+
+        panelSuperior.add(panelBotones, BorderLayout.WEST);
+        panelSuperior.add(panelURL, BorderLayout.CENTER);
+
         add(panelSuperior, BorderLayout.NORTH);
 
         // Panel central para mostrar el contenido web usando WebView (JavaFX)
@@ -69,23 +107,34 @@ public class InterfazHistorialNavegacion extends JFrame {
             webView = new WebView();
             webEngine = webView.getEngine();
             fxPanel.setScene(new Scene(webView));
-        });
 
-        // Panel inferior para mostrar el historial y la página actual
-        JPanel panelInferior = new JPanel();
-        paginaActualLabel = new JLabel("Página actual: Ninguna");
-        historialTextArea = new JTextArea(5, 20);
-        historialTextArea.setEditable(false);
-        panelInferior.setLayout(new BorderLayout());
-        panelInferior.add(paginaActualLabel, BorderLayout.NORTH);
-        panelInferior.add(new JScrollPane(historialTextArea), BorderLayout.CENTER);
-        add(panelInferior, BorderLayout.SOUTH);
+            // Listener para el cambio de URL en el WebView
+            webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
+                if (newState == Worker.State.SUCCEEDED) {
+                    String finalUrl = webEngine.getLocation();
+                    if (!navegacionUsuario && !programUrls.containsValue(finalUrl)) {
+                        historial.visitar(finalUrl);
+                    }
+                    navegacionUsuario = false;
+                    actualizarInterfaz();
+                }
+            });
+        });
 
         // Listeners para los botones
         visitarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 visitarPagina();
+            }
+        });
+
+        urlTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    visitarPagina();
+                }
             }
         });
 
@@ -110,6 +159,38 @@ public class InterfazHistorialNavegacion extends JFrame {
             }
         });
 
+        toggleHistorialButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String[] options = {"Eliminar", "Cerrar"};
+                String historialCompleto = historial.obtenerHistorialCompleto();
+                if (historialCompleto.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "El historial está vacío.");
+                } else {
+                    JScrollPane scrollPane = new JScrollPane(new JTextArea(historialCompleto));
+                    scrollPane.setPreferredSize(new Dimension(400, 300));
+                    scrollPane.setEnabled(false);
+
+                    int choice = JOptionPane.showOptionDialog(
+                            null,
+                            scrollPane,
+                            "Historial de Navegación",
+                            JOptionPane.DEFAULT_OPTION,
+                            JOptionPane.INFORMATION_MESSAGE,
+                            null,
+                            options,
+                            options[1]
+                    );
+
+                    if (choice == 0) { // Eliminar
+                        historial.deleteHistory();
+                        actualizarInterfaz();
+                        JOptionPane.showMessageDialog(null, "Historial eliminado.");
+                    }
+                }
+            }
+        });
+
         setVisible(true);
     }
 
@@ -118,14 +199,11 @@ public class InterfazHistorialNavegacion extends JFrame {
         String url = urlTextField.getText();
         if (!url.isEmpty()) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = "http://" + url; // agrega protocolo a la URL si no tiene
+                url = "https://" + url; // adds protocol to the URL if it doesn't have one
             }
             String finalUrl = url;
             Platform.runLater(() -> {
-                webEngine.load(finalUrl); // carga la página web en el WebView
-                historial.visitar(finalUrl);
-                actualizarInterfaz();
-                urlTextField.setText("");
+                webEngine.load(finalUrl); // loads the web page in the WebView
             });
         }
     }
@@ -134,9 +212,9 @@ public class InterfazHistorialNavegacion extends JFrame {
     private void retrocederPagina() {
         String urlAnterior = historial.retroceder();
         if (urlAnterior != null) {
+            navegacionUsuario = true;
             Platform.runLater(() -> {
                 webEngine.load(urlAnterior); // carga la página web anterior
-                actualizarInterfaz();
             });
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas anteriores.");
@@ -147,6 +225,7 @@ public class InterfazHistorialNavegacion extends JFrame {
     private void avanzarPagina() {
         String urlSiguiente = historial.avanzar();
         if (urlSiguiente != null) {
+            navegacionUsuario = true;
             Platform.runLater(() -> {
                 webEngine.load(urlSiguiente); // carga la página web siguiente
                 actualizarInterfaz();
@@ -167,12 +246,14 @@ public class InterfazHistorialNavegacion extends JFrame {
     private void actualizarInterfaz() {
         String urlActual = historial.obtenerURLActual();
         if (urlActual != null) {
-            paginaActualLabel.setText("Página actual: " + urlActual);
+            urlTextField.setText(urlActual);
         } else {
-            paginaActualLabel.setText("Página actual: Ninguna");
+            urlTextField.setText(""); // or set to a default message
+            Platform.runLater(() -> {
+                String homeUrl = Objects.requireNonNull(getClass().getResource("/templates/home.html")).toExternalForm();
+                webEngine.load(homeUrl);
+            });
         }
-
-        historialTextArea.setText(historial.obtenerHistorialCompleto());
     }
 
     public static void main(String[] args) {

@@ -1,7 +1,8 @@
 package dataStructures;
+
 import java.util.Iterator;
 
-public class LinkedList<T> {
+public class LinkedList<T> implements Iterable<T> {
     private Node<T> head;
     private Node<T> tail;
     private int size;
@@ -79,5 +80,25 @@ public class LinkedList<T> {
     // retorna tamaño de la lista
     public int size() {
         return size;
+    }
+
+    // retorna un iterador para recorrer la lista con un foreach
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private Node<T> current = head;
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public T next() {
+                T data = current.data;
+                current = current.next;
+                return data;
+            }
+        };
     }
 }
