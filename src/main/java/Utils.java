@@ -3,8 +3,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class Utils {
 
@@ -14,7 +12,7 @@ public class Utils {
             return originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         } catch (
                 IOException e) {
-            e.printStackTrace();
+            System.err.println("Error:  " + e.getMessage());
             return null;
         }
     }

@@ -8,14 +8,11 @@ import javafx.scene.web.WebView;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.Objects;
 
-public class InterfazHistorialNavegacion extends JFrame {
+public class BrowserX extends JFrame {
     private final JTextField urlTextField;
     private final HistorialNavegacion historial;
     private WebView webView;
@@ -29,14 +26,14 @@ public class InterfazHistorialNavegacion extends JFrame {
     // bandera para saber si la navegación fue realizada por el usuario o por el historial
     private boolean navegacionUsuario = false;
 
-    public InterfazHistorialNavegacion() {
+    public BrowserX() {
         historial = new HistorialNavegacion();
 
         try {
             FlatLightLaf.setup(); // Para el tema claro
             UIManager.setLookAndFeel(new FlatLightLaf());
-            // UIManager.getSystemLookAndFeelClassName() establece el aspecto del sistema
-//            UIManager.setLookAndFeel(new NimbusLookAndFeel());
+            // UIManager.getSystemLookAndFeelClassName() // Establece el aspecto del sistema
+            // UIManager.setLookAndFeel(new NimbusLookAndFeel()); // Establece el aspecto Nimbus
             Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browser.png")));
             setIconImage(icon);
         } catch (
@@ -44,7 +41,7 @@ public class InterfazHistorialNavegacion extends JFrame {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
 
-        setTitle("SimpleBrowse");
+        setTitle("BrowserX");
         setSize(1280, 760);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,6 +55,7 @@ public class InterfazHistorialNavegacion extends JFrame {
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
+        // Iconos para los botones
         ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/left.png", 25, 25)));
         ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/right.png", 25, 25)));
         ImageIcon homeIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 25, 25)));
@@ -81,6 +79,7 @@ public class InterfazHistorialNavegacion extends JFrame {
         urlTextField = new JTextField(40);
         panelURL.add(urlTextField, BorderLayout.CENTER);
 
+        // Panel para los botones de visitar e historial
         JPanel panelVisitarHistorial = new JPanel();
         panelVisitarHistorial.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
@@ -128,6 +127,52 @@ public class InterfazHistorialNavegacion extends JFrame {
         // Listeners para los botones
         visitarButton.addActionListener(e -> visitarPagina());
 
+        retrocederButton.addActionListener(e -> retrocederPagina());
+
+        avanzarButton.addActionListener(e -> avanzarPagina());
+
+        homeButton.addActionListener(e -> {
+            Platform.runLater(() -> {
+                webEngine.load("https://www.google.com");
+                webView = new WebView();
+                webEngine = webView.getEngine();
+            });
+            historial.deleteHistory();
+        });
+
+        refrescarButton.addActionListener(e -> refrescarPagina());
+
+        toggleHistorialButton.addActionListener(e -> {
+            String[] options = {"Eliminar", "Cerrar"};
+            String historialCompleto = historial.obtenerHistorialCompleto();
+            if (historialCompleto.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "El historial está vacío.");
+            } else {
+                JTextArea textArea = new JTextArea(historialCompleto);
+                textArea.setEditable(false);
+                JScrollPane scrollPane = new JScrollPane(textArea);
+                scrollPane.setPreferredSize(new Dimension(400, 300));
+
+                int choice = JOptionPane.showOptionDialog(
+                        null,
+                        scrollPane,
+                        "Historial de Navegación",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[1]
+                );
+
+                if (choice == 0) { // Eliminar
+                    historial.deleteHistory();
+                    actualizarInterfaz();
+                    JOptionPane.showMessageDialog(null, "Historial eliminado.");
+                }
+            }
+        });
+
+        // Listeners para el campo de texto
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -162,71 +207,6 @@ public class InterfazHistorialNavegacion extends JFrame {
             }
         });
 
-        retrocederButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                retrocederPagina();
-            }
-        });
-
-        avanzarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                avanzarPagina();
-            }
-        });
-
-        homeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Platform.runLater(() -> {
-                    webEngine.load("https://www.google.com");
-                });
-                historial.deleteHistory();
-                webView = new WebView();
-                webEngine = webView.getEngine();
-            }
-        });
-
-        refrescarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                refrescarPagina();
-            }
-        });
-
-        toggleHistorialButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String[] options = {"Eliminar", "Cerrar"};
-                String historialCompleto = historial.obtenerHistorialCompleto();
-                if (historialCompleto.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "El historial está vacío.");
-                } else {
-                    JScrollPane scrollPane = new JScrollPane(new JTextArea(historialCompleto));
-                    scrollPane.setPreferredSize(new Dimension(400, 300));
-                    scrollPane.setEnabled(false);
-
-                    int choice = JOptionPane.showOptionDialog(
-                            null,
-                            scrollPane,
-                            "Historial de Navegación",
-                            JOptionPane.DEFAULT_OPTION,
-                            JOptionPane.INFORMATION_MESSAGE,
-                            null,
-                            options,
-                            options[1]
-                    );
-
-                    if (choice == 0) { // Eliminar
-                        historial.deleteHistory();
-                        actualizarInterfaz();
-                        JOptionPane.showMessageDialog(null, "Historial eliminado.");
-                    }
-                }
-            }
-        });
-
         setVisible(true);
     }
 
@@ -238,9 +218,7 @@ public class InterfazHistorialNavegacion extends JFrame {
                 url = "http://" + url;
 
                 String finalUrl = url;
-                Platform.runLater(() -> {
-                    webEngine.load(finalUrl);
-                });
+                Platform.runLater(() -> webEngine.load(finalUrl));
             }
         }
     }
@@ -274,9 +252,7 @@ public class InterfazHistorialNavegacion extends JFrame {
 
     // refrescar la página actual
     private void refrescarPagina() {
-        Platform.runLater(() -> {
-            webEngine.reload();
-        });
+        Platform.runLater(() -> webEngine.reload());
     }
 
     // actualizar la interfaz grafica
@@ -288,16 +264,14 @@ public class InterfazHistorialNavegacion extends JFrame {
         } else {
             urlTextField.setText("Ingrese una URL o realiza una busqueda");
             urlTextField.setForeground(Color.GRAY);
-            Platform.runLater(() -> {
-                webEngine.load(defaultPages.get("Home"));
-            });
+            Platform.runLater(() -> webEngine.load(defaultPages.get("Home")));
         }
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new JFXPanel(); // Inicializar el toolkit de JavaFX
-            new InterfazHistorialNavegacion();
+            new BrowserX();
         });
     }
 }
