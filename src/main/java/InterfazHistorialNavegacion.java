@@ -140,6 +140,13 @@ public class InterfazHistorialNavegacion extends JFrame {
             }
         });
 
+        urlTextField.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                urlTextField.selectAll();
+            }
+        });
+
         urlTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
