@@ -57,6 +57,7 @@ public class InterfazHistorialNavegacion extends JFrame {
 
         ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/left.png", 20, 20)));
         ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/right.png", 20, 20)));
+        ImageIcon homeIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 20, 20)));
         ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 20, 20)));
         ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/search.png", 20, 20)));
         ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 20, 20)));
@@ -64,9 +65,11 @@ public class InterfazHistorialNavegacion extends JFrame {
         // Creación de los botones y campos de texto
         JButton retrocederButton = new JButton(retrocederIcon);
         JButton avanzarButton = new JButton(avanzarIcon);
+        JButton homeButton = new JButton(homeIcon);
         JButton refrescarButton = new JButton(refrescarIcon);
         panelBotones.add(retrocederButton);
         panelBotones.add(avanzarButton);
+        panelBotones.add(homeButton);
         panelBotones.add(refrescarButton);
 
         // Panel para el campo de texto y los botones de visitar e historial
@@ -167,6 +170,18 @@ public class InterfazHistorialNavegacion extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 avanzarPagina();
+            }
+        });
+
+        homeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Platform.runLater(() -> {
+                    webEngine.load("https://www.google.com");
+                });
+                historial.deleteHistory();
+                webView = new WebView();
+                webEngine = webView.getEngine();
             }
         });
 
