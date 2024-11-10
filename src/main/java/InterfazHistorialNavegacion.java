@@ -20,7 +20,7 @@ public class InterfazHistorialNavegacion extends JFrame {
     private WebView webView;
     private WebEngine webEngine;
 
-    private Map<String, String> defaultPages = Map.of(
+    private final Map<String, String> defaultPages = Map.of(
             "Home", Objects.requireNonNull(getClass().getResource("/templates/home.html")).toExternalForm(),
             "Error", Objects.requireNonNull(getClass().getResource("/templates/error.html")).toExternalForm()
     );
@@ -102,15 +102,17 @@ public class InterfazHistorialNavegacion extends JFrame {
 
             // Listener para el cambio de URL en el WebView
             webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
-                if (newState == Worker.State.SUCCEEDED) {
+                if (newState == Worker.State.RUNNING) {
                     String finalUrl = webEngine.getLocation();
-                    if (!navegacionUsuario && !defaultPages.containsValue(finalUrl)) {
+                    if (!navegacionUsuario) {
                         historial.visitar(finalUrl);
                     }
                     navegacionUsuario = false;
                     actualizarInterfaz();
                 }
             });
+            // Cargar la página inicial
+            webEngine.load("https://www.google.com");
         });
 
         // Listeners para los botones
@@ -191,11 +193,17 @@ public class InterfazHistorialNavegacion extends JFrame {
         String url = urlTextField.getText();
         if (!url.isEmpty()) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = "https://" + url; // adds protocol to the URL if it doesn't have one
+                try {
+                    url = "http://" + url; // agrega http:// si no está presente
+                } catch (
+                        Exception e) {
+                    // si la url no es valida, se busca en google
+                    url = "https://www.google.com/search?q=" + url.replace(" ", "+");
+                }
             }
             String finalUrl = url;
             Platform.runLater(() -> {
-                webEngine.load(finalUrl); // loads the web page in the WebView
+                webEngine.load(finalUrl);
             });
         }
     }
@@ -230,7 +238,7 @@ public class InterfazHistorialNavegacion extends JFrame {
     // refrescar la página actual
     private void refrescarPagina() {
         Platform.runLater(() -> {
-            webEngine.reload(); // recarga la página web actual
+            webEngine.reload();
         });
     }
 
@@ -238,12 +246,13 @@ public class InterfazHistorialNavegacion extends JFrame {
     private void actualizarInterfaz() {
         String urlActual = historial.obtenerURLActual();
         if (urlActual != null) {
+            urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
         } else {
-            urlTextField.setText(""); // or set to a default message
+            urlTextField.setText("Ingrese una URL o realiza una busqueda");
+            urlTextField.setForeground(Color.GRAY);
             Platform.runLater(() -> {
-                String homeUrl = defaultPages.get("Home");
-                webEngine.load(homeUrl);
+                webEngine.load(defaultPages.get("Home"));
             });
         }
     }

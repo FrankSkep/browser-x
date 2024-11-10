@@ -69,4 +69,8 @@ public class HistorialNavegacion {
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
+
+    public void deleteLastHistory() {
+        historialCompleto.removeLast();
+    }
 }
