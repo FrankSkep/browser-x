@@ -3,8 +3,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-public class UtilsUI {
+public class Utils {
 
     public static Image redimensionarImagen(String path, int width, int height) {
         try {
@@ -16,5 +18,4 @@ public class UtilsUI {
             return null;
         }
     }
-
 }

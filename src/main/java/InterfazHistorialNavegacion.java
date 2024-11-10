@@ -55,11 +55,11 @@ public class InterfazHistorialNavegacion extends JFrame {
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/left.png", 20, 20)));
-        ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/right.png", 20, 20)));
-        ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/refresh.png", 20, 20)));
-        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/search.png", 20, 20)));
-        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(UtilsUI.redimensionarImagen("src/main/resources/icons/historial.png", 20, 20)));
+        ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/left.png", 20, 20)));
+        ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/right.png", 20, 20)));
+        ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 20, 20)));
+        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/search.png", 20, 20)));
+        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 20, 20)));
 
         // Creación de los botones y campos de texto
         JButton retrocederButton = new JButton(retrocederIcon);
@@ -109,17 +109,34 @@ public class InterfazHistorialNavegacion extends JFrame {
                     }
                     navegacionUsuario = false;
                     actualizarInterfaz();
+                } else if (newState == Worker.State.FAILED) {
+                    urlTextField.setText("Ingresa una URL valida");
+                    urlTextField.setForeground(Color.RED);
                 }
             });
+
             // Cargar la página inicial
             webEngine.load("https://www.google.com");
         });
 
         // Listeners para los botones
-        visitarButton.addActionListener(new ActionListener() {
+        visitarButton.addActionListener(e -> visitarPagina());
+
+        urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                visitarPagina();
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                if (urlTextField.getText().equals("Ingresa una URL")) {
+                    urlTextField.setText("");
+                    urlTextField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                if (urlTextField.getText().isEmpty()) {
+                    urlTextField.setText("Ingresa una URL");
+                    urlTextField.setForeground(Color.GRAY);
+                }
             }
         });
 
@@ -193,18 +210,13 @@ public class InterfazHistorialNavegacion extends JFrame {
         String url = urlTextField.getText();
         if (!url.isEmpty()) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                try {
-                    url = "http://" + url; // agrega http:// si no está presente
-                } catch (
-                        Exception e) {
-                    // si la url no es valida, se busca en google
-                    url = "https://www.google.com/search?q=" + url.replace(" ", "+");
-                }
+                url = "http://" + url;
+
+                String finalUrl = url;
+                Platform.runLater(() -> {
+                    webEngine.load(finalUrl);
+                });
             }
-            String finalUrl = url;
-            Platform.runLater(() -> {
-                webEngine.load(finalUrl);
-            });
         }
     }
 
