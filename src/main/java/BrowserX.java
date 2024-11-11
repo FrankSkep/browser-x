@@ -62,6 +62,7 @@ public class BrowserX extends JFrame {
         ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 25, 25)));
         ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/navegar.png", 25, 25)));
         ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 25, 25)));
+        ImageIcon eliminarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/basura.png", 25, 25)));
 
         // Creación de los botones y campos de texto
         JButton retrocederButton = new JButton(retrocederIcon);
@@ -142,39 +143,12 @@ public class BrowserX extends JFrame {
                 webView = new WebView();
                 webEngine = webView.getEngine();
             });
-            historial.deleteHistory();
         });
 
         refrescarButton.addActionListener(e -> refrescarPagina());
 
         toggleHistorialButton.addActionListener(e -> {
-            String[] options = {"Eliminar", "Cerrar"};
-            String historialCompleto = historial.obtenerHistorialCompleto();
-            if (historialCompleto.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "El historial está vacío.");
-            } else {
-                JTextArea textArea = new JTextArea(historialCompleto);
-                textArea.setEditable(false);
-                JScrollPane scrollPane = new JScrollPane(textArea);
-                scrollPane.setPreferredSize(new Dimension(400, 300));
-
-                int choice = JOptionPane.showOptionDialog(
-                        null,
-                        scrollPane,
-                        "Historial de Navegación",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[1]
-                );
-
-                if (choice == 0) { // Eliminar
-                    historial.deleteHistory();
-                    actualizarInterfaz();
-                    JOptionPane.showMessageDialog(null, "Historial eliminado.");
-                }
-            }
+            mostrarVentanaHistorial();
         });
 
         // Listeners para el campo de texto
@@ -196,6 +170,7 @@ public class BrowserX extends JFrame {
             }
         });
 
+        // seleccionar todo al clickar la url actual
         urlTextField.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -235,7 +210,7 @@ public class BrowserX extends JFrame {
         if (urlAnterior != null) {
             navegacionUsuario = true;
             Platform.runLater(() -> {
-                webEngine.load(urlAnterior); // carga la página web anterior
+                webEngine.load(urlAnterior);
             });
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas anteriores.");
@@ -248,7 +223,7 @@ public class BrowserX extends JFrame {
         if (urlSiguiente != null) {
             navegacionUsuario = true;
             Platform.runLater(() -> {
-                webEngine.load(urlSiguiente); // carga la página web siguiente
+                webEngine.load(urlSiguiente);
                 actualizarInterfaz();
             });
         } else {
@@ -272,10 +247,40 @@ public class BrowserX extends JFrame {
         }
     }
 
+    private void mostrarVentanaHistorial() {
+        String[] options = {"Eliminar", "Cerrar"};
+        String historialCompleto = historial.obtenerHistorialCompleto();
+        if (historialCompleto.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "El historial está vacío.");
+        } else {
+            JTextArea textArea = new JTextArea(historialCompleto);
+            textArea.setEditable(false);
+            JScrollPane scrollPane = new JScrollPane(textArea);
+            scrollPane.setPreferredSize(new Dimension(400, 300));
+
+            int choice = JOptionPane.showOptionDialog(
+                    null,
+                    scrollPane,
+                    "Historial de Navegación",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[1]
+            );
+
+            if (choice == 0) { // Eliminar
+                historial.deleteHistory();
+                actualizarInterfaz();
+                JOptionPane.showMessageDialog(null, "Historial eliminado.");
+            }
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new JFXPanel(); // Inicializar el toolkit de JavaFX
-            new BrowserX();
+            new BrowserX(); // Crear la ventana principal
         });
     }
 }
