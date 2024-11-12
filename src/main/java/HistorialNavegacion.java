@@ -55,22 +55,13 @@ public class HistorialNavegacion {
         return historialCompleto.getLast();
     }
 
-    // obtiene el historial completo como un string para mostrarlo en la interfaz
-    public String obtenerHistorialCompleto() {
-        StringBuilder historial = new StringBuilder();
-        for (String url : historialCompleto) {
-            historial.append(url).append("\n");
-        }
-        return historial.toString();
-    }
-
     public void deleteHistory() {
         historialCompleto = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
 
-    public void deleteLastHistory() {
-        historialCompleto.removeLast();
+    public LinkedList<String> obtenerHistorialList() {
+        return historialCompleto;
     }
 }
