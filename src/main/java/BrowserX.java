@@ -139,8 +139,6 @@ public class BrowserX extends JFrame {
 
         homeButton.addActionListener(e -> Platform.runLater(() -> {
             webEngine.load("https://www.google.com");
-            webView = new WebView();
-            webEngine = webView.getEngine();
         }));
 
         refrescarButton.addActionListener(e -> refrescarPagina());
