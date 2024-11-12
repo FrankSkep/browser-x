@@ -1,4 +1,5 @@
 import com.formdev.flatlaf.FlatLightLaf;
+import data_structures.LinkedList;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
@@ -85,9 +86,9 @@ public class BrowserX extends JFrame {
         panelVisitarHistorial.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
         JButton visitarButton = new JButton(visitarIcon);
-        JButton toggleHistorialButton = new JButton(toggleHistorialIcon);
+        JButton showMenu = new JButton(toggleHistorialIcon);
         panelVisitarHistorial.add(visitarButton);
-        panelVisitarHistorial.add(toggleHistorialButton);
+        panelVisitarHistorial.add(showMenu);
 
         panelURL.add(panelVisitarHistorial, BorderLayout.EAST);
 
@@ -138,7 +139,7 @@ public class BrowserX extends JFrame {
 
         refrescarButton.addActionListener(e -> refrescarPagina());
 
-        toggleHistorialButton.addActionListener(e -> mostrarVentanaHistorial());
+        showMenu.addActionListener(e -> mostrarMenuEmergente(showMenu));
 
         // Listeners para el campo de texto
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -235,29 +236,57 @@ public class BrowserX extends JFrame {
         }
     }
 
+    private void mostrarMenuEmergente(JButton menuButton) {
+        JPopupMenu menuEmergente = new JPopupMenu();
+        JMenuItem item1 = new JMenuItem("Historial");
+        JMenuItem item2 = new JMenuItem("Favoritos");
+        JMenuItem item3 = new JMenuItem("Configuración");
+        Font font = new Font("Arial", Font.PLAIN, 16);
+        item1.setFont(font);
+        item2.setFont(font);
+        item3.setFont(font);
+        menuEmergente.add(item1);
+        menuEmergente.add(item2);
+        menuEmergente.add(item3);
+        menuEmergente.setPreferredSize(new Dimension(200, 150));
+
+        Point location = SwingUtilities.convertPoint(menuButton, 0, 0, this);
+        int x = location.x;
+        int y = location.y + menuButton.getHeight();
+
+        if (x + menuEmergente.getPreferredSize().width > getWidth()) {
+            x = getWidth() - menuEmergente.getPreferredSize().width;
+        }
+        menuEmergente.show(this, x, y);
+
+        item1.addActionListener(e -> mostrarVentanaHistorial());
+        item2.addActionListener(e -> JOptionPane.showMessageDialog(null, "Favoritos"));
+    }
+
     private void mostrarVentanaHistorial() {
-        String[] options = {"Eliminar", "Cerrar"};
-        String historialCompleto = historial.obtenerHistorialCompleto();
+        LinkedList<String> historialCompleto = historial.obtenerHistorialList();
+
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
         } else {
-            JTextArea textArea = new JTextArea(historialCompleto);
-            textArea.setEditable(false);
-            JScrollPane scrollPane = new JScrollPane(textArea);
+            // creacion del JList para mostrar el historial
+            DefaultListModel<String> listModel = new DefaultListModel<>();
+            JList<String> historialList = new JList<>(listModel);
+            JScrollPane scrollPane = new JScrollPane(historialList);
             scrollPane.setPreferredSize(new Dimension(400, 300));
 
-            int choice = JOptionPane.showOptionDialog(
-                    null,
-                    scrollPane,
-                    "Historial de Navegación",
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE,
-                    null,
-                    options,
-                    options[1]
+            // agregacion de los elementos al JList
+            for(String url : historialCompleto) {
+                listModel.addElement(url);
+            }
+
+            String[] options = {"Eliminar", "Cerrar"};
+            int choice = JOptionPane.showOptionDialog(null, scrollPane, "Historial de Navegación",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+                    options, options[1]
             );
 
-            if (choice == 0) { // Eliminar
+            if (choice == 0) {
                 historial.deleteHistory();
                 actualizarInterfaz();
                 JOptionPane.showMessageDialog(null, "Historial eliminado.");
