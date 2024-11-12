@@ -1,4 +1,4 @@
-package dataStructures;
+package data_structures;
 
 public class Stack<T> {
     private Node<T> top;

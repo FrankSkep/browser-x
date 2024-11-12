@@ -1,5 +1,5 @@
-import dataStructures.LinkedList;
-import dataStructures.Stack;
+import data_structures.LinkedList;
+import data_structures.Stack;
 
 public class HistorialNavegacion {
     private LinkedList<String> historialCompleto;

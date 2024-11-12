@@ -116,8 +116,8 @@ public class BrowserX extends JFrame {
                     navegacionUsuario = false;
                     actualizarInterfaz();
                 } else if (newState == Worker.State.FAILED) {
-                    urlTextField.setText("Ingrese una URL valida");
-                    urlTextField.setForeground(Color.RED);
+                    urlTextField.setText("");
+                    JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
 
@@ -126,12 +126,7 @@ public class BrowserX extends JFrame {
         });
 
         // Listeners para los botones
-        visitarButton.addActionListener(e -> {
-            if (urlTextField.getText().equals("Ingrese una URL") || urlTextField.getText().equals("Ingrese una URL valida")) {
-                urlTextField.setText("");
-            }
-            visitarPagina();
-        });
+        visitarButton.addActionListener(e -> visitarPagina());
 
         retrocederButton.addActionListener(e -> retrocederPagina());
 
@@ -149,7 +144,7 @@ public class BrowserX extends JFrame {
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
-                if (urlTextField.getText().equals("Ingrese una URL") || urlTextField.getText().equals("Ingrese una URL valida")) {
+                if (urlTextField.getText().equals("Ingrese una URL")) {
                     urlTextField.setText("");
                     urlTextField.setForeground(Color.BLACK);
                 }
@@ -187,6 +182,7 @@ public class BrowserX extends JFrame {
     // visitar una página nueva
     private void visitarPagina() {
         String url = urlTextField.getText();
+        url = url.equals("Ingrese una URL") ? "" : url;
         if (!url.isEmpty() || !url.isBlank()) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 url = "http://" + url;
@@ -194,7 +190,7 @@ public class BrowserX extends JFrame {
             String finalUrl = url;
             Platform.runLater(() -> webEngine.load(finalUrl));
         } else {
-            JOptionPane.showMessageDialog(this, "Por favor ingrese una URL valida.");
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese una URL.");
         }
     }
 
