@@ -137,19 +137,15 @@ public class BrowserX extends JFrame {
 
         avanzarButton.addActionListener(e -> avanzarPagina());
 
-        homeButton.addActionListener(e -> {
-            Platform.runLater(() -> {
-                webEngine.load("https://www.google.com");
-                webView = new WebView();
-                webEngine = webView.getEngine();
-            });
-        });
+        homeButton.addActionListener(e -> Platform.runLater(() -> {
+            webEngine.load("https://www.google.com");
+            webView = new WebView();
+            webEngine = webView.getEngine();
+        }));
 
         refrescarButton.addActionListener(e -> refrescarPagina());
 
-        toggleHistorialButton.addActionListener(e -> {
-            mostrarVentanaHistorial();
-        });
+        toggleHistorialButton.addActionListener(e -> mostrarVentanaHistorial());
 
         // Listeners para el campo de texto
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -209,9 +205,7 @@ public class BrowserX extends JFrame {
         String urlAnterior = historial.retroceder();
         if (urlAnterior != null) {
             navegacionUsuario = true;
-            Platform.runLater(() -> {
-                webEngine.load(urlAnterior);
-            });
+            Platform.runLater(() -> webEngine.load(urlAnterior));
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas anteriores.");
         }
