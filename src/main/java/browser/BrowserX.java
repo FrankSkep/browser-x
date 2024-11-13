@@ -44,7 +44,7 @@ public class BrowserX extends JFrame {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
 
-        setTitle("browser.BrowserX");
+        setTitle("BrowserX");
         setSize(1280, 760);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
