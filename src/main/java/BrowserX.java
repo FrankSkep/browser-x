@@ -127,8 +127,8 @@ public class BrowserX extends JFrame {
                 }
             });
 
-            // Cargar la página inicial
-            webEngine.load("https://www.google.com");
+            // carga pagina inicial (Google)
+            cargarURL("https://www.google.com");
         });
 
         // Listeners para los botones
@@ -138,7 +138,7 @@ public class BrowserX extends JFrame {
 
         avanzarButton.addActionListener(e -> avanzarPagina());
 
-        homeButton.addActionListener(e -> Platform.runLater(() -> webEngine.load("https://www.google.com")));
+        homeButton.addActionListener(e -> cargarURL("https://www.google.com"));
 
         refrescarButton.addActionListener(e -> refrescarPagina());
 
@@ -183,7 +183,7 @@ public class BrowserX extends JFrame {
         setVisible(true);
     }
 
-    // visitar una página nueva
+    // visitar una pagina nueva
     private void visitarPagina() {
         String url = urlTextField.getText();
         url = url.equals("Ingrese una URL") ? "" : url;
@@ -192,7 +192,7 @@ public class BrowserX extends JFrame {
                 url = "http://" + url;
             }
             String finalUrl = url;
-            Platform.runLater(() -> webEngine.load(finalUrl));
+            cargarURL(finalUrl);
         } else {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese una URL.");
         }
@@ -203,7 +203,7 @@ public class BrowserX extends JFrame {
         String urlAnterior = historial.retroceder();
         if (urlAnterior != null) {
             navegacionUsuario = true;
-            Platform.runLater(() -> webEngine.load(urlAnterior));
+            cargarURL(urlAnterior);
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas anteriores.");
         }
@@ -214,13 +214,14 @@ public class BrowserX extends JFrame {
         String urlSiguiente = historial.avanzar();
         if (urlSiguiente != null) {
             navegacionUsuario = true;
-            Platform.runLater(() -> {
-                webEngine.load(urlSiguiente);
-                actualizarInterfaz();
-            });
+            cargarURL(urlSiguiente);
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas siguientes.");
         }
+    }
+
+    private void cargarURL(String url) {
+        Platform.runLater(() -> webEngine.load(url));
     }
 
     // refrescar la página actual
@@ -298,7 +299,6 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     cerrarVentana(cerrarButton);
                     historial.deleteHistory();
-                    actualizarInterfaz();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
             });
@@ -310,13 +310,13 @@ public class BrowserX extends JFrame {
 
             // muestra historial y botones
             Object[] options = {eliminarButton, cerrarButton};
-            int choice = JOptionPane.showOptionDialog(null, scrollPane, "Historial de Navegación",
+            JOptionPane.showOptionDialog(null, scrollPane, "Historial de Navegación",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                    options, options[1]
-            );
+                    options, options[1]);
         }
     }
 
+    // obtiene la ventana padre y la cierra
     private void cerrarVentana(Component componente) {
         Window window = SwingUtilities.getWindowAncestor(componente);
         if (window != null) {
@@ -326,8 +326,8 @@ public class BrowserX extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new JFXPanel(); // Inicializar el toolkit de JavaFX
-            new BrowserX(); // Crear la ventana principal
+            new JFXPanel(); // Inicializacion de JavaFX
+            new BrowserX(); // Creacion ventana principal
         });
     }
 }
