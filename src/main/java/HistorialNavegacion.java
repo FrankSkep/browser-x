@@ -15,20 +15,20 @@ public class HistorialNavegacion {
     // Método para visitar una nueva página
     public void visitar(String url) {
         if (!historialCompleto.isEmpty()) {
-            pilaAtras.push(historialCompleto.getLast()); // agrega la página actual a la pila de retroceso
+            pilaAtras.push(historialCompleto.getLast());
         }
-        historialCompleto.addLast(url); // agrega la nueva URL al historial completo
-        pilaAdelante = new Stack<>(); // Limpia la pila de avance
+        historialCompleto.addLast(url);
+        pilaAdelante = new Stack<>();
     }
 
     // Método para retroceder en el historial
     public String retroceder() {
         if (!pilaAtras.isEmpty()) {
             String urlActual = historialCompleto.getLast();
-            pilaAdelante.push(urlActual); // Mueve la URL actual a la pila de avance
-            String urlAnterior = pilaAtras.pop(); // Obtiene la URL anterior de la pila de retroceso
-            historialCompleto.removeLast(); // Remueve la última URL del historial completo
-            historialCompleto.addLast(urlAnterior); // Establece la URL anterior como actual
+            pilaAdelante.push(urlActual);
+            String urlAnterior = pilaAtras.pop();
+            historialCompleto.removeLast();
+            historialCompleto.addLast(urlAnterior);
             return urlAnterior;
         }
         return null;
@@ -38,10 +38,10 @@ public class HistorialNavegacion {
     public String avanzar() {
         if (!pilaAdelante.isEmpty()) {
             String urlActual = historialCompleto.getLast();
-            pilaAtras.push(urlActual); // Mueve la URL actual a la pila de retroceso
-            String urlSiguiente = pilaAdelante.pop(); // Obtiene la URL siguiente de la pila de avance
-            historialCompleto.removeLast(); // Remueve la última URL del historial completo
-            historialCompleto.addLast(urlSiguiente); // Establece la URL siguiente como actual
+            pilaAtras.push(urlActual);
+            String urlSiguiente = pilaAdelante.pop();
+            historialCompleto.removeLast();
+            historialCompleto.addLast(urlSiguiente);
             return urlSiguiente;
         }
         return null;

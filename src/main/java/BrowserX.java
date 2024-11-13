@@ -63,17 +63,16 @@ public class BrowserX extends JFrame {
         ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 25, 25)));
         ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/navegar.png", 25, 25)));
         ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/menu.png", 25, 25)));
-        ImageIcon eliminarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/basura.png", 25, 25)));
 
         // Creación de los botones y campos de texto
         JButton retrocederButton = new JButton(retrocederIcon);
         JButton avanzarButton = new JButton(avanzarIcon);
         JButton homeButton = new JButton(homeIcon);
         JButton refrescarButton = new JButton(refrescarIcon);
-        retrocederButton.setMargin(new Insets(5, 5, 5, 5));
-        avanzarButton.setMargin(new Insets(5, 5, 5, 5));
-        homeButton.setMargin(new Insets(5, 5, 5, 5));
-        refrescarButton.setMargin(new Insets(5, 5, 5, 5));
+        retrocederButton.setMargin(new Insets(3, 3, 3, 3));
+        avanzarButton.setMargin(new Insets(3, 3, 3, 3));
+        homeButton.setMargin(new Insets(3, 3, 3, 3));
+        refrescarButton.setMargin(new Insets(3, 3, 3, 3));
         panelBotones.add(retrocederButton);
         panelBotones.add(avanzarButton);
         panelBotones.add(homeButton);
@@ -91,8 +90,8 @@ public class BrowserX extends JFrame {
 
         JButton visitarButton = new JButton(visitarIcon);
         JButton showMenu = new JButton(toggleHistorialIcon);
-        visitarButton.setMargin(new Insets(5, 5, 5, 5));
-        showMenu.setMargin(new Insets(5, 5, 5, 5));
+        visitarButton.setMargin(new Insets(3, 3, 3, 3));
+        showMenu.setMargin(new Insets(3, 3, 3, 3));
         panelVisitarHistorial.add(visitarButton);
         panelVisitarHistorial.add(showMenu);
 
@@ -139,9 +138,7 @@ public class BrowserX extends JFrame {
 
         avanzarButton.addActionListener(e -> avanzarPagina());
 
-        homeButton.addActionListener(e -> Platform.runLater(() -> {
-            webEngine.load("https://www.google.com");
-        }));
+        homeButton.addActionListener(e -> Platform.runLater(() -> webEngine.load("https://www.google.com")));
 
         refrescarButton.addActionListener(e -> refrescarPagina());
 
@@ -166,7 +163,7 @@ public class BrowserX extends JFrame {
             }
         });
 
-        // seleccionar todo al clickar la url actual
+        // Seleccionar todo el texto al hacer clic en el campo de texto
         urlTextField.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -237,8 +234,6 @@ public class BrowserX extends JFrame {
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
-        } else {
-            Platform.runLater(() -> webEngine.load("https://www.google.com"));
         }
     }
 
@@ -278,28 +273,54 @@ public class BrowserX extends JFrame {
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
         } else {
-            // creacion del JList para mostrar el historial
+            // JList para mostrar el historial
             DefaultListModel<String> listModel = new DefaultListModel<>();
             JList<String> historialList = new JList<>(listModel);
             JScrollPane scrollPane = new JScrollPane(historialList);
             scrollPane.setPreferredSize(new Dimension(400, 300));
 
-            // agregacion de los elementos al JList
-            for(String url : historialCompleto) {
+            // agg. historial al JList
+            for (String url : historialCompleto) {
                 listModel.addElement(url);
             }
 
-            String[] options = {"Eliminar", "Cerrar"};
+            ImageIcon eliminarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/basura.png", 20, 20)));
+            ImageIcon cerrarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/close.png", 20, 20)));
+
+            JButton eliminarButton = new JButton("Eliminar", eliminarIcon);
+            JButton cerrarButton = new JButton("Cerrar", cerrarIcon);
+
+            eliminarButton.setMargin(new Insets(3, 3, 3, 3));
+            cerrarButton.setMargin(new Insets(3, 3, 3, 3));
+
+            // accion para el boton de eliminar
+            eliminarButton.addActionListener(e -> {
+                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    cerrarVentana(cerrarButton);
+                    historial.deleteHistory();
+                    actualizarInterfaz();
+                    JOptionPane.showMessageDialog(null, "Historial eliminado.");
+                }
+            });
+
+            // accion para el botón de cerrar
+            cerrarButton.addActionListener(e -> {
+                cerrarVentana(cerrarButton);
+            });
+
+            // muestra historial y botones
+            Object[] options = {eliminarButton, cerrarButton};
             int choice = JOptionPane.showOptionDialog(null, scrollPane, "Historial de Navegación",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, options[1]
             );
+        }
+    }
 
-            if (choice == 0) {
-                historial.deleteHistory();
-                actualizarInterfaz();
-                JOptionPane.showMessageDialog(null, "Historial eliminado.");
-            }
+    private void cerrarVentana(Component componente) {
+        Window window = SwingUtilities.getWindowAncestor(componente);
+        if (window != null) {
+            window.dispose();
         }
     }
 
