@@ -62,7 +62,7 @@ public class BrowserX extends JFrame {
         ImageIcon homeIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 25, 25)));
         ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 25, 25)));
         ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/navegar.png", 25, 25)));
-        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 25, 25)));
+        ImageIcon toggleHistorialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/menu.png", 25, 25)));
         ImageIcon eliminarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/basura.png", 25, 25)));
 
         // Creación de los botones y campos de texto
@@ -70,6 +70,10 @@ public class BrowserX extends JFrame {
         JButton avanzarButton = new JButton(avanzarIcon);
         JButton homeButton = new JButton(homeIcon);
         JButton refrescarButton = new JButton(refrescarIcon);
+        retrocederButton.setMargin(new Insets(5, 5, 5, 5));
+        avanzarButton.setMargin(new Insets(5, 5, 5, 5));
+        homeButton.setMargin(new Insets(5, 5, 5, 5));
+        refrescarButton.setMargin(new Insets(5, 5, 5, 5));
         panelBotones.add(retrocederButton);
         panelBotones.add(avanzarButton);
         panelBotones.add(homeButton);
@@ -78,7 +82,7 @@ public class BrowserX extends JFrame {
         // Panel para el campo de texto y los botones de visitar e historial
         JPanel panelURL = new JPanel();
         panelURL.setLayout(new BorderLayout());
-        urlTextField = new JTextField(40);
+        urlTextField = new JTextField();
         panelURL.add(urlTextField, BorderLayout.CENTER);
 
         // Panel para los botones de visitar e historial
@@ -87,6 +91,8 @@ public class BrowserX extends JFrame {
 
         JButton visitarButton = new JButton(visitarIcon);
         JButton showMenu = new JButton(toggleHistorialIcon);
+        visitarButton.setMargin(new Insets(5, 5, 5, 5));
+        showMenu.setMargin(new Insets(5, 5, 5, 5));
         panelVisitarHistorial.add(visitarButton);
         panelVisitarHistorial.add(showMenu);
 
@@ -238,9 +244,12 @@ public class BrowserX extends JFrame {
 
     private void mostrarMenuEmergente(JButton menuButton) {
         JPopupMenu menuEmergente = new JPopupMenu();
-        JMenuItem item1 = new JMenuItem("Historial");
-        JMenuItem item2 = new JMenuItem("Favoritos");
-        JMenuItem item3 = new JMenuItem("Configuración");
+        ImageIcon historialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/historial.png", 25, 25)));
+        ImageIcon favoritosIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/favoritos.png", 25, 25)));
+        ImageIcon configuracionIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/configuracion.png", 25, 25)));
+        JMenuItem item1 = new JMenuItem("Historial", historialIcon);
+        JMenuItem item2 = new JMenuItem("Favoritos", favoritosIcon);
+        JMenuItem item3 = new JMenuItem("Configuración", configuracionIcon);
         Font font = new Font("Arial", Font.PLAIN, 16);
         item1.setFont(font);
         item2.setFont(font);
