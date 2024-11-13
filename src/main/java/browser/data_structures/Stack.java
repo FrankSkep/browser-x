@@ -1,4 +1,4 @@
-package data_structures;
+package browser.data_structures;
 
 public class Stack<T> {
     private Node<T> top;

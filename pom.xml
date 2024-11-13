@@ -54,11 +54,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.config.file>${project.basedir}/src/main/resources/logging.properties</java.util.logging.config.file>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
         </plugins>
 

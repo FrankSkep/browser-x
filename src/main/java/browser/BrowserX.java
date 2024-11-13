@@ -1,5 +1,7 @@
+package browser;
+
 import com.formdev.flatlaf.FlatLightLaf;
-import data_structures.LinkedList;
+import browser.data_structures.LinkedList;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
@@ -42,7 +44,7 @@ public class BrowserX extends JFrame {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
 
-        setTitle("BrowserX");
+        setTitle("browser.BrowserX");
         setSize(1280, 760);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

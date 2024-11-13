@@ -1,5 +1,7 @@
-import data_structures.LinkedList;
-import data_structures.Stack;
+package browser;
+
+import browser.data_structures.LinkedList;
+import browser.data_structures.Stack;
 
 public class HistorialNavegacion {
     private LinkedList<String> historialCompleto;
