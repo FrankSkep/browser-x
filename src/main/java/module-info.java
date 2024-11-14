@@ -4,4 +4,6 @@ module JavaFX {
     requires javafx.web;
     requires com.formdev.flatlaf;
     exports browser;
+    exports browser.ui;
+    exports browser.service;
 }

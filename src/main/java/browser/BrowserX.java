@@ -1,6 +1,8 @@
 package browser;
 
+import browser.ui.UI_Utils;
 import browser.data_structures.LinkedList;
+import browser.service.HistorialNavegacion;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -26,14 +28,13 @@ public class BrowserX extends JFrame {
             "Error", Objects.requireNonNull(getClass().getResource("/templates/error.html")).toExternalForm()
     );
 
-    // bandera para saber si la navegación fue realizada por el usuario o por el historial
+    // bandera para saber si la navegación fue natural o por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
     public BrowserX() {
         historial = new HistorialNavegacion();
 
         try {
-            FlatLightLaf.setup(); // Para el tema claro
             UIManager.setLookAndFeel(new FlatLightLaf());
             // UIManager.getSystemLookAndFeelClassName() // Establece el aspecto del sistema
             // UIManager.setLookAndFeel(new NimbusLookAndFeel()); // Establece el aspecto Nimbus
@@ -50,15 +51,11 @@ public class BrowserX extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Panel superior para la URL y botones de navegación
-        JPanel panelSuperior = new JPanel();
-        panelSuperior.setLayout(new BorderLayout());
-
         // Panel para botones de navegacion
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        // Creación de los botones y campos de texto
+        // Creación de los botones
         JButton retrocederButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
         JButton avanzarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
         JButton inicioBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/home.png", 25, 25, 3);
@@ -68,30 +65,30 @@ public class BrowserX extends JFrame {
         panelBotones.add(inicioBtn);
         panelBotones.add(refrescarButton);
 
-        // Panel para el campo de texto y los botones de visitar y menu
-        JPanel panelURL = new JPanel();
-        panelURL.setLayout(new BorderLayout());
-        urlTextField = new JTextField();
-        panelURL.add(urlTextField);
-        panelURL.add(urlTextField, BorderLayout.CENTER);
-
-        // Panel para los botones de visitar e historial
+        // Panel para los botones de visitar y menu
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
         JButton visitarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
         JButton showMenu = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
         panelMenu.add(visitarButton);
         panelMenu.add(showMenu);
 
+        // Panel para el campo de texto y los botones de visitar y menu
+        JPanel panelURL = new JPanel();
+        panelURL.setLayout(new BorderLayout());
+        urlTextField = new JTextField();
+        panelURL.add(urlTextField, BorderLayout.CENTER);
         panelURL.add(panelMenu, BorderLayout.EAST);
 
+        // Panel superior para la URL y botones de navegación
+        JPanel panelSuperior = new JPanel();
+        panelSuperior.setLayout(new BorderLayout());
         panelSuperior.add(panelBotones, BorderLayout.WEST);
         panelSuperior.add(panelURL, BorderLayout.CENTER);
 
         add(panelSuperior, BorderLayout.NORTH);
 
-        // Panel central para mostrar el contenido web usando WebView (JavaFX)
+        // Panel central para mostrar el WebView embebido de JavaFX en Swing
         JFXPanel fxPanel = new JFXPanel();
         add(fxPanel, BorderLayout.CENTER);
 
@@ -109,7 +106,7 @@ public class BrowserX extends JFrame {
                         historial.visitar(finalUrl);
                     }
                     navegacionUsuario = false;
-                    actualizarInterfaz();
+                    actualizarInterfazSwing();
                 } else if (newState == Worker.State.FAILED) {
                     urlTextField.setText("");
                     JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -209,6 +206,7 @@ public class BrowserX extends JFrame {
         }
     }
 
+    // carga una URL en el WebView
     private void cargarURL(String url) {
         Platform.runLater(() -> webEngine.load(url));
     }
@@ -218,8 +216,8 @@ public class BrowserX extends JFrame {
         Platform.runLater(() -> webEngine.reload());
     }
 
-    // actualizar la interfaz grafica
-    private void actualizarInterfaz() {
+    // actualizar la URL en el campo de texto
+    private void actualizarInterfazSwing() {
         String urlActual = historial.obtenerURLActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
@@ -227,6 +225,7 @@ public class BrowserX extends JFrame {
         }
     }
 
+    // muestra menu de opciones
     private void mostrarMenuEmergente(JButton menuButton) {
         // iconos para las opciones del menu
         ImageIcon historialIcon = UI_Utils.cargarIcono("src/main/resources/icons/record.png", 25, 25);
@@ -264,6 +263,7 @@ public class BrowserX extends JFrame {
         favoritosOpc.addActionListener(e -> JOptionPane.showMessageDialog(null, "Favoritos"));
     }
 
+    // crea y muestra ventana de historial de navegación
     private void mostrarVentanaHistorial() {
         LinkedList<String> historialCompleto = historial.obtenerHistorialList();
 

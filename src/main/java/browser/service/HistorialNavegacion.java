@@ -1,4 +1,4 @@
-package browser;
+package browser.service;
 
 import browser.data_structures.LinkedList;
 import browser.data_structures.Stack;

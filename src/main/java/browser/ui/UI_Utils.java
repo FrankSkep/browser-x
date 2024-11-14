@@ -1,4 +1,4 @@
-package browser;
+package browser.ui;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
