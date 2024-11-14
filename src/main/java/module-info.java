@@ -1,4 +1,4 @@
-module JFXApp {
+module JavaFX {
     requires javafx.graphics;
     requires javafx.swing;
     requires javafx.web;

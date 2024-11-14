@@ -1,7 +1,7 @@
 package browser;
 
-import com.formdev.flatlaf.FlatLightLaf;
 import browser.data_structures.LinkedList;
+import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
@@ -58,23 +58,11 @@ public class BrowserX extends JFrame {
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        // Iconos para los botones
-        ImageIcon retrocederIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/previous-page.png", 25, 25)));
-        ImageIcon avanzarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/next-page.png", 25, 25)));
-        ImageIcon inicioIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/home.png", 25, 25)));
-        ImageIcon refrescarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/refresh.png", 25, 25)));
-        ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/browse.png", 25, 25)));
-        ImageIcon menuIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/menu.png", 25, 25)));
-
         // Creación de los botones y campos de texto
-        JButton retrocederButton = new JButton(retrocederIcon);
-        JButton avanzarButton = new JButton(avanzarIcon);
-        JButton inicioBtn = new JButton(inicioIcon);
-        JButton refrescarButton = new JButton(refrescarIcon);
-        retrocederButton.setMargin(new Insets(3, 3, 3, 3));
-        avanzarButton.setMargin(new Insets(3, 3, 3, 3));
-        inicioBtn.setMargin(new Insets(3, 3, 3, 3));
-        refrescarButton.setMargin(new Insets(3, 3, 3, 3));
+        JButton retrocederButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
+        JButton avanzarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
+        JButton inicioBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/home.png", 25, 25, 3);
+        JButton refrescarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/refresh.png", 25, 25, 3);
         panelBotones.add(retrocederButton);
         panelBotones.add(avanzarButton);
         panelBotones.add(inicioBtn);
@@ -91,10 +79,8 @@ public class BrowserX extends JFrame {
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-        JButton visitarButton = new JButton(visitarIcon);
-        JButton showMenu = new JButton(menuIcon);
-        visitarButton.setMargin(new Insets(3, 3, 3, 3));
-        showMenu.setMargin(new Insets(3, 3, 3, 3));
+        JButton visitarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
+        JButton showMenu = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
         panelMenu.add(visitarButton);
         panelMenu.add(showMenu);
 
@@ -243,9 +229,9 @@ public class BrowserX extends JFrame {
 
     private void mostrarMenuEmergente(JButton menuButton) {
         // iconos para las opciones del menu
-        ImageIcon historialIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/record.png", 25, 25)));
-        ImageIcon favoritosIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/favoritos.png", 25, 25)));
-        ImageIcon configuracionIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/settings.png", 25, 25)));
+        ImageIcon historialIcon = UI_Utils.cargarIcono("src/main/resources/icons/record.png", 25, 25);
+        ImageIcon favoritosIcon = UI_Utils.cargarIcono("src/main/resources/icons/favoritos.png", 25, 25);
+        ImageIcon configuracionIcon = UI_Utils.cargarIcono("src/main/resources/icons/settings.png", 25, 25);
 
         // botones del menu
         JMenuItem historialOpc = new JMenuItem("Historial", historialIcon);
@@ -295,13 +281,9 @@ public class BrowserX extends JFrame {
                 listModel.addElement(url);
             }
 
-            ImageIcon eliminarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/trash.png", 20, 20)));
-            ImageIcon cerrarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/close.png", 20, 20)));
-            ImageIcon visitarIcon = new ImageIcon(Objects.requireNonNull(Utils.redimensionarImagen("src/main/resources/icons/browse.png", 20, 20)));
-
-            JButton eliminarButton = new JButton("Borrar historial", eliminarIcon);
-            JButton visitar = new JButton("Abrir", visitarIcon);
-            JButton cerrarButton = new JButton("Cerrar", cerrarIcon);
+            JButton eliminarButton = UI_Utils.crearBotonConIcono("Borrar historial", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton visitar = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
+            JButton cerrarButton = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
             // accion para el boton de eliminar
             eliminarButton.addActionListener(e -> {
