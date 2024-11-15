@@ -4,7 +4,6 @@ public class Stack<T> {
     private Node<T> top;
     private int size;
 
-    // Clase interna Node
     private static class Node<T> {
         T data;
         Node<T> next;
@@ -36,8 +35,7 @@ public class Stack<T> {
         return data;
     }
 
-    // ver el elemento del tope sin quitarlo
-    public T peek() {
+    public T top() {
         if (isEmpty()) {
             throw new RuntimeException("La pila está vacía");
         }

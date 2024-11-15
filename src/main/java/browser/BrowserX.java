@@ -23,11 +23,6 @@ public class BrowserX extends JFrame {
     private WebView webView;
     private WebEngine webEngine;
 
-    private final Map<String, String> defaultPages = Map.of(
-            "Home", Objects.requireNonNull(getClass().getResource("/templates/home.html")).toExternalForm(),
-            "Error", Objects.requireNonNull(getClass().getResource("/templates/error.html")).toExternalForm()
-    );
-
     // bandera para saber si la navegación fue natural o por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
