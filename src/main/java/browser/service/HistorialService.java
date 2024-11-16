@@ -3,18 +3,17 @@ package browser.service;
 import browser.data_structures.LinkedList;
 import browser.data_structures.Stack;
 
-public class HistorialNavegacion {
+public class HistorialService {
     private LinkedList<String> historialCompleto;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
 
-    public HistorialNavegacion() {
+    public HistorialService() {
         historialCompleto = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
 
-    // Método para visitar una nueva página
     public void visitar(String url) {
         if (!historialCompleto.isEmpty()) {
             pilaAtras.push(historialCompleto.getLast());
@@ -23,7 +22,6 @@ public class HistorialNavegacion {
         pilaAdelante = new Stack<>();
     }
 
-    // Método para retroceder en el historial
     public String retroceder() {
         if (!pilaAtras.isEmpty()) {
             String urlActual = historialCompleto.getLast();
@@ -36,7 +34,6 @@ public class HistorialNavegacion {
         return null;
     }
 
-    // avanzar en el historial
     public String avanzar() {
         if (!pilaAdelante.isEmpty()) {
             String urlActual = historialCompleto.getLast();
@@ -49,7 +46,6 @@ public class HistorialNavegacion {
         return null;
     }
 
-    // obtiene la URL actual
     public String obtenerURLActual() {
         if (historialCompleto.isEmpty()) {
             return null;
