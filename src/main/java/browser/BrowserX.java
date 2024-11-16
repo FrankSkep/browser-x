@@ -57,24 +57,24 @@ public class BrowserX extends JFrame {
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         // Creación de los botones
-        JButton retrocederButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
-        JButton avanzarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
+        JButton retrocederBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
+        JButton avanzarBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
         JButton inicioBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/home.png", 25, 25, 3);
-        JButton refrescarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/refresh.png", 25, 25, 3);
-        panelBotones.add(retrocederButton);
-        panelBotones.add(avanzarButton);
+        JButton refrescarBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/refresh.png", 25, 25, 3);
+        panelBotones.add(retrocederBtn);
+        panelBotones.add(avanzarBtn);
         panelBotones.add(inicioBtn);
-        panelBotones.add(refrescarButton);
+        panelBotones.add(refrescarBtn);
 
         // Panel para los botones de visitar y menu
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        JButton visitarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
-        JButton favoritosButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
-        JButton showMenu = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
-        panelMenu.add(visitarButton);
-        panelMenu.add(favoritosButton);
-        panelMenu.add(showMenu);
+        JButton visitarBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
+        JButton favoritosBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
+        JButton showMenuBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
+        panelMenu.add(visitarBtn);
+        panelMenu.add(favoritosBtn);
+        panelMenu.add(showMenuBtn);
 
         // Panel para el campo de texto y los botones de visitar y menu
         JPanel panelURL = new JPanel();
@@ -121,13 +121,13 @@ public class BrowserX extends JFrame {
         });
 
         // Listeners para los botones
-        retrocederButton.addActionListener(e -> retrocederPagina());
-        avanzarButton.addActionListener(e -> avanzarPagina());
+        retrocederBtn.addActionListener(e -> retrocederPagina());
+        avanzarBtn.addActionListener(e -> avanzarPagina());
         inicioBtn.addActionListener(e -> cargarURL("https://www.google.com"));
-        refrescarButton.addActionListener(e -> refrescarPagina());
-        visitarButton.addActionListener(e -> visitarPagina());
-        favoritosButton.addActionListener(e -> agregarFavorito());
-        showMenu.addActionListener(e -> mostrarMenuEmergente(showMenu));
+        refrescarBtn.addActionListener(e -> refrescarPagina());
+        visitarBtn.addActionListener(e -> visitarPagina());
+        favoritosBtn.addActionListener(e -> agregarFavorito());
+        showMenuBtn.addActionListener(e -> mostrarMenuEmergente(showMenuBtn));
 
         // Listeners para el campo de texto
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -164,8 +164,17 @@ public class BrowserX extends JFrame {
                 }
             }
         });
-
         setVisible(true);
+    }
+
+    // carga una URL en el WebView
+    private void cargarURL(String url) {
+        Platform.runLater(() -> webEngine.load(url));
+    }
+
+    // refrescar la página actual
+    private void refrescarPagina() {
+        Platform.runLater(() -> webEngine.reload());
     }
 
     // visitar una pagina nueva
@@ -203,16 +212,6 @@ public class BrowserX extends JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "No hay páginas siguientes.");
         }
-    }
-
-    // carga una URL en el WebView
-    private void cargarURL(String url) {
-        Platform.runLater(() -> webEngine.load(url));
-    }
-
-    // refrescar la página actual
-    private void refrescarPagina() {
-        Platform.runLater(() -> webEngine.reload());
     }
 
     // actualizar la URL en el campo de texto
@@ -288,7 +287,7 @@ public class BrowserX extends JFrame {
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    cerrarVentana(cerrarBtn);
+                    UI_Utils.cerrarVentana(cerrarBtn);
                     historial.deleteHistory();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -297,9 +296,9 @@ public class BrowserX extends JFrame {
             eliminarBtn.addActionListener(e -> {
                 int selectedRow = historialTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    tableModel.removeRow(selectedRow);
                     String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
-                    historialCompleto.remove(urlSeleccionada); // proximamente, pasar esto a HistorialService
+                    historialCompleto.remove(urlSeleccionada);
+                    tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona una entrada.");
@@ -311,15 +310,13 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
                     cargarURL(urlSeleccionada);
-                    cerrarVentana(cerrarBtn);
+                    UI_Utils.cerrarVentana(cerrarBtn);
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona una URL.");
                 }
             });
 
-            cerrarBtn.addActionListener(e -> {
-                cerrarVentana(cerrarBtn);
-            });
+            cerrarBtn.addActionListener(e -> UI_Utils.cerrarVentana(cerrarBtn));
 
             // Mostrar historial y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
@@ -329,6 +326,7 @@ public class BrowserX extends JFrame {
         }
     }
 
+    // agrega una URL a favoritos
     private void agregarFavorito() {
         String url = urlTextField.getText();
         if (url.equals("Ingrese una URL") || url.isEmpty()) {
@@ -348,6 +346,7 @@ public class BrowserX extends JFrame {
         }
     }
 
+    // crea y muestra ventana de favoritos
     private void mostrarVentanaFavoritos() {
         HashMap<String, String> favoritosMap = favoritos.obtenerFavoritos();
 
@@ -379,7 +378,7 @@ public class BrowserX extends JFrame {
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    cerrarVentana(cerrarBtn);
+                    UI_Utils.cerrarVentana(cerrarBtn);
                     favoritos.eliminarFavoritos();
                     JOptionPane.showMessageDialog(null, "Favoritos eliminados.");
                 }
@@ -402,15 +401,13 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
                     cargarURL(urlFavorito);
-                    cerrarVentana(cerrarBtn);
+                    UI_Utils.cerrarVentana(cerrarBtn);
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
                 }
             });
 
-            cerrarBtn.addActionListener(e -> {
-                cerrarVentana(cerrarBtn);
-            });
+            cerrarBtn.addActionListener(e -> UI_Utils.cerrarVentana(cerrarBtn));
 
             // Mostrar favoritos y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
@@ -420,17 +417,9 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // obtiene la ventana padre y la cierra
-    private void cerrarVentana(Component componente) {
-        Window window = SwingUtilities.getWindowAncestor(componente);
-        if (window != null) {
-            window.dispose();
-        }
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new JFXPanel(); // Inicializacion de JavaFX
+            new JFXPanel(); // Inicializacion JavaFX
             new BrowserX(); // Creacion ventana principal
         });
     }

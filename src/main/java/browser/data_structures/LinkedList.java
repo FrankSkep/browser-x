@@ -77,6 +77,7 @@ public class LinkedList<T> implements Iterable<T> {
         return size == 0;
     }
 
+    // elimina un elemento de la lista
     public boolean remove(T data) {
         Node<T> current = head;
         while (current != null) {

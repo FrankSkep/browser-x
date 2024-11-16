@@ -43,4 +43,12 @@ public class UI_Utils {
     public static ImageIcon cargarIcono(String ruta, int ancho, int alto) {
         return new ImageIcon(Objects.requireNonNull(redimensionarImagen(ruta, ancho, alto)));
     }
+
+    // obtiene la ventana padre y la cierra
+    public static void cerrarVentana(Component componente) {
+        Window window = SwingUtilities.getWindowAncestor(componente);
+        if (window != null) {
+            window.dispose();
+        }
+    }
 }

@@ -6,10 +6,9 @@ import java.sql.SQLException;
 
 public class Db_Connection {
 
-    private static String DATABASE_PATH = "src/main/resources/browser.db";
+    private static final String DATABASE_PATH = "src/main/resources/browser.db";
 
     public static void initializeDatabase() {
-        // Crear las tablas después de inicializar la conexión si es necesario
         try (Connection conn = getConnection()) {
             Db_Initializer.initializeTables(conn);
         } catch (
@@ -18,7 +17,6 @@ public class Db_Connection {
         }
     }
 
-    // Obtener conexion
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:" + DATABASE_PATH);
     }
