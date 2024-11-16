@@ -270,7 +270,12 @@ public class BrowserX extends JFrame {
         } else {
             // Crear un modelo de tabla para mostrar el historial
             String[] columnNames = {"URL"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
             JTable historialTable = new JTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(historialTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
@@ -281,7 +286,7 @@ public class BrowserX extends JFrame {
             }
 
             JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todo", "src/main/resources/icons/trash.png", 20, 20, null);
-            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
             JButton visitarBtn = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
             JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
@@ -351,11 +356,16 @@ public class BrowserX extends JFrame {
         HashMap<String, String> favoritosMap = favoritos.obtenerFavoritos();
 
         if (favoritosMap.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Aun no tienes favoritos!.");
+            JOptionPane.showMessageDialog(null, "No hay favoritos.");
         } else {
             // Crear un modelo de tabla para mostrar los favoritos
             String[] columnNames = {"Nombre", "URL"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
             JTable favoritosTable = new JTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(favoritosTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
@@ -371,7 +381,7 @@ public class BrowserX extends JFrame {
             }
 
             JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todos", "src/main/resources/icons/trash.png", 20, 20, null);
-            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
             JButton visitarBtn = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
             JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
@@ -387,10 +397,12 @@ public class BrowserX extends JFrame {
             eliminarBtn.addActionListener(e -> {
                 int selectedRow = favoritosTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
-                    favoritos.eliminarFavorito(nombreFavorito);
-                    tableModel.removeRow(selectedRow);
-                    JOptionPane.showMessageDialog(null, "Favorito eliminado.");
+                    if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                        String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
+                        favoritos.eliminarFavorito(nombreFavorito);
+                        tableModel.removeRow(selectedRow);
+                        JOptionPane.showMessageDialog(null, "Favorito eliminado.");
+                    }
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
                 }
