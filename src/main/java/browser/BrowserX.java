@@ -338,15 +338,17 @@ public class BrowserX extends JFrame {
             JOptionPane.showMessageDialog(this, "No hay URL para agregar a favoritos.");
         } else {
             String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
-            if (!nombre.isEmpty() && !nombre.isBlank()) {
-                if (favoritos.existeFavorito(url)) {
-                    JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
+            if (nombre != null) {
+                if (!nombre.isEmpty() && !nombre.isBlank()) {
+                    if (favoritos.existeFavorito(url)) {
+                        JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
+                    } else {
+                        favoritos.insertarFavorito(nombre, url);
+                        JOptionPane.showMessageDialog(this, "Favorito agregado.");
+                    }
                 } else {
-                    favoritos.insertarFavorito(nombre, url);
-                    JOptionPane.showMessageDialog(this, "Favorito agregado.");
+                    JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
             }
         }
     }
