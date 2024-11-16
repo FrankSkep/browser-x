@@ -77,6 +77,30 @@ public class LinkedList<T> implements Iterable<T> {
         return size == 0;
     }
 
+    public boolean remove(T data) {
+        Node<T> current = head;
+        while (current != null) {
+            if (current.data.equals(data)) {
+                if (current == head) {
+                    head = head.next;
+                    if (head != null) {
+                        head.prev = null;
+                    }
+                } else if (current == tail) {
+                    tail = tail.prev;
+                    tail.next = null;
+                } else {
+                    current.prev.next = current.next;
+                    current.next.prev = current.prev;
+                }
+                size--;
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
     // retorna tamaño de la lista
     public int size() {
         return size;

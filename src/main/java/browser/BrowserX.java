@@ -1,8 +1,10 @@
 package browser;
 
+import browser.database.Db_Connection;
+import browser.service.FavoritoService;
 import browser.ui.UI_Utils;
 import browser.data_structures.LinkedList;
-import browser.service.HistorialNavegacion;
+import browser.service.HistorialService;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -11,15 +13,15 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.Map;
-import java.util.Objects;
+import java.util.HashMap;
 
 public class BrowserX extends JFrame {
     private final JTextField urlTextField;
-    private final HistorialNavegacion historial;
+    private final HistorialService historial;
+    private final FavoritoService favoritos;
     private WebView webView;
     private WebEngine webEngine;
 
@@ -27,18 +29,22 @@ public class BrowserX extends JFrame {
     private boolean navegacionUsuario = false;
 
     public BrowserX() {
-        historial = new HistorialNavegacion();
+        Db_Connection.initializeDatabase();
+        historial = new HistorialService();
+        favoritos = new FavoritoService();
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
             // UIManager.getSystemLookAndFeelClassName() // Establece el aspecto del sistema
             // UIManager.setLookAndFeel(new NimbusLookAndFeel()); // Establece el aspecto Nimbus
-            Image icon = ImageIO.read(Objects.requireNonNull(getClass().getResource("/icons/browserx-icon.png")));
-            setIconImage(icon);
         } catch (
                 Exception e) {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
+        // icono ventana
+        ImageIcon iconoBase = new ImageIcon("src/main/resources/icons/browser-icon.png");
+        Image iconoRedimensionado = iconoBase.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+        setIconImage(iconoRedimensionado);
 
         setTitle("BrowserX");
         setSize(1280, 760);
@@ -64,8 +70,10 @@ public class BrowserX extends JFrame {
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
         JButton visitarButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
+        JButton favoritosButton = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
         JButton showMenu = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
         panelMenu.add(visitarButton);
+        panelMenu.add(favoritosButton);
         panelMenu.add(showMenu);
 
         // Panel para el campo de texto y los botones de visitar y menu
@@ -113,16 +121,12 @@ public class BrowserX extends JFrame {
         });
 
         // Listeners para los botones
-        visitarButton.addActionListener(e -> visitarPagina());
-
         retrocederButton.addActionListener(e -> retrocederPagina());
-
         avanzarButton.addActionListener(e -> avanzarPagina());
-
         inicioBtn.addActionListener(e -> cargarURL("https://www.google.com"));
-
         refrescarButton.addActionListener(e -> refrescarPagina());
-
+        visitarButton.addActionListener(e -> visitarPagina());
+        favoritosButton.addActionListener(e -> agregarFavorito());
         showMenu.addActionListener(e -> mostrarMenuEmergente(showMenu));
 
         // Listeners para el campo de texto
@@ -255,7 +259,7 @@ public class BrowserX extends JFrame {
         menuEmergente.show(this, x, y);
 
         historialOpc.addActionListener(e -> mostrarVentanaHistorial());
-        favoritosOpc.addActionListener(e -> JOptionPane.showMessageDialog(null, "Favoritos"));
+        favoritosOpc.addActionListener(e -> mostrarVentanaFavoritos());
     }
 
     // crea y muestra ventana de historial de navegación
@@ -265,49 +269,152 @@ public class BrowserX extends JFrame {
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
         } else {
-            // JList para mostrar el historial
-            DefaultListModel<String> listModel = new DefaultListModel<>();
-            JList<String> historialList = new JList<>(listModel);
-            JScrollPane scrollPane = new JScrollPane(historialList);
-            scrollPane.setPreferredSize(new Dimension(400, 300));
+            // Crear un modelo de tabla para mostrar el historial
+            String[] columnNames = {"URL"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            JTable historialTable = new JTable(tableModel);
+            JScrollPane scrollPane = new JScrollPane(historialTable);
+            scrollPane.setPreferredSize(new Dimension(500, 300));
 
-            // agg. historial al JList
+            // Agregar historial al modelo de la tabla
             for (String url : historialCompleto) {
-                listModel.addElement(url);
+                tableModel.addRow(new Object[]{url});
             }
 
-            JButton eliminarButton = UI_Utils.crearBotonConIcono("Borrar historial", "src/main/resources/icons/trash.png", 20, 20, null);
-            JButton visitar = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
-            JButton cerrarButton = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
+            JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todo", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton visitarBtn = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
+            JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
-            // accion para el boton de eliminar
-            eliminarButton.addActionListener(e -> {
-                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    cerrarVentana(cerrarButton);
+            eliminarTodoBtn.addActionListener(e -> {
+                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    cerrarVentana(cerrarBtn);
                     historial.deleteHistory();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
             });
 
-            // accion para el botón de visitar
-            visitar.addActionListener(e -> {
-                String urlSeleccionada = historialList.getSelectedValue();
-                if (urlSeleccionada != null) {
+            eliminarBtn.addActionListener(e -> {
+                int selectedRow = historialTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    tableModel.removeRow(selectedRow);
+                    String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
+                    historialCompleto.remove(urlSeleccionada); // proximamente, pasar esto a HistorialService
+                    JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Por favor, selecciona una entrada.");
+                }
+            });
+
+            visitarBtn.addActionListener(e -> {
+                int selectedRow = historialTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
                     cargarURL(urlSeleccionada);
-                    cerrarVentana(cerrarButton);
+                    cerrarVentana(cerrarBtn);
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona una URL.");
                 }
             });
 
-            // accion para el botón de cerrar
-            cerrarButton.addActionListener(e -> {
-                cerrarVentana(cerrarButton);
+            cerrarBtn.addActionListener(e -> {
+                cerrarVentana(cerrarBtn);
             });
 
-            // muestra historial y botones
-            Object[] options = {eliminarButton, visitar, cerrarButton};
+            // Mostrar historial y botones
+            Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
             JOptionPane.showOptionDialog(null, scrollPane, "Historial de Navegación",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+                    options, null);
+        }
+    }
+
+    private void agregarFavorito() {
+        String url = urlTextField.getText();
+        if (url.equals("Ingrese una URL") || url.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay URL para agregar a favoritos.");
+        } else {
+            String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
+            if (nombre != null && !nombre.isEmpty()) {
+                if (favoritos.existeFavorito(url)) {
+                    JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
+                } else {
+                    favoritos.insertarFavorito(nombre, url);
+                    JOptionPane.showMessageDialog(this, "Favorito agregado.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
+            }
+        }
+    }
+
+    private void mostrarVentanaFavoritos() {
+        HashMap<String, String> favoritosMap = favoritos.obtenerFavoritos();
+
+        if (favoritosMap.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Aun no tienes favoritos!.");
+        } else {
+            // Crear un modelo de tabla para mostrar los favoritos
+            String[] columnNames = {"Nombre", "URL"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            JTable favoritosTable = new JTable(tableModel);
+            JScrollPane scrollPane = new JScrollPane(favoritosTable);
+            scrollPane.setPreferredSize(new Dimension(500, 300));
+
+            // Ajustar el ancho de las columnas
+            favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150); // Columna "Nombre" más corta
+            favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350); // Columna "URL" más ancha
+
+            // Agregar favoritos al modelo de la tabla
+            for (String nombreFavorito : favoritosMap.keySet()) {
+                String urlFavorito = favoritosMap.get(nombreFavorito);
+                tableModel.addRow(new Object[]{nombreFavorito, urlFavorito});
+            }
+
+            JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todos", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton visitarBtn = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
+            JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
+
+
+            eliminarTodoBtn.addActionListener(e -> {
+                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    cerrarVentana(cerrarBtn);
+                    favoritos.eliminarFavoritos();
+                    JOptionPane.showMessageDialog(null, "Favoritos eliminados.");
+                }
+            });
+
+            eliminarBtn.addActionListener(e -> {
+                int selectedRow = favoritosTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
+                    favoritos.eliminarFavorito(nombreFavorito);
+                    tableModel.removeRow(selectedRow);
+                    JOptionPane.showMessageDialog(null, "Favorito eliminado.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
+                }
+            });
+
+            visitarBtn.addActionListener(e -> {
+                int selectedRow = favoritosTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
+                    cargarURL(urlFavorito);
+                    cerrarVentana(cerrarBtn);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
+                }
+            });
+
+            cerrarBtn.addActionListener(e -> {
+                cerrarVentana(cerrarBtn);
+            });
+
+            // Mostrar favoritos y botones
+            Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
+            JOptionPane.showOptionDialog(null, scrollPane, "Favoritos",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, null);
         }
