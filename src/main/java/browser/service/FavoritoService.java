@@ -1,6 +1,7 @@
 package browser.service;
 
 import browser.dao.FavoritosDAO;
+import browser.model.Favorito;
 
 import java.util.HashMap;
 
@@ -13,9 +14,9 @@ public class FavoritoService {
         favoritos.putAll(FavoritosDAO.getInstance().obtenerTodos());
     }
 
-    public void insertarFavorito(String nombre, String url) {
-        favoritos.put(nombre, url);
-        FavoritosDAO.getInstance().guardar(nombre, url);
+    public void insertarFavorito(Favorito favorito) {
+        favoritos.put(favorito.getNombre(), favorito.getUrl());
+        FavoritosDAO.getInstance().guardar(favorito);
     }
 
     public void eliminarFavorito(String nombre) {

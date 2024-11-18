@@ -1,6 +1,7 @@
 package browser.dao;
 
 import browser.database.Db_Connection;
+import browser.model.Favorito;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,13 +23,13 @@ public class FavoritosDAO {
         return instance;
     }
 
-    public void guardar(String nombre, String url) {
+    public void guardar(Favorito favorito) {
 
         try (Connection conn = Db_Connection.getConnection()) {
             String sql = "INSERT INTO favoritos (nombre, url) VALUES (?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, nombre);
-                pstmt.setString(2, url);
+                pstmt.setString(1, favorito.getNombre());
+                pstmt.setString(2, favorito.getUrl());
                 pstmt.executeUpdate();
             }
         } catch (

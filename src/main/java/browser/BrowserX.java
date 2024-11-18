@@ -3,6 +3,7 @@ package browser;
 import browser.dao.DescargasDAO;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
+import browser.model.Favorito;
 import browser.service.FavoritoService;
 import browser.ui.UI_Utils;
 import browser.data_structures.LinkedList;
@@ -393,7 +394,7 @@ public class BrowserX extends JFrame {
                     if (favoritos.existeFavorito(url)) {
                         JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
                     } else {
-                        favoritos.insertarFavorito(nombre, url);
+                        favoritos.insertarFavorito(new Favorito(nombre, url));
                         JOptionPane.showMessageDialog(this, "Favorito agregado.");
                     }
                 } else {
@@ -501,7 +502,7 @@ public class BrowserX extends JFrame {
 
             // Agregar descargas al modelo de la tabla
             for (Descarga descarga : historialDescargas) {
-                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha().toString()});
+                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), Validations.formatearFecha(descarga.getFecha())});
             }
 
             JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todas", "src/main/resources/icons/trash.png", 20, 20, null);
