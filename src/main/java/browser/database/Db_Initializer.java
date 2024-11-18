@@ -19,9 +19,16 @@ public class Db_Initializer {
                 + "nombre TEXT NOT NULL UNIQUE, "
                 + "url TEXT NOT NULL)";
 
+        String tablaDescargas = "CREATE TABLE IF NOT EXISTS descargas ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "nombre TEXT NOT NULL, "
+                + "url TEXT NOT NULL, "
+                + "fecha TIMESTAMP NOT NULL)";
+
         try (Statement stmt = conn.createStatement()) {
-            stmt.execute(tablaHistorial);
+//            stmt.execute(tablaHistorial);
             stmt.execute(tablaFavoritos);
+            stmt.execute(tablaDescargas);
         }
     }
 }
