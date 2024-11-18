@@ -3,6 +3,7 @@ package browser.dao;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
 
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,7 +35,7 @@ public class DescargasDAO {
             statement.executeUpdate();
         } catch (
                 Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -46,16 +47,19 @@ public class DescargasDAO {
             stmt.executeUpdate();
         } catch (
                 Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public void eliminarTodo() {
-        // implementar
-    }
-
-    public void obtener() {
-        // implementar
+        String sql = "DELETE FROM descargas";
+        try (Connection conn = Db_Connection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);) {
+            stmt.executeUpdate();
+        } catch (
+                Exception e) {
+            JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public List<Descarga> obtenerTodo() {
@@ -76,7 +80,7 @@ public class DescargasDAO {
             return descargas;
         } catch (
                 Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
         return new LinkedList<>();
     }
