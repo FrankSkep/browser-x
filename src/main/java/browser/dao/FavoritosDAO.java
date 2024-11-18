@@ -22,7 +22,7 @@ public class FavoritosDAO {
         return instance;
     }
 
-    public void insertarFavorito(String nombre, String url) {
+    public void guardar(String nombre, String url) {
 
         try (Connection conn = Db_Connection.getConnection()) {
             String sql = "INSERT INTO favoritos (nombre, url) VALUES (?, ?)";
@@ -37,7 +37,7 @@ public class FavoritosDAO {
         }
     }
 
-    public void eliminarFavorito(String nombre) {
+    public void eliminar(String nombre) {
 
         try (Connection conn = Db_Connection.getConnection()) {
             String sql = "DELETE FROM favoritos WHERE nombre = ?";
@@ -51,7 +51,7 @@ public class FavoritosDAO {
         }
     }
 
-    public void eliminarFavoritos() {
+    public void eliminarTodos() {
         try (Connection conn = Db_Connection.getConnection()) {
             String sql = "DELETE FROM favoritos";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -63,7 +63,7 @@ public class FavoritosDAO {
         }
     }
 
-    public HashMap<String, String> obtenerFavoritos() {
+    public HashMap<String, String> obtenerTodos() {
         String sql = "SELECT nombre, url FROM favoritos";
 
         try (Connection conn = Db_Connection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
