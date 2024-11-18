@@ -33,6 +33,11 @@ public class Validations {
     }
 
     public static String formatearFecha(LocalDateTime fecha) {
-        return fecha.getDayOfMonth() + "/" + fecha.getMonthValue() + "/" + fecha.getYear() + " " + fecha.getHour() + ":" + fecha.getMinute();
+        String dia = fecha.getDayOfMonth() < 10 ? "0" + fecha.getDayOfMonth() : String.valueOf(fecha.getDayOfMonth());
+        String mes = fecha.getMonthValue() < 10 ? "0" + fecha.getMonthValue() : String.valueOf(fecha.getMonthValue());
+        String anio = String.valueOf(fecha.getYear());
+        String hora = fecha.getHour() < 10 ? "0" + fecha.getHour() : String.valueOf(fecha.getHour());
+        String minuto = fecha.getMinute() < 10 ? "0" + fecha.getMinute() : String.valueOf(fecha.getMinute());
+        return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto;
     }
 }
