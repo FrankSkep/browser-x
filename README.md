@@ -17,6 +17,6 @@ BrowserX es un navegador web ligero desarrollado en Java utilizando Swing y Java
 
 ## Licencia
 
-Este proyecto tiene la licencia [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).
+**Este proyecto está licenciado bajo la [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).**
 
-© 2024 FrankSkep. Para obtener más detalles, consulte el archivo completo [LICENCIA](LICENSE).
+© 2024 FrankSkep. Para más detalles, consulte el archivo completo [LICENSE](LICENSE).
