@@ -1,10 +1,13 @@
 package browser;
 
+import browser.dao.DescargasDAO;
 import browser.database.Db_Connection;
+import browser.model.Descarga;
 import browser.service.FavoritoService;
 import browser.ui.UI_Utils;
 import browser.data_structures.LinkedList;
 import browser.service.HistorialService;
+import browser.ui.Validations;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -16,7 +19,16 @@ import javafx.scene.web.WebView;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class BrowserX extends JFrame {
     private final JTextField urlTextField;
@@ -116,6 +128,18 @@ public class BrowserX extends JFrame {
                 }
             });
 
+            // ChangeListener a la propiedad location del WebEngine
+            webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+//                    List<String> extensionesPermitidas = Arrays.asList(".pdf", ".zip", ".exe", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".jpg", ".png", ".gif", ".mp3", ".mp4");
+//                    boolean esArchivoPermitido = extensionesPermitidas.stream().anyMatch(newValue::endsWith);
+                    if (Validations.isValidFile(newValue)) {
+                        descargarArchivo(newValue);
+                        Platform.runLater(() -> webEngine.getHistory().go(-1)); // Volver a la página anterior
+                    }
+                }
+            });
+
             // carga pagina inicial (Google)
             cargarURL("https://www.google.com");
         });
@@ -167,6 +191,24 @@ public class BrowserX extends JFrame {
         setVisible(true);
     }
 
+    // Método para descargar el archivo
+    private void descargarArchivo(String url) {
+        try (InputStream in = new URL(url).openStream()) {
+            String fileName = url.substring(url.lastIndexOf('/') + 1);
+            String userHome = System.getProperty("user.home");
+            String downloadDir = Paths.get(userHome, "Downloads").toString();
+            Files.createDirectories(Paths.get(downloadDir)); // Crear la carpeta si no existe
+            Files.copy(in, Paths.get(downloadDir, fileName), StandardCopyOption.REPLACE_EXISTING);
+            JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
+
+            DescargasDAO.getInstance().guardar(new Descarga(fileName, url, LocalDateTime.now()));
+        } catch (
+                IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Imprimir el stack trace para más detalles
+        }
+    }
+
     // carga una URL en el WebView
     private void cargarURL(String url) {
         Platform.runLater(() -> webEngine.load(url));
@@ -180,11 +222,18 @@ public class BrowserX extends JFrame {
     // visitar una pagina nueva
     private void visitarPagina() {
         String url = urlTextField.getText();
-        url = url.equals("Ingrese una URL") ? "" : url;
+        if (url.equals("Ingrese una URL")) {
+            url = "";
+        }
         if (!url.isEmpty() || !url.isBlank()) {
-            if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                url = "http://" + url;
+            if (Validations.isValidURL(url)) {
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "http://" + url;
+                }
+            } else {
+                url = "https://www.google.com/search?q=" + url.replace(" ", "+");
             }
+
             String finalUrl = url;
             cargarURL(finalUrl);
         } else {
@@ -228,24 +277,24 @@ public class BrowserX extends JFrame {
         // iconos para las opciones del menu
         ImageIcon historialIcon = UI_Utils.cargarIcono("src/main/resources/icons/record.png", 25, 25);
         ImageIcon favoritosIcon = UI_Utils.cargarIcono("src/main/resources/icons/favoritos.png", 25, 25);
-        ImageIcon configuracionIcon = UI_Utils.cargarIcono("src/main/resources/icons/settings.png", 25, 25);
+        ImageIcon descargasIcon = UI_Utils.cargarIcono("src/main/resources/icons/downloads.png", 25, 25);
 
         // botones del menu
         JMenuItem historialOpc = new JMenuItem("Historial", historialIcon);
         JMenuItem favoritosOpc = new JMenuItem("Favoritos", favoritosIcon);
-        JMenuItem configuracionOpc = new JMenuItem("Configuración", configuracionIcon);
+        JMenuItem descargasOpc = new JMenuItem("Descargas", descargasIcon);
         historialOpc.setIconTextGap(20);
         favoritosOpc.setIconTextGap(20);
-        configuracionOpc.setIconTextGap(20);
+        descargasOpc.setIconTextGap(20);
         Font font = new Font("Arial", Font.PLAIN, 16);
         historialOpc.setFont(font);
         favoritosOpc.setFont(font);
-        configuracionOpc.setFont(font);
+        descargasOpc.setFont(font);
 
         JPopupMenu menuEmergente = new JPopupMenu();
         menuEmergente.add(historialOpc);
         menuEmergente.add(favoritosOpc);
-        menuEmergente.add(configuracionOpc);
+        menuEmergente.add(descargasOpc);
         menuEmergente.setPreferredSize(new Dimension(200, 150));
 
         Point location = SwingUtilities.convertPoint(menuButton, 0, 0, this);
@@ -436,5 +485,10 @@ public class BrowserX extends JFrame {
             new JFXPanel(); // Inicializacion JavaFX
             new BrowserX(); // Creacion ventana principal
         });
+
+        // shutdown hook para asegurarse de que todas las tareas de JavaFX se completen antes de cerrar
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Platform.runLater(Platform::exit); // Cerrar la aplicación JavaFX
+        }));
     }
 }
