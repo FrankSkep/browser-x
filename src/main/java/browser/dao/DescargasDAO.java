@@ -4,7 +4,12 @@ import browser.database.Db_Connection;
 import browser.model.Descarga;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class DescargasDAO {
 
@@ -27,20 +32,52 @@ public class DescargasDAO {
             statement.setString(2, descarga.getUrl());
             statement.setTimestamp(3, Timestamp.valueOf(descarga.getFecha()));
             statement.executeUpdate();
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             e.printStackTrace();
         }
     }
 
     public void eliminar(String nombre) {
-        // implementar
+        String sql = "DELETE FROM descargas WHERE nombre = ?";
+        try (Connection conn = Db_Connection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);) {
+            stmt.setString(1, nombre);
+            stmt.executeUpdate();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void eliminar() {
+    public void eliminarTodo() {
         // implementar
     }
 
     public void obtener() {
         // implementar
+    }
+
+    public List<Descarga> obtenerTodo() {
+        String sql = "SELECT * FROM descargas";
+
+        try (Connection conn = Db_Connection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);) {
+            ResultSet resultSet = stmt.executeQuery();
+
+            List<Descarga> descargas = new ArrayList<>();
+            while (resultSet.next()) {
+                descargas.add(new Descarga(
+                        resultSet.getString("nombre"),
+                        resultSet.getString("url"),
+                        resultSet.getTimestamp("fecha").toLocalDateTime()
+                ));
+            }
+            return descargas;
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+        return new LinkedList<>();
     }
 }

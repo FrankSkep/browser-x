@@ -308,6 +308,7 @@ public class BrowserX extends JFrame {
 
         historialOpc.addActionListener(e -> mostrarVentanaHistorial());
         favoritosOpc.addActionListener(e -> mostrarVentanaFavoritos());
+        descargasOpc.addActionListener(e -> mostrarVentanaDescargas());
     }
 
     // crea y muestra ventana de historial de navegación
@@ -475,6 +476,63 @@ public class BrowserX extends JFrame {
             // Mostrar favoritos y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
             JOptionPane.showOptionDialog(null, scrollPane, "Favoritos",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+                    options, null);
+        }
+    }
+
+    // crea y muestra ventana de historial de navegación
+    private void mostrarVentanaDescargas() {
+        List<Descarga> historialDescargas = DescargasDAO.getInstance().obtenerTodo();
+
+        if (historialDescargas.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay descargas.");
+        } else {
+            String[] columnNames = {"Nombre", "URL", "Fecha"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            JTable descargasTable = new JTable(tableModel);
+            JScrollPane scrollPane = new JScrollPane(descargasTable);
+            scrollPane.setPreferredSize(new Dimension(500, 300));
+
+            // Agregar descargas al modelo de la tabla
+            for (Descarga descarga : historialDescargas) {
+                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha().toString()});
+            }
+
+            JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todas", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
+            JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
+
+            eliminarTodoBtn.addActionListener(e -> {
+                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todas las descargas?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    UI_Utils.cerrarVentana(cerrarBtn);
+                    DescargasDAO.getInstance().eliminarTodo();
+                    JOptionPane.showMessageDialog(null, "Descargas eliminadas.");
+                }
+            });
+
+            eliminarBtn.addActionListener(e -> {
+                int selectedRow = descargasTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    String nombreDescarga = (String) tableModel.getValueAt(selectedRow, 0);
+                    DescargasDAO.getInstance().eliminar(nombreDescarga);
+                    tableModel.removeRow(selectedRow);
+                    JOptionPane.showMessageDialog(null, "Descarga eliminada.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Por favor, selecciona una descarga.");
+                }
+            });
+
+            cerrarBtn.addActionListener(e -> UI_Utils.cerrarVentana(cerrarBtn));
+
+            // Mostrar descargas y botones
+            Object[] options = {eliminarTodoBtn, eliminarBtn, cerrarBtn};
+            JOptionPane.showOptionDialog(null, scrollPane, "Historial de Descargas",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, null);
         }
