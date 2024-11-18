@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-public class UI_Utils {
+public class UiTools {
 
     // Redimensiona una imagen a un tamaño específico
     private static Image redimensionarImagen(String path, int width, int height) {

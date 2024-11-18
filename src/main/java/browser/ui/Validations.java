@@ -16,7 +16,7 @@ public class Validations {
             ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".ico", ".mp3", ".mp4", ".avi", ".mkv", ".mov", ".flv", ".wmv", ".webm"
     );
 
-    public static boolean isValidURL(String url) {
+    public static boolean containsDomain(String url) {
         if (url == null || url.isBlank()) {
             return false;
         }
@@ -32,7 +32,7 @@ public class Validations {
         return ALLOWED_FILES.stream().anyMatch(file::endsWith);
     }
 
-    public static String formatearFecha(LocalDateTime fecha) {
+    public static String dateFormat(LocalDateTime fecha) {
         String dia = fecha.getDayOfMonth() < 10 ? "0" + fecha.getDayOfMonth() : String.valueOf(fecha.getDayOfMonth());
         String mes = fecha.getMonthValue() < 10 ? "0" + fecha.getMonthValue() : String.valueOf(fecha.getMonthValue());
         String anio = String.valueOf(fecha.getYear());

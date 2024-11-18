@@ -5,7 +5,7 @@ import browser.database.Db_Connection;
 import browser.model.Descarga;
 import browser.model.Favorito;
 import browser.service.FavoritoService;
-import browser.ui.UI_Utils;
+import browser.ui.UiTools;
 import browser.data_structures.LinkedList;
 import browser.service.HistorialService;
 import browser.ui.Validations;
@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,10 +69,10 @@ public class BrowserX extends JFrame {
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         // Creación de los botones
-        JButton retrocederBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
-        JButton avanzarBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
-        JButton inicioBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/home.png", 25, 25, 3);
-        JButton refrescarBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/refresh.png", 25, 25, 3);
+        JButton retrocederBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
+        JButton avanzarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
+        JButton inicioBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/home.png", 25, 25, 3);
+        JButton refrescarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/refresh.png", 25, 25, 3);
         panelBotones.add(retrocederBtn);
         panelBotones.add(avanzarBtn);
         panelBotones.add(inicioBtn);
@@ -82,9 +81,9 @@ public class BrowserX extends JFrame {
         // Panel para los botones de visitar y menu
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        JButton visitarBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
-        JButton favoritosBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
-        JButton showMenuBtn = UI_Utils.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
+        JButton visitarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
+        JButton favoritosBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
+        JButton showMenuBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
         panelMenu.add(visitarBtn);
         panelMenu.add(favoritosBtn);
         panelMenu.add(showMenuBtn);
@@ -227,7 +226,7 @@ public class BrowserX extends JFrame {
             url = "";
         }
         if (!url.isEmpty() || !url.isBlank()) {
-            if (Validations.isValidURL(url)) {
+            if (Validations.containsDomain(url)) {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
@@ -276,9 +275,9 @@ public class BrowserX extends JFrame {
     // muestra menu de opciones
     private void mostrarMenuEmergente(JButton menuButton) {
         // iconos para las opciones del menu
-        ImageIcon historialIcon = UI_Utils.cargarIcono("src/main/resources/icons/record.png", 25, 25);
-        ImageIcon favoritosIcon = UI_Utils.cargarIcono("src/main/resources/icons/favoritos.png", 25, 25);
-        ImageIcon descargasIcon = UI_Utils.cargarIcono("src/main/resources/icons/downloads.png", 25, 25);
+        ImageIcon historialIcon = UiTools.cargarIcono("src/main/resources/icons/record.png", 25, 25);
+        ImageIcon favoritosIcon = UiTools.cargarIcono("src/main/resources/icons/favoritos.png", 25, 25);
+        ImageIcon descargasIcon = UiTools.cargarIcono("src/main/resources/icons/downloads.png", 25, 25);
 
         // botones del menu
         JMenuItem historialOpc = new JMenuItem("Historial", historialIcon);
@@ -336,14 +335,14 @@ public class BrowserX extends JFrame {
                 tableModel.addRow(new Object[]{url});
             }
 
-            JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todo", "src/main/resources/icons/trash.png", 20, 20, null);
-            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
-            JButton visitarBtn = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
-            JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
+            JButton eliminarTodoBtn = UiTools.crearBotonConIcono("Eliminar todo", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UiTools.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
+            JButton visitarBtn = UiTools.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
+            JButton cerrarBtn = UiTools.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    UI_Utils.cerrarVentana(cerrarBtn);
+                    UiTools.cerrarVentana(cerrarBtn);
                     historial.deleteHistory();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -366,13 +365,13 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
                     cargarURL(urlSeleccionada);
-                    UI_Utils.cerrarVentana(cerrarBtn);
+                    UiTools.cerrarVentana(cerrarBtn);
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona una URL.");
                 }
             });
 
-            cerrarBtn.addActionListener(e -> UI_Utils.cerrarVentana(cerrarBtn));
+            cerrarBtn.addActionListener(e -> UiTools.cerrarVentana(cerrarBtn));
 
             // Mostrar historial y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
@@ -433,15 +432,15 @@ public class BrowserX extends JFrame {
                 tableModel.addRow(new Object[]{nombreFavorito, urlFavorito});
             }
 
-            JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todos", "src/main/resources/icons/trash.png", 20, 20, null);
-            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
-            JButton visitarBtn = UI_Utils.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
-            JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
+            JButton eliminarTodoBtn = UiTools.crearBotonConIcono("Eliminar todos", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UiTools.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
+            JButton visitarBtn = UiTools.crearBotonConIcono("Abrir", "src/main/resources/icons/browse.png", 20, 20, null);
+            JButton cerrarBtn = UiTools.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    UI_Utils.cerrarVentana(cerrarBtn);
+                    UiTools.cerrarVentana(cerrarBtn);
                     favoritos.eliminarFavoritos();
                     JOptionPane.showMessageDialog(null, "Favoritos eliminados.");
                 }
@@ -466,13 +465,13 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
                     cargarURL(urlFavorito);
-                    UI_Utils.cerrarVentana(cerrarBtn);
+                    UiTools.cerrarVentana(cerrarBtn);
                 } else {
                     JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
                 }
             });
 
-            cerrarBtn.addActionListener(e -> UI_Utils.cerrarVentana(cerrarBtn));
+            cerrarBtn.addActionListener(e -> UiTools.cerrarVentana(cerrarBtn));
 
             // Mostrar favoritos y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
@@ -502,16 +501,16 @@ public class BrowserX extends JFrame {
 
             // Agregar descargas al modelo de la tabla
             for (Descarga descarga : historialDescargas) {
-                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), Validations.formatearFecha(descarga.getFecha())});
+                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), Validations.dateFormat(descarga.getFecha())});
             }
 
-            JButton eliminarTodoBtn = UI_Utils.crearBotonConIcono("Eliminar todas", "src/main/resources/icons/trash.png", 20, 20, null);
-            JButton eliminarBtn = UI_Utils.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
-            JButton cerrarBtn = UI_Utils.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
+            JButton eliminarTodoBtn = UiTools.crearBotonConIcono("Eliminar todas", "src/main/resources/icons/trash.png", 20, 20, null);
+            JButton eliminarBtn = UiTools.crearBotonConIcono("Eliminar", "src/main/resources/icons/eliminar-uno.png", 20, 20, null);
+            JButton cerrarBtn = UiTools.crearBotonConIcono("Cerrar", "src/main/resources/icons/close.png", 20, 20, null);
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todas las descargas?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    UI_Utils.cerrarVentana(cerrarBtn);
+                    UiTools.cerrarVentana(cerrarBtn);
                     DescargasDAO.getInstance().eliminarTodo();
                     JOptionPane.showMessageDialog(null, "Descargas eliminadas.");
                 }
@@ -529,7 +528,7 @@ public class BrowserX extends JFrame {
                 }
             });
 
-            cerrarBtn.addActionListener(e -> UI_Utils.cerrarVentana(cerrarBtn));
+            cerrarBtn.addActionListener(e -> UiTools.cerrarVentana(cerrarBtn));
 
             // Mostrar descargas y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, cerrarBtn};
