@@ -36,7 +36,13 @@ public class BrowserX extends JFrame {
     private final DescargaService descargas;
     private WebView webView;
     private WebEngine webEngine;
+
     private final JTextField urlTextField;
+    private final JButton retrocederBtn;
+    private final JButton avanzarBtn;
+    private final JButton favoritosBtn;
+
+    private final String googleUrl = "https://www.google.com";
 
     // bandera para saber si la navegación fue natural o por avanzar/retroceder
     private boolean navegacionUsuario = false;
@@ -71,8 +77,8 @@ public class BrowserX extends JFrame {
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         // Creación de los botones
-        JButton retrocederBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
-        JButton avanzarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
+        retrocederBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/previous-page.png", 25, 25, 3);
+        avanzarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/next-page.png", 25, 25, 3);
         JButton inicioBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/home.png", 25, 25, 3);
         JButton refrescarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/refresh.png", 25, 25, 3);
         panelBotones.add(retrocederBtn);
@@ -84,7 +90,7 @@ public class BrowserX extends JFrame {
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
         JButton visitarBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/browse.png", 25, 25, 3);
-        JButton favoritosBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
+        favoritosBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/estrella.png", 25, 25, 3);
         JButton showMenuBtn = UiTools.crearBotonConIcono(null, "src/main/resources/icons/menu.png", 25, 25, 3);
         panelMenu.add(visitarBtn);
         panelMenu.add(favoritosBtn);
@@ -109,6 +115,9 @@ public class BrowserX extends JFrame {
         JFXPanel fxPanel = new JFXPanel();
         add(fxPanel, BorderLayout.CENTER);
 
+        // Actualizar el estado de los botones de retroceder y avanzar
+        actualizarEstadoBotones();
+
         // Inicializar JavaFX
         Platform.runLater(() -> {
             webView = new WebView();
@@ -124,6 +133,8 @@ public class BrowserX extends JFrame {
                     }
                     navegacionUsuario = false;
                     actualizarInterfazSwing();
+                    actualizarEstadoBotones();
+
                 } else if (newState == Worker.State.FAILED) {
                     urlTextField.setText("");
                     JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -141,13 +152,13 @@ public class BrowserX extends JFrame {
             });
 
             // carga pagina inicial (Google)
-            cargarURL("https://www.google.com");
+            cargarURL(googleUrl);
         });
 
         // Listeners para los botones
         retrocederBtn.addActionListener(e -> retrocederPagina());
         avanzarBtn.addActionListener(e -> avanzarPagina());
-        inicioBtn.addActionListener(e -> cargarURL("https://www.google.com"));
+        inicioBtn.addActionListener(e -> cargarURL(googleUrl));
         refrescarBtn.addActionListener(e -> refrescarPagina());
         visitarBtn.addActionListener(e -> visitarPagina());
         favoritosBtn.addActionListener(e -> agregarFavorito());
@@ -200,7 +211,6 @@ public class BrowserX extends JFrame {
 //            Files.createDirectories(Paths.get(downloadDir));
             Files.copy(in, Paths.get(downloadDir, fileName), StandardCopyOption.REPLACE_EXISTING);
             JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
-
             descargas.agregarDescarga(new Descarga(fileName, url, Validations.dateFormat(LocalDateTime.now())));
         } catch (
                 IOException e) {
@@ -230,7 +240,7 @@ public class BrowserX extends JFrame {
                     url = "http://" + url;
                 }
             } else {
-                url = "https://www.google.com/search?q=" + url.replace(" ", "+");
+                url = googleUrl + "/search?q=" + url.replace(" ", "+");
             }
 
             String finalUrl = url;
@@ -246,8 +256,6 @@ public class BrowserX extends JFrame {
         if (urlAnterior != null) {
             navegacionUsuario = true;
             cargarURL(urlAnterior);
-        } else {
-            JOptionPane.showMessageDialog(this, "No hay páginas anteriores.");
         }
     }
 
@@ -257,8 +265,6 @@ public class BrowserX extends JFrame {
         if (urlSiguiente != null) {
             navegacionUsuario = true;
             cargarURL(urlSiguiente);
-        } else {
-            JOptionPane.showMessageDialog(this, "No hay páginas siguientes.");
         }
     }
 
@@ -341,6 +347,7 @@ public class BrowserX extends JFrame {
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    actualizarEstadoBotones();
                     UiTools.cerrarVentana(cerrarBtn);
                     historial.deleteHistory();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
@@ -399,6 +406,7 @@ public class BrowserX extends JFrame {
                     JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
                 }
             }
+            actualizarEstadoBotones();
         }
     }
 
@@ -542,6 +550,12 @@ public class BrowserX extends JFrame {
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, null);
         }
+    }
+
+    private void actualizarEstadoBotones() {
+        retrocederBtn.setEnabled(historial.puedeRetroceder());
+        avanzarBtn.setEnabled(historial.puedeAvanzar());
+        favoritosBtn.setEnabled(!favoritos.existeFavorito(historial.obtenerURLActual()));
     }
 
     public static void main(String[] args) {

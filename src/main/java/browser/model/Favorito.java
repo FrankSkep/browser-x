@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Favorito {
-
     private String nombre;
     private String url;
 }

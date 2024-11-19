@@ -62,4 +62,12 @@ public class HistorialService {
     public LinkedList<String> obtenerHistorialList() {
         return historialCompleto;
     }
+
+    public boolean puedeRetroceder() {
+        return !pilaAtras.isEmpty();
+    }
+
+    public boolean puedeAvanzar() {
+        return !pilaAdelante.isEmpty();
+    }
 }
