@@ -1,4 +1,4 @@
-package browser.ui;
+package browser.utils;
 
 import java.time.LocalDateTime;
 import java.util.List;

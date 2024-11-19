@@ -5,10 +5,10 @@ import browser.model.Descarga;
 import browser.model.Favorito;
 import browser.service.DescargaService;
 import browser.service.FavoritoService;
-import browser.ui.UiTools;
+import browser.utils.UiTools;
 import browser.data_structures.LinkedList;
 import browser.service.HistorialService;
-import browser.ui.Validations;
+import browser.utils.Validations;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -135,7 +135,7 @@ public class BrowserX extends JFrame {
                 if (newValue != null) {
                     if (Validations.isValidFile(newValue)) {
                         descargarArchivo(newValue);
-//                        Platform.runLater(() -> webEngine.getHistory().go(-1)); // Volver a la página anterior
+                        webEngine.getHistory().go(-1); // Volver a la página anterior
                     }
                 }
             });
@@ -197,7 +197,7 @@ public class BrowserX extends JFrame {
             String fileName = url.substring(url.lastIndexOf('/') + 1);
             String userHome = System.getProperty("user.home");
             String downloadDir = Paths.get(userHome, "Downloads").toString();
-            Files.createDirectories(Paths.get(downloadDir)); // Crear la carpeta si no existe
+//            Files.createDirectories(Paths.get(downloadDir));
             Files.copy(in, Paths.get(downloadDir, fileName), StandardCopyOption.REPLACE_EXISTING);
             JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
 
@@ -422,8 +422,8 @@ public class BrowserX extends JFrame {
             scrollPane.setPreferredSize(new Dimension(500, 300));
 
             // Ajustar el ancho de las columnas
-            favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150); // Columna "Nombre" más corta
-            favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350); // Columna "URL" más ancha
+            favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+            favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350);
 
             // Agregar favoritos al modelo de la tabla
             for (String nombreFavorito : favoritosMap.keySet()) {
@@ -497,6 +497,11 @@ public class BrowserX extends JFrame {
             JTable descargasTable = new JTable(tableModel);
             JScrollPane scrollPane = new JScrollPane(descargasTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
+
+            // Ajustar el ancho de las columnas
+            descargasTable.getColumnModel().getColumn(0).setPreferredWidth(200);
+            descargasTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+            descargasTable.getColumnModel().getColumn(2).setPreferredWidth(110);
 
             // Agregar descargas al modelo de la tabla
             for (Descarga descarga : historialDescargas) {

@@ -3,6 +3,7 @@ package browser.service;
 import browser.dao.DescargaDAO;
 import browser.model.Descarga;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DescargaService {
@@ -10,7 +11,8 @@ public class DescargaService {
     private final List<Descarga> descargas;
 
     public DescargaService() {
-        descargas = DescargaDAO.getInstance().obtenerTodo();
+        descargas = new ArrayList<>();
+        descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
     }
 
     public void agregarDescarga(Descarga descarga) {
