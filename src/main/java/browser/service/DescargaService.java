@@ -1,9 +1,8 @@
 package browser.service;
 
-import browser.dao.DescargasDAO;
+import browser.dao.DescargaDAO;
 import browser.model.Descarga;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DescargaService {
@@ -11,22 +10,22 @@ public class DescargaService {
     private final List<Descarga> descargas;
 
     public DescargaService() {
-        descargas = DescargasDAO.getInstance().obtenerTodo();
+        descargas = DescargaDAO.getInstance().obtenerTodo();
     }
 
     public void agregarDescarga(Descarga descarga) {
         descargas.add(descarga);
-        DescargasDAO.getInstance().guardar(descarga);
+        DescargaDAO.getInstance().guardar(descarga);
     }
 
     public void eliminarDescarga(Descarga descarga) {
         descargas.remove(descarga);
-        DescargasDAO.getInstance().eliminar(descarga.getNombre());
+        DescargaDAO.getInstance().eliminar(descarga.getNombre());
     }
 
     public void eliminarDescargas() {
         descargas.clear();
-        DescargasDAO.getInstance().eliminarTodo();
+        DescargaDAO.getInstance().eliminarTodo();
     }
 
     public List<Descarga> obtenerDescargas() {
