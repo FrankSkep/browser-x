@@ -7,21 +7,20 @@ import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DescargasDAO {
+public class DescargaDAO {
 
-    private static DescargasDAO instance = null;
+    private static DescargaDAO instance = null;
 
-    private DescargasDAO() {
+    private DescargaDAO() {
     }
 
-    public static synchronized DescargasDAO getInstance() {
+    public static synchronized DescargaDAO getInstance() {
         if (instance == null) {
-            instance = new DescargasDAO();
+            instance = new DescargaDAO();
         }
         return instance;
     }
@@ -31,7 +30,7 @@ public class DescargasDAO {
              var statement = connection.prepareStatement("INSERT INTO descargas (nombre, url, fecha) VALUES (?, ?, ?)")) {
             statement.setString(1, descarga.getNombre());
             statement.setString(2, descarga.getUrl());
-            statement.setTimestamp(3, Timestamp.valueOf(descarga.getFecha()));
+            statement.setString(3, descarga.getFecha());
             statement.executeUpdate();
         } catch (
                 Exception e) {
@@ -74,7 +73,7 @@ public class DescargasDAO {
                 descargas.add(new Descarga(
                         resultSet.getString("nombre"),
                         resultSet.getString("url"),
-                        resultSet.getTimestamp("fecha").toLocalDateTime()
+                        resultSet.getString("fecha")
                 ));
             }
             return descargas;

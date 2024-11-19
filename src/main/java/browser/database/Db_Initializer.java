@@ -23,7 +23,7 @@ public class Db_Initializer {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "nombre TEXT NOT NULL, "
                 + "url TEXT NOT NULL, "
-                + "fecha TIMESTAMP NOT NULL)";
+                + "fecha TEXT NOT NULL)";
 
         try (Statement stmt = conn.createStatement()) {
 //            stmt.execute(tablaHistorial);

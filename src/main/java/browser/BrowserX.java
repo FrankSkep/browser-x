@@ -1,9 +1,9 @@
 package browser;
 
-import browser.dao.DescargasDAO;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
 import browser.model.Favorito;
+import browser.service.DescargaService;
 import browser.service.FavoritoService;
 import browser.ui.UiTools;
 import browser.data_structures.LinkedList;
@@ -31,11 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BrowserX extends JFrame {
-    private final JTextField urlTextField;
     private final HistorialService historial;
     private final FavoritoService favoritos;
+    private final DescargaService descargas;
     private WebView webView;
     private WebEngine webEngine;
+    private final JTextField urlTextField;
 
     // bandera para saber si la navegación fue natural o por avanzar/retroceder
     private boolean navegacionUsuario = false;
@@ -44,6 +45,7 @@ public class BrowserX extends JFrame {
         Db_Connection.initializeDatabase();
         historial = new HistorialService();
         favoritos = new FavoritoService();
+        descargas = new DescargaService();
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -131,11 +133,9 @@ public class BrowserX extends JFrame {
             // ChangeListener a la propiedad location del WebEngine
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
-//                    List<String> extensionesPermitidas = Arrays.asList(".pdf", ".zip", ".exe", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".jpg", ".png", ".gif", ".mp3", ".mp4");
-//                    boolean esArchivoPermitido = extensionesPermitidas.stream().anyMatch(newValue::endsWith);
                     if (Validations.isValidFile(newValue)) {
                         descargarArchivo(newValue);
-                        Platform.runLater(() -> webEngine.getHistory().go(-1)); // Volver a la página anterior
+//                        Platform.runLater(() -> webEngine.getHistory().go(-1)); // Volver a la página anterior
                     }
                 }
             });
@@ -201,11 +201,10 @@ public class BrowserX extends JFrame {
             Files.copy(in, Paths.get(downloadDir, fileName), StandardCopyOption.REPLACE_EXISTING);
             JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
 
-            DescargasDAO.getInstance().guardar(new Descarga(fileName, url, LocalDateTime.now()));
+            descargas.agregarDescarga(new Descarga(fileName, url, Validations.dateFormat(LocalDateTime.now())));
         } catch (
                 IOException e) {
             JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace(); // Imprimir el stack trace para más detalles
         }
     }
 
@@ -483,7 +482,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaDescargas() {
-        List<Descarga> historialDescargas = DescargasDAO.getInstance().obtenerTodo();
+        List<Descarga> historialDescargas = descargas.obtenerDescargas();
 
         if (historialDescargas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay descargas.");
@@ -501,7 +500,7 @@ public class BrowserX extends JFrame {
 
             // Agregar descargas al modelo de la tabla
             for (Descarga descarga : historialDescargas) {
-                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), Validations.dateFormat(descarga.getFecha())});
+                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()});
             }
 
             JButton eliminarTodoBtn = UiTools.crearBotonConIcono("Eliminar todas", "src/main/resources/icons/trash.png", 20, 20, null);
@@ -511,7 +510,7 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todas las descargas?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTools.cerrarVentana(cerrarBtn);
-                    DescargasDAO.getInstance().eliminarTodo();
+                    descargas.eliminarDescargas();
                     JOptionPane.showMessageDialog(null, "Descargas eliminadas.");
                 }
             });
@@ -519,8 +518,10 @@ public class BrowserX extends JFrame {
             eliminarBtn.addActionListener(e -> {
                 int selectedRow = descargasTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    String nombreDescarga = (String) tableModel.getValueAt(selectedRow, 0);
-                    DescargasDAO.getInstance().eliminar(nombreDescarga);
+                    String nombre = (String) tableModel.getValueAt(selectedRow, 0);
+                    String url = (String) tableModel.getValueAt(selectedRow, 1);
+                    String fecha = (String) tableModel.getValueAt(selectedRow, 2);
+                    descargas.eliminarDescarga(new Descarga(nombre, url, fecha));
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Descarga eliminada.");
                 } else {

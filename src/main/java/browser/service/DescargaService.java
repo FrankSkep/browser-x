@@ -8,14 +8,14 @@ import java.util.List;
 
 public class DescargaService {
 
-    private List<Descarga> descargas;
+    private final List<Descarga> descargas;
 
     public DescargaService() {
-        descargas = new ArrayList<>();
+        descargas = DescargasDAO.getInstance().obtenerTodo();
     }
 
     public void agregarDescarga(Descarga descarga) {
-        descargas.addLast(descarga);
+        descargas.add(descarga);
         DescargasDAO.getInstance().guardar(descarga);
     }
 

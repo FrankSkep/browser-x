@@ -10,16 +10,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-public class FavoritosDAO {
+public class FavoritoDAO {
 
-    private static FavoritosDAO instance = null;
+    private static FavoritoDAO instance = null;
 
-    private FavoritosDAO() {
+    private FavoritoDAO() {
     }
 
-    public static synchronized FavoritosDAO getInstance() {
+    public static synchronized FavoritoDAO getInstance() {
         if (instance == null) {
-            instance = new FavoritosDAO();
+            instance = new FavoritoDAO();
         }
         return instance;
     }
