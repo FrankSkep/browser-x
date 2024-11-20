@@ -1,9 +1,11 @@
 package browser.utils;
 
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
-public class Validations {
+public class ValidationTools {
 
     private static final List<String> ALLOWED_DOMAINS = List.of(
             ".com", ".org", ".net", ".edu", ".gov", ".info", ".io", ".biz", ".name", ".me", ".tech", ".online", ".dev", ".app", ".blog",
@@ -39,5 +41,17 @@ public class Validations {
         String hora = fecha.getHour() < 10 ? "0" + fecha.getHour() : String.valueOf(fecha.getHour());
         String minuto = fecha.getMinute() < 10 ? "0" + fecha.getMinute() : String.valueOf(fecha.getMinute());
         return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto;
+    }
+
+    public static String getDownloadFolder() {
+        Locale locale = Locale.getDefault();
+        String language = locale.getDisplayLanguage();
+
+        String userHome = System.getProperty("user.home");
+        if (language.equals("español")) {
+            return Paths.get(userHome, "Descargas").toString();
+        } else {
+            return Paths.get(userHome, "Downloads").toString();
+        }
     }
 }

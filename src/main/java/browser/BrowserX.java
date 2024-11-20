@@ -8,7 +8,7 @@ import browser.service.FavoritoService;
 import browser.utils.UiTools;
 import browser.data_structures.LinkedList;
 import browser.service.HistorialService;
-import browser.utils.Validations;
+import browser.utils.ValidationTools;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -144,7 +144,7 @@ public class BrowserX extends JFrame {
             // ChangeListener a la propiedad location del WebEngine
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    if (Validations.isValidFile(newValue)) {
+                    if (ValidationTools.isValidFile(newValue)) {
                         descargarArchivo(newValue);
                         webEngine.getHistory().go(-1); // Volver a la página anterior
                     }
@@ -206,12 +206,10 @@ public class BrowserX extends JFrame {
     private void descargarArchivo(String url) {
         try (InputStream in = new URL(url).openStream()) {
             String fileName = url.substring(url.lastIndexOf('/') + 1);
-            String userHome = System.getProperty("user.home");
-            String downloadDir = Paths.get(userHome, "Downloads").toString();
-//            Files.createDirectories(Paths.get(downloadDir));
+            String downloadDir = ValidationTools.getDownloadFolder();
             Files.copy(in, Paths.get(downloadDir, fileName), StandardCopyOption.REPLACE_EXISTING);
             JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
-            descargas.agregarDescarga(new Descarga(fileName, url, Validations.dateFormat(LocalDateTime.now())));
+            descargas.agregarDescarga(new Descarga(fileName, url, ValidationTools.dateFormat(LocalDateTime.now())));
         } catch (
                 IOException e) {
             JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -235,7 +233,7 @@ public class BrowserX extends JFrame {
             url = "";
         }
         if (!url.isEmpty() || !url.isBlank()) {
-            if (Validations.containsDomain(url)) {
+            if (ValidationTools.containsDomain(url)) {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
