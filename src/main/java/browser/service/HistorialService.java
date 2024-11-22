@@ -1,7 +1,7 @@
 package browser.service;
 
-import browser.data_structures.LinkedList;
-import browser.data_structures.Stack;
+import browser.data_structure.LinkedList;
+import browser.data_structure.Stack;
 
 public class HistorialService {
     private LinkedList<String> historialCompleto;
@@ -18,7 +18,7 @@ public class HistorialService {
         if (!historialCompleto.isEmpty()) {
             pilaAtras.push(historialCompleto.getLast());
         }
-        historialCompleto.addLast(url);
+        historialCompleto.add(url);
         pilaAdelante = new Stack<>();
     }
 
@@ -28,7 +28,7 @@ public class HistorialService {
             pilaAdelante.push(urlActual);
             String urlAnterior = pilaAtras.pop();
             historialCompleto.removeLast();
-            historialCompleto.addLast(urlAnterior);
+            historialCompleto.add(urlAnterior);
             return urlAnterior;
         }
         return null;
@@ -40,7 +40,7 @@ public class HistorialService {
             pilaAtras.push(urlActual);
             String urlSiguiente = pilaAdelante.pop();
             historialCompleto.removeLast();
-            historialCompleto.addLast(urlSiguiente);
+            historialCompleto.add(urlSiguiente);
             return urlSiguiente;
         }
         return null;

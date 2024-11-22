@@ -7,9 +7,8 @@ import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+
+import browser.data_structure.LinkedList;
 
 public class DescargaDAO {
 
@@ -61,14 +60,14 @@ public class DescargaDAO {
         }
     }
 
-    public List<Descarga> obtenerTodo() {
+    public LinkedList<Descarga> obtenerTodo() {
         String sql = "SELECT * FROM descargas";
 
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);) {
             ResultSet resultSet = stmt.executeQuery();
 
-            List<Descarga> descargas = new ArrayList<>();
+            LinkedList<Descarga> descargas = new LinkedList<>();
             while (resultSet.next()) {
                 descargas.add(new Descarga(
                         resultSet.getString("nombre"),

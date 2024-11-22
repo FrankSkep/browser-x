@@ -1,5 +1,6 @@
 package browser.dao;
 
+import browser.data_structure.Hashtable;
 import browser.database.Db_Connection;
 import browser.model.Favorito;
 
@@ -8,7 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 public class FavoritoDAO {
 
@@ -63,14 +63,14 @@ public class FavoritoDAO {
         }
     }
 
-    public HashMap<String, String> obtenerTodos() {
+    public Hashtable<String, String> obtenerTodos() {
         String sql = "SELECT nombre, url FROM favoritos";
 
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
 
-            HashMap<String, String> favoritos = new HashMap<>();
+            Hashtable<String, String> favoritos = new Hashtable<>();
             while (rs.next()) {
                 favoritos.put(rs.getString("nombre"), rs.getString("url"));
             }
@@ -78,7 +78,7 @@ public class FavoritoDAO {
         } catch (
                 SQLException e) {
             JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return new HashMap<>();
+            return new Hashtable<>();
         }
     }
 

@@ -1,12 +1,13 @@
 package browser;
 
+import browser.data_structure.Hashtable;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
 import browser.model.Favorito;
 import browser.service.DescargaService;
 import browser.service.FavoritoService;
 import browser.utils.UiTools;
-import browser.data_structures.LinkedList;
+import browser.data_structure.LinkedList;
 import browser.service.HistorialService;
 import browser.utils.ValidationTools;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -22,13 +23,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
 
 public class BrowserX extends JFrame {
     private final HistorialService historial;
@@ -183,7 +184,7 @@ public class BrowserX extends JFrame {
             }
         });
 
-        // Seleccionar todo el texto al hacer clic en el campo de texto
+        // Listener para seleccionar todo el texto al hacer clic
         urlTextField.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -191,6 +192,7 @@ public class BrowserX extends JFrame {
             }
         });
 
+        // Listener para la tecla Enter en el campo de texto
         urlTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -204,12 +206,27 @@ public class BrowserX extends JFrame {
 
     // Método para descargar el archivo
     private void descargarArchivo(String url) {
-        try (InputStream in = new URL(url).openStream()) {
+        try {
+            // obtener el nombre del archivo de la URL
             String fileName = url.substring(url.lastIndexOf('/') + 1);
-            String downloadDir = ValidationTools.getDownloadFolder();
-            Files.copy(in, Paths.get(downloadDir, fileName), StandardCopyOption.REPLACE_EXISTING);
-            JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
-            descargas.agregarDescarga(new Descarga(fileName, url, ValidationTools.dateFormat(LocalDateTime.now())));
+
+            // definir la ruta de descarga
+            String downloadFolder = ValidationTools.getDownloadFolder();
+            Path downloadPath = Paths.get(downloadFolder, fileName);
+
+            // Descargar el archivo
+            try (InputStream in = new URI(url).toURL().openStream()) {
+                Files.copy(in, downloadPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (
+                    URISyntaxException e) {
+                JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            // registrar la descarga en la base de datos
+            String fecha = ValidationTools.dateFormat(LocalDateTime.now());
+            descargas.agregarDescarga(new Descarga(fileName, url, fecha));
+
+            JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName, "Descarga completada", JOptionPane.INFORMATION_MESSAGE);
         } catch (
                 IOException e) {
             JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -410,7 +427,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de favoritos
     private void mostrarVentanaFavoritos() {
-        HashMap<String, String> favoritosMap = favoritos.obtenerFavoritos();
+        Hashtable<String, String> favoritosMap = favoritos.obtenerFavoritos();
 
         if (favoritosMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
@@ -488,7 +505,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaDescargas() {
-        List<Descarga> historialDescargas = descargas.obtenerDescargas();
+        LinkedList<Descarga> historialDescargas = descargas.obtenerDescargas();
 
         if (historialDescargas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay descargas.");

@@ -1,16 +1,17 @@
 package browser.service;
 
 import browser.dao.FavoritoDAO;
+import browser.data_structure.Hashtable;
 import browser.model.Favorito;
 
 import java.util.HashMap;
 
 public class FavoritoService {
 
-    private final HashMap<String, String> favoritos;
+    private final Hashtable<String, String> favoritos;
 
     public FavoritoService() {
-        favoritos = new HashMap<>();
+        favoritos = new Hashtable<>();
         favoritos.putAll(FavoritoDAO.getInstance().obtenerTodos());
     }
 
@@ -33,7 +34,7 @@ public class FavoritoService {
         return favoritos.containsValue(url);
     }
 
-    public HashMap<String, String> obtenerFavoritos() {
+    public Hashtable<String, String> obtenerFavoritos() {
         return favoritos;
     }
 }

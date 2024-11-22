@@ -1,17 +1,15 @@
 package browser.service;
 
 import browser.dao.DescargaDAO;
+import browser.data_structure.LinkedList;
 import browser.model.Descarga;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DescargaService {
 
-    private final List<Descarga> descargas;
+    private final LinkedList<Descarga> descargas;
 
     public DescargaService() {
-        descargas = new ArrayList<>();
+        descargas = new LinkedList<>();
         descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
     }
 
@@ -30,7 +28,7 @@ public class DescargaService {
         DescargaDAO.getInstance().eliminarTodo();
     }
 
-    public List<Descarga> obtenerDescargas() {
+    public LinkedList<Descarga> obtenerDescargas() {
         return descargas;
     }
 }

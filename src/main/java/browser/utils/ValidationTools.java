@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class ValidationTools {
 
@@ -44,14 +45,32 @@ public class ValidationTools {
     }
 
     public static String getDownloadFolder() {
-        Locale locale = Locale.getDefault();
-        String language = locale.getDisplayLanguage();
-
         String userHome = System.getProperty("user.home");
-        if (language.equals("español")) {
-            return Paths.get(userHome, "Descargas").toString();
+        String folderName;
+        if (Objects.equals(getOperatingSystem(), "Windows")) {
+            folderName = "Downloads";
         } else {
-            return Paths.get(userHome, "Downloads").toString();
+            String language = Locale.getDefault().getDisplayLanguage();
+            if (language.equals("español")) {
+                folderName = "Descargas";
+            } else {
+                folderName = "Downloads";
+            }
         }
+        return Paths.get(userHome, folderName).toString();
+    }
+
+    public static String getOperatingSystem() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return "Windows";
+        } else if (os.contains("mac")) {
+            return "MacOS";
+        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+            return "Unix";
+        } else if (os.contains("sunos")) {
+            return "Solaris";
+        }
+        return null;
     }
 }
