@@ -20,7 +20,7 @@ public class HistorialService {
         pilaAdelante = new Stack<>();
 
         historialTotal = new LinkedList<>();
-        historialTotal.addAll(HistorialDAO.obtenerTodo());
+        historialTotal.addAll(HistorialDAO.getInstance().obtenerTodo());
     }
 
     public void visitar(String url) {
