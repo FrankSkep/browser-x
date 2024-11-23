@@ -59,7 +59,7 @@ public class HistorialDAO {
         }
     }
 
-    public static LinkedList<EntradaHistorial> obtenerTodo() {
+    public LinkedList<EntradaHistorial> obtenerTodo() {
         LinkedList<EntradaHistorial> historial = new LinkedList<>();
 
         String sql = "SELECT url, fecha FROM historial";
