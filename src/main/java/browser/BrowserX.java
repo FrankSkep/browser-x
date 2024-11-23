@@ -3,6 +3,7 @@ package browser;
 import browser.data_structure.Hashtable;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
+import browser.model.EntradaHistorial;
 import browser.model.Favorito;
 import browser.service.DescargaService;
 import browser.service.FavoritoService;
@@ -233,7 +234,7 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // carga una URL en el WebView
+    // carga una URL en el WebEngine
     private void cargarURL(String url) {
         Platform.runLater(() -> webEngine.load(url));
     }
@@ -333,13 +334,13 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaHistorial() {
-        LinkedList<String> historialCompleto = historial.obtenerHistorialList();
+        LinkedList<EntradaHistorial> historialCompleto = historial.obtenerHistorial();
 
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
         } else {
             // Crear un modelo de tabla para mostrar el historial
-            String[] columnNames = {"URL"};
+            String[] columnNames = {"URL", "FECHA"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -350,9 +351,11 @@ public class BrowserX extends JFrame {
             JScrollPane scrollPane = new JScrollPane(historialTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
 
+            historialTable.getColumnModel().getColumn(0).setPreferredWidth(350);
+
             // Agregar historial al modelo de la tabla
-            for (String url : historialCompleto) {
-                tableModel.addRow(new Object[]{url});
+            for (EntradaHistorial entrada : historialCompleto) {
+                tableModel.addRow(new Object[]{entrada.getUrl(), entrada.getFecha()});
             }
 
             JButton eliminarTodoBtn = UiTools.crearBotonConIcono("Eliminar todo", "src/main/resources/icons/trash.png", 20, 20, null);
@@ -364,7 +367,7 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     actualizarEstadoBotones();
                     UiTools.cerrarVentana(cerrarBtn);
-                    historial.deleteHistory();
+                    historial.eliminarHistorial();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
             });
@@ -372,8 +375,10 @@ public class BrowserX extends JFrame {
             eliminarBtn.addActionListener(e -> {
                 int selectedRow = historialTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
-                    historialCompleto.remove(urlSeleccionada);
+                    EntradaHistorial entradaSeleccionada = new EntradaHistorial((String) tableModel.getValueAt(selectedRow, 0),
+                            (String) tableModel.getValueAt(selectedRow, 1));
+
+                    historial.eliminarEntradaHistorial(entradaSeleccionada);
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
                 } else {

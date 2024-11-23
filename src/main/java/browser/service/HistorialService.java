@@ -1,34 +1,49 @@
 package browser.service;
 
+import browser.dao.HistorialDAO;
 import browser.data_structure.LinkedList;
 import browser.data_structure.Stack;
+import browser.model.EntradaHistorial;
+import browser.utils.ValidationTools;
+
+import java.time.LocalDateTime;
 
 public class HistorialService {
-    private LinkedList<String> historialCompleto;
+    private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
+    private LinkedList<EntradaHistorial> historialTotal;
 
     public HistorialService() {
-        historialCompleto = new LinkedList<>();
+        historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
+
+        historialTotal = new LinkedList<>();
+        historialTotal.addAll(HistorialDAO.obtenerTodo());
     }
 
     public void visitar(String url) {
-        if (!historialCompleto.isEmpty()) {
-            pilaAtras.push(historialCompleto.getLast());
+        if (!historialSesion.isEmpty()) {
+            pilaAtras.push(historialSesion.getLast());
         }
-        historialCompleto.add(url);
-        pilaAdelante = new Stack<>();
+        historialSesion.add(url);
+
+        // guardar en historial general y base de datos
+        EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationTools.dateFormat(LocalDateTime.now()));
+        historialTotal.add(entradaHistorial);
+        HistorialDAO.getInstance().guardar(entradaHistorial);
+
+        pilaAdelante = new Stack<>(); // limpieza navegacion adelante
     }
 
     public String retroceder() {
         if (!pilaAtras.isEmpty()) {
-            String urlActual = historialCompleto.getLast();
+            String urlActual = historialSesion.getLast();
             pilaAdelante.push(urlActual);
             String urlAnterior = pilaAtras.pop();
-            historialCompleto.removeLast();
-            historialCompleto.add(urlAnterior);
+            historialSesion.removeLast();
+            historialSesion.add(urlAnterior);
             return urlAnterior;
         }
         return null;
@@ -36,31 +51,42 @@ public class HistorialService {
 
     public String avanzar() {
         if (!pilaAdelante.isEmpty()) {
-            String urlActual = historialCompleto.getLast();
+            String urlActual = historialSesion.getLast();
             pilaAtras.push(urlActual);
             String urlSiguiente = pilaAdelante.pop();
-            historialCompleto.removeLast();
-            historialCompleto.add(urlSiguiente);
+            historialSesion.removeLast();
+            historialSesion.add(urlSiguiente);
             return urlSiguiente;
         }
         return null;
     }
 
     public String obtenerURLActual() {
-        if (historialCompleto.isEmpty()) {
+        if (historialSesion.isEmpty()) {
             return null;
         }
-        return historialCompleto.getLast();
+        return historialSesion.getLast();
     }
 
-    public void deleteHistory() {
-        historialCompleto = new LinkedList<>();
+    private void restablecerNavegacion() {
+        historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
 
-    public LinkedList<String> obtenerHistorialList() {
-        return historialCompleto;
+    public void eliminarHistorial() {
+        historialTotal = new LinkedList<>();
+        HistorialDAO.getInstance().eliminarTodo();
+        restablecerNavegacion();
+    }
+
+    public void eliminarEntradaHistorial(EntradaHistorial entradaHistorial) {
+        historialTotal.remove(entradaHistorial);
+        HistorialDAO.getInstance().eliminar(entradaHistorial);
+    }
+
+    public LinkedList<EntradaHistorial> obtenerHistorial() {
+        return historialTotal;
     }
 
     public boolean puedeRetroceder() {

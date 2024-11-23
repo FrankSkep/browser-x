@@ -11,8 +11,7 @@ public class Db_Initializer {
         String tablaHistorial = "CREATE TABLE IF NOT EXISTS historial ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "url TEXT NOT NULL, "
-                + "fecha TEXT NOT NULL, "
-                + "titulo TEXT NOT NULL)";
+                + "fecha TEXT NOT NULL)";
 
         String tablaFavoritos = "CREATE TABLE IF NOT EXISTS favoritos ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -26,7 +25,7 @@ public class Db_Initializer {
                 + "fecha TEXT NOT NULL)";
 
         try (Statement stmt = conn.createStatement()) {
-//            stmt.execute(tablaHistorial);
+            stmt.execute(tablaHistorial);
             stmt.execute(tablaFavoritos);
             stmt.execute(tablaDescargas);
         }

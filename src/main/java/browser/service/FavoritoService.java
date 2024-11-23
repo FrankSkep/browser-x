@@ -4,8 +4,6 @@ import browser.dao.FavoritoDAO;
 import browser.data_structure.Hashtable;
 import browser.model.Favorito;
 
-import java.util.HashMap;
-
 public class FavoritoService {
 
     private final Hashtable<String, String> favoritos;
@@ -30,11 +28,11 @@ public class FavoritoService {
         FavoritoDAO.getInstance().eliminarTodos();
     }
 
-    public boolean existeFavorito(String url) {
-        return favoritos.containsValue(url);
-    }
-
     public Hashtable<String, String> obtenerFavoritos() {
         return favoritos;
+    }
+
+    public boolean existeFavorito(String url) {
+        return favoritos.containsValue(url);
     }
 }
