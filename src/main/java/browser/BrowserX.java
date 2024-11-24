@@ -7,6 +7,7 @@ import browser.model.EntradaHistorial;
 import browser.model.Favorito;
 import browser.service.DescargaService;
 import browser.service.FavoritoService;
+import browser.util.DownloadProgressDialog;
 import browser.util.UiTool;
 import browser.data_structure.LinkedList;
 import browser.service.HistorialService;
@@ -148,7 +149,8 @@ public class BrowserX extends JFrame {
 
             // Listener para descargar archivos
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
-                if (ValidationUtil.isValidFile(newValue) || ValidationUtil.esTipoDescargable(ValidationUtil.getContentType(newValue))) {
+                if (ValidationUtil.isValidFile(newValue) ||
+                        ValidationUtil.esTipoDescargable(ValidationUtil.getContentType(newValue))) {
                     descargarArchivo(newValue);
                 }
             });
@@ -201,6 +203,11 @@ public class BrowserX extends JFrame {
 
     // Método para descargar el archivo
     private void descargarArchivo(String fileUrl) {
+        DownloadProgressDialog progressDialog = new DownloadProgressDialog(this);
+
+        // Mostrar el diálogo en un hilo separado
+        SwingUtilities.invokeLater(() -> progressDialog.setVisible(true));
+
         new Thread(() -> {
             try {
                 URL url = new URL(fileUrl);
@@ -208,35 +215,39 @@ public class BrowserX extends JFrame {
                 connection.setRequestMethod("GET");
                 connection.connect();
 
+                int responseCode = connection.getResponseCode();
+                String contentType = connection.getContentType();
+
+                System.out.println("Response Code: " + responseCode);
+                System.out.println("Content Type en descargarArchivo: " + contentType);
+
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    // Intentar obtener el nombre del archivo desde Content-Disposition
                     String fileName = null;
                     String contentDisposition = connection.getHeaderField("Content-Disposition");
                     if (contentDisposition != null && contentDisposition.contains("filename=")) {
                         fileName = contentDisposition.split("filename=")[1].replace("\"", "");
                     }
-
-                    // si no se encuentra en Content-Disposition, usar el ultimo segmento de la URL
                     if (fileName == null || fileName.isBlank()) {
-                        System.out.println("Se obtiene el nombre del archivo desde la URL");
                         fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
                     }
-
-                    // si el nombre sigue vacio, se agrega nombre generico
                     if (fileName.isBlank()) {
                         fileName = "archivo_descargado";
                     }
 
                     Path downloadPath = Paths.get(ValidationUtil.getDownloadFolder(), fileName);
-
+                    int fileSize = connection.getContentLength();
                     try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
                          FileOutputStream fileOut = new FileOutputStream(downloadPath.toString())) {
 
                         byte[] buffer = new byte[1024];
                         int bytesRead;
+                        int totalBytesRead = 0;
 
                         while ((bytesRead = in.read(buffer, 0, 1024)) != -1) {
                             fileOut.write(buffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
+                            int progress = (int) ((totalBytesRead / (double) fileSize) * 100);
+                            SwingUtilities.invokeLater(() -> progressDialog.updateProgress(progress));
                         }
 
                         Platform.runLater(() -> webEngine.getHistory().go(-1));
@@ -249,6 +260,8 @@ public class BrowserX extends JFrame {
             } catch (
                     Exception e) {
                 System.out.println("Error al descargar el archivo: " + e.getMessage());
+            } finally {
+                SwingUtilities.invokeLater(progressDialog::dispose);
             }
         }).start();
     }
@@ -384,9 +397,9 @@ public class BrowserX extends JFrame {
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    actualizarEstadoBotones();
                     UiTool.cerrarVentana(cerrarBtn);
                     historialService.eliminar();
+                    actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
             });
@@ -488,6 +501,7 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
                     favoritoService.eliminarTodo();
+                    actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Favoritos eliminados.");
                 }
             });
@@ -499,6 +513,7 @@ public class BrowserX extends JFrame {
                         String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
                         favoritoService.eliminar(nombreFavorito);
                         tableModel.removeRow(selectedRow);
+                        actualizarEstadoBotones();
                         JOptionPane.showMessageDialog(null, "Favorito eliminado.");
                     }
                 } else {

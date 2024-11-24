@@ -23,11 +23,29 @@ public class ValidationUtil {
     );
 
     private static final List<String> ALLOWED_MIME_TYPES = List.of(
-            "application/",
-            "image/",
-            "audio/",
-            "video/",
-            "text/"
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/xml",
+            "application/json",
+            "application/zip",
+            "application/x-rar-compressed",
+            "application/x-tar",
+            "application/gzip",
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/bmp",
+            "image/svg+xml",
+            "image/x-icon",
+            "audio/mpeg",
+            "video/mp4",
+            "text/plain",
+            "text/csv"
     );
 
     public static boolean isValidUrl(String url) {
@@ -67,7 +85,9 @@ public class ValidationUtil {
     }
 
     public static boolean esTipoDescargable(String contentType) {
-        return ALLOWED_MIME_TYPES.contains(contentType.substring(0, contentType.indexOf("/")));
+        if (contentType == null)
+            return false;
+        return ALLOWED_MIME_TYPES.contains(contentType);
     }
 
     public static String dateFormat(LocalDateTime fecha) {

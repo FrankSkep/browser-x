@@ -1,22 +1,39 @@
-# BrowserX
+# **BrowserX**
 
-BrowserX es un navegador web ligero desarrollado en Java utilizando Swing y JavaFX. Este navegador incluye funcionalidades básicas como navegación, historial, favoritos, descargas y búsquedas.
+**BrowserX** es un navegador web ligero desarrollado en **Java**, utilizando **Swing** y **JavaFX**, Incluye funcionalidades basicas como navegación, historial, favoritos, descargas y búsqueda integrada.
 
-## Características
+---
 
-- **Navegación Web**: Permite navegar por la web utilizando un componente WebView de JavaFX.
-- **Historial**: Guarda el historial de navegación y permite visualizarlo y gestionarlo.
-- **Favoritos**: Permite agregar, eliminar y gestionar favoritos.
-- **Descargas**: Descarga archivos y guarda un registro de las descargas realizadas.
-- **Búsquedas**: Permite realizar búsquedas en Google directamente desde el navegador.
+## **Características**
 
-## Requisitos
+### 🖥️ Navegación Web
+- Navega por la web.
 
-- Java 17 o superior
-- Maven
+### 📜 Historial
+- Registra automáticamente las páginas visitadas.
+- Visualiza, busca y administra tu historial de navegación.
 
-## Licencia
+### ⭐ Favoritos
+- Guarda tus páginas favoritas para acceder rápidamente.
+- Añade, elimina y organiza tus sitios favoritos.
 
-**Este proyecto está licenciado bajo la [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).**
+### 📂 Descargas
+- Descarga archivos.
+- Visualiza un registro detallado de tus descargas realizadas.
 
-© 2024 FrankSkep. Para más detalles, consulte el archivo completo [LICENSE](LICENSE).
+### 🔍 Búsquedas
+- Realiza búsquedas utilizando **Google** como motor de búsqueda predeterminado.
+
+---
+
+## **Requisitos**
+
+- **Java JDK 21** o superior.
+
+---
+
+## **Licencia**
+
+**[GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html)**.
+
+© 2024 FrankSkep. Consultar el archivo [LICENSE](LICENSE) para mas informacion.
