@@ -22,20 +22,19 @@ import javafx.scene.web.WebView;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 
 public class BrowserX extends JFrame {
-    private final HistorialService historial;
-    private final FavoritoService favoritos;
-    private final DescargaService descargas;
+    private final HistorialService historialService;
+    private final FavoritoService favoritoService;
+    private final DescargaService descargaService;
     private WebView webView;
     private WebEngine webEngine;
 
@@ -51,9 +50,9 @@ public class BrowserX extends JFrame {
 
     public BrowserX() {
         Db_Connection.initializeDatabase();
-        historial = new HistorialService();
-        favoritos = new FavoritoService();
-        descargas = new DescargaService();
+        historialService = new HistorialService();
+        favoritoService = new FavoritoService();
+        descargaService = new DescargaService();
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -131,7 +130,7 @@ public class BrowserX extends JFrame {
                 if (newState == Worker.State.RUNNING) {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
-                        historial.visitar(finalUrl);
+                        historialService.agregarUrl(finalUrl);
                     }
                     navegacionUsuario = false;
                     actualizarInterfazSwing();
@@ -143,13 +142,12 @@ public class BrowserX extends JFrame {
                 }
             });
 
-            // ChangeListener a la propiedad location del WebEngine
+            // Listener para descargar archivos
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    if (ValidationTools.isValidFile(newValue)) {
-                        descargarArchivo(newValue);
-                        webEngine.getHistory().go(-1); // Volver a la página anterior
-                    }
+                String contentType = ValidationTools.getContentType(newValue);
+
+                if (ValidationTools.isValidFile(newValue) || ValidationTools.esTipoDescargable(contentType)) {
+                    descargarArchivo(newValue);
                 }
             });
 
@@ -206,32 +204,57 @@ public class BrowserX extends JFrame {
     }
 
     // Método para descargar el archivo
-    private void descargarArchivo(String url) {
-        try {
-            // obtener el nombre del archivo de la URL
-            String fileName = url.substring(url.lastIndexOf('/') + 1);
+    private void descargarArchivo(String fileUrl) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(fileUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
 
-            // definir la ruta de descarga
-            String downloadFolder = ValidationTools.getDownloadFolder();
-            Path downloadPath = Paths.get(downloadFolder, fileName);
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    // Intentar obtener el nombre del archivo desde Content-Disposition
+                    String fileName = null;
+                    String contentDisposition = connection.getHeaderField("Content-Disposition");
+                    if (contentDisposition != null && contentDisposition.contains("filename=")) {
+                        fileName = contentDisposition.split("filename=")[1].replace("\"", "");
+                    }
 
-            // Descargar el archivo
-            try (InputStream in = new URI(url).toURL().openStream()) {
-                Files.copy(in, downloadPath, StandardCopyOption.REPLACE_EXISTING);
+                    // si no se encuentra en Content-Disposition, usar el ultimo segmento de la URL
+                    if (fileName == null || fileName.isBlank()) {
+                        System.out.println("Se obtiene el nombre del archivo desde la URL");
+                        fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+                    }
+
+                    // si el nombre sigue vacio, se agrega nombre generico
+                    if (fileName.isBlank()) {
+                        fileName = "archivo_descargado";
+                    }
+
+                    Path downloadPath = Paths.get(ValidationTools.getDownloadFolder(), fileName);
+
+                    try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
+                         FileOutputStream fileOut = new FileOutputStream(downloadPath.toString())) {
+
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+
+                        while ((bytesRead = in.read(buffer, 0, 1024)) != -1) {
+                            fileOut.write(buffer, 0, bytesRead);
+                        }
+
+                        Platform.runLater(() -> webEngine.getHistory().go(-1));
+                        JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
+                        descargaService.guardarDescarga(new Descarga(fileName, fileUrl, ValidationTools.dateFormat(LocalDateTime.now())));
+                    }
+                } else {
+                    System.err.println("Error al descargar el archivo: " + connection.getResponseMessage());
+                }
             } catch (
-                    URISyntaxException e) {
-                JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    Exception e) {
+                System.out.println("Error al descargar el archivo: " + e.getMessage());
             }
-
-            // registrar la descarga en la base de datos
-            String fecha = ValidationTools.dateFormat(LocalDateTime.now());
-            descargas.agregarDescarga(new Descarga(fileName, url, fecha));
-
-            JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName, "Descarga completada", JOptionPane.INFORMATION_MESSAGE);
-        } catch (
-                IOException e) {
-            JOptionPane.showMessageDialog(this, "Error al descargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        }).start();
     }
 
     // carga una URL en el WebEngine
@@ -251,7 +274,7 @@ public class BrowserX extends JFrame {
             url = "";
         }
         if (!url.isEmpty() || !url.isBlank()) {
-            if (ValidationTools.containsDomain(url)) {
+            if (ValidationTools.isValidUrl(url)) {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
@@ -268,7 +291,7 @@ public class BrowserX extends JFrame {
 
     // retroceder en el historial
     private void retrocederPagina() {
-        String urlAnterior = historial.retroceder();
+        String urlAnterior = historialService.retroceder();
         if (urlAnterior != null) {
             navegacionUsuario = true;
             cargarURL(urlAnterior);
@@ -277,7 +300,7 @@ public class BrowserX extends JFrame {
 
     // avanzar en el historial
     private void avanzarPagina() {
-        String urlSiguiente = historial.avanzar();
+        String urlSiguiente = historialService.avanzar();
         if (urlSiguiente != null) {
             navegacionUsuario = true;
             cargarURL(urlSiguiente);
@@ -286,7 +309,7 @@ public class BrowserX extends JFrame {
 
     // actualizar la URL en el campo de texto
     private void actualizarInterfazSwing() {
-        String urlActual = historial.obtenerURLActual();
+        String urlActual = historialService.obtenerURLActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
@@ -334,7 +357,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaHistorial() {
-        LinkedList<EntradaHistorial> historialCompleto = historial.obtenerHistorial();
+        LinkedList<EntradaHistorial> historialCompleto = historialService.obtener();
 
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
@@ -367,7 +390,7 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     actualizarEstadoBotones();
                     UiTools.cerrarVentana(cerrarBtn);
-                    historial.eliminarHistorial();
+                    historialService.eliminar();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
             });
@@ -378,7 +401,7 @@ public class BrowserX extends JFrame {
                     EntradaHistorial entradaSeleccionada = new EntradaHistorial((String) tableModel.getValueAt(selectedRow, 0),
                             (String) tableModel.getValueAt(selectedRow, 1));
 
-                    historial.eliminarEntradaHistorial(entradaSeleccionada);
+                    historialService.eliminarEntrada(entradaSeleccionada);
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
                 } else {
@@ -407,7 +430,7 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // agrega una URL a favoritos
+    // agrega un favorito
     private void agregarFavorito() {
         String url = urlTextField.getText();
         if (url.equals("Ingrese una URL") || url.isEmpty()) {
@@ -416,10 +439,10 @@ public class BrowserX extends JFrame {
             String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
             if (nombre != null) {
                 if (!nombre.isEmpty() && !nombre.isBlank()) {
-                    if (favoritos.existeFavorito(url)) {
+                    if (favoritoService.existe(url)) {
                         JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
                     } else {
-                        favoritos.insertarFavorito(new Favorito(nombre, url));
+                        favoritoService.guardar(new Favorito(nombre, url));
                         JOptionPane.showMessageDialog(this, "Favorito agregado.");
                     }
                 } else {
@@ -432,7 +455,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de favoritos
     private void mostrarVentanaFavoritos() {
-        Hashtable<String, String> favoritosMap = favoritos.obtenerFavoritos();
+        Hashtable<String, String> favoritosMap = favoritoService.obtener();
 
         if (favoritosMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
@@ -468,7 +491,7 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTools.cerrarVentana(cerrarBtn);
-                    favoritos.eliminarFavoritos();
+                    favoritoService.eliminarTodo();
                     JOptionPane.showMessageDialog(null, "Favoritos eliminados.");
                 }
             });
@@ -478,7 +501,7 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
-                        favoritos.eliminarFavorito(nombreFavorito);
+                        favoritoService.eliminar(nombreFavorito);
                         tableModel.removeRow(selectedRow);
                         JOptionPane.showMessageDialog(null, "Favorito eliminado.");
                     }
@@ -510,7 +533,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaDescargas() {
-        LinkedList<Descarga> historialDescargas = descargas.obtenerDescargas();
+        LinkedList<Descarga> historialDescargas = descargaService.obtenerTodo();
 
         if (historialDescargas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay descargas.");
@@ -543,7 +566,7 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todas las descargas?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTools.cerrarVentana(cerrarBtn);
-                    descargas.eliminarDescargas();
+                    descargaService.eliminarTodo();
                     JOptionPane.showMessageDialog(null, "Descargas eliminadas.");
                 }
             });
@@ -554,7 +577,7 @@ public class BrowserX extends JFrame {
                     String nombre = (String) tableModel.getValueAt(selectedRow, 0);
                     String url = (String) tableModel.getValueAt(selectedRow, 1);
                     String fecha = (String) tableModel.getValueAt(selectedRow, 2);
-                    descargas.eliminarDescarga(new Descarga(nombre, url, fecha));
+                    descargaService.eliminar(new Descarga(nombre, url, fecha));
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Descarga eliminada.");
                 } else {
@@ -572,10 +595,11 @@ public class BrowserX extends JFrame {
         }
     }
 
+    // actualiza el estado de los botones de navegación
     private void actualizarEstadoBotones() {
-        retrocederBtn.setEnabled(historial.puedeRetroceder());
-        avanzarBtn.setEnabled(historial.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritos.existeFavorito(historial.obtenerURLActual()));
+        retrocederBtn.setEnabled(historialService.puedeRetroceder());
+        avanzarBtn.setEnabled(historialService.puedeAvanzar());
+        favoritosBtn.setEnabled(!favoritoService.existe(historialService.obtenerURLActual()));
     }
 
     public static void main(String[] args) {
@@ -584,9 +608,9 @@ public class BrowserX extends JFrame {
             new BrowserX(); // Creacion ventana principal
         });
 
-        // shutdown hook para asegurarse de que todas las tareas de JavaFX se completen antes de cerrar
+        // shutdown hook para asegurar que todas las tareas de JavaFX se completen antes de cerrar
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Platform.runLater(Platform::exit); // Cerrar la aplicación JavaFX
+            Platform.runLater(Platform::exit); // cerrar app JavaFX
         }));
     }
 }

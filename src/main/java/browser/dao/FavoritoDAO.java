@@ -51,7 +51,7 @@ public class FavoritoDAO {
         }
     }
 
-    public void eliminarTodos() {
+    public void eliminarTodo() {
         String sql = "DELETE FROM favoritos";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -63,7 +63,7 @@ public class FavoritoDAO {
         }
     }
 
-    public Hashtable<String, String> obtenerTodos() {
+    public Hashtable<String, String> obtenerTodo() {
         String sql = "SELECT nombre, url FROM favoritos";
 
         try (Connection conn = Db_Connection.getConnection();

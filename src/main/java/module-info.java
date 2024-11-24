@@ -5,4 +5,5 @@ module BrowserX {
     requires com.formdev.flatlaf;
     requires java.sql;
     requires static lombok;
+    requires org.apache.commons.io;
 }
