@@ -4,7 +4,7 @@ import browser.dao.HistorialDAO;
 import browser.data_structure.LinkedList;
 import browser.data_structure.Stack;
 import browser.model.EntradaHistorial;
-import browser.utils.ValidationTools;
+import browser.util.ValidationUtil;
 
 import java.time.LocalDateTime;
 
@@ -70,7 +70,7 @@ public class HistorialService {
 
     // guardar en historial general y base de datos
     public void agregarEntradaHistorial(String url) {
-        EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationTools.dateFormat(LocalDateTime.now()));
+        EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
         historialCompleto.add(entradaHistorial);
         HistorialDAO.getInstance().guardar(entradaHistorial);
     }

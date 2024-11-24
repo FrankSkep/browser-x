@@ -1,4 +1,4 @@
-package browser.utils;
+package browser.util;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class ValidationTools {
+public class ValidationUtil {
 
     private static final List<String> ALLOWED_DOMAINS = List.of(
             ".com", ".org", ".net", ".edu", ".gov", ".info", ".io", ".biz", ".name", ".me", ".tech", ".online", ".dev", ".app", ".blog",
@@ -30,12 +30,10 @@ public class ValidationTools {
             "text/"
     );
 
-
     public static boolean isValidUrl(String url) {
         if (url == null || url.isBlank()) {
             return false;
         }
-
         return !url.contains(" ") && url.contains(".");
     }
 
@@ -43,7 +41,6 @@ public class ValidationTools {
         if (url == null || url.isBlank()) {
             return false;
         }
-        // recorrer los dominios permitidos para verificar
         return ALLOWED_DOMAINS.stream().anyMatch(url::endsWith);
     }
 
@@ -51,8 +48,6 @@ public class ValidationTools {
         if (fileUrl == null || fileUrl.isBlank()) {
             return false;
         }
-
-        // Validar por extensión permitida
         return ALLOWED_FILES.stream().anyMatch(fileUrl::endsWith);
     }
 
@@ -70,7 +65,6 @@ public class ValidationTools {
         }
         return contentType;
     }
-
 
     public static boolean esTipoDescargable(String contentType) {
         return ALLOWED_MIME_TYPES.contains(contentType.substring(0, contentType.indexOf("/")));

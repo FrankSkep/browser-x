@@ -1,4 +1,4 @@
-package browser.utils;
+package browser.util;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-public class UiTools {
+public class UiTool {
 
     // Redimensiona una imagen a un tamaño específico
     private static Image redimensionarImagen(String path, int width, int height) {
