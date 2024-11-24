@@ -10,29 +10,29 @@ public class FavoritoService {
 
     public FavoritoService() {
         favoritos = new Hashtable<>();
-        favoritos.putAll(FavoritoDAO.getInstance().obtenerTodos());
+        favoritos.putAll(FavoritoDAO.getInstance().obtenerTodo());
     }
 
-    public void insertarFavorito(Favorito favorito) {
+    public void guardar(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
         FavoritoDAO.getInstance().guardar(favorito);
     }
 
-    public void eliminarFavorito(String nombre) {
+    public void eliminar(String nombre) {
         favoritos.remove(nombre);
         FavoritoDAO.getInstance().eliminar(nombre);
     }
 
-    public void eliminarFavoritos() {
+    public void eliminarTodo() {
         favoritos.clear();
-        FavoritoDAO.getInstance().eliminarTodos();
+        FavoritoDAO.getInstance().eliminarTodo();
     }
 
-    public Hashtable<String, String> obtenerFavoritos() {
+    public Hashtable<String, String> obtener() {
         return favoritos;
     }
 
-    public boolean existeFavorito(String url) {
+    public boolean existe(String url) {
         return favoritos.containsValue(url);
     }
 }

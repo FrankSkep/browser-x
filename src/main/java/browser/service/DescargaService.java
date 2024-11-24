@@ -13,22 +13,22 @@ public class DescargaService {
         descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
     }
 
-    public void agregarDescarga(Descarga descarga) {
+    public void guardarDescarga(Descarga descarga) {
         descargas.add(descarga);
         DescargaDAO.getInstance().guardar(descarga);
     }
 
-    public void eliminarDescarga(Descarga descarga) {
+    public void eliminar(Descarga descarga) {
         descargas.remove(descarga);
         DescargaDAO.getInstance().eliminar(descarga.getNombre());
     }
 
-    public void eliminarDescargas() {
+    public void eliminarTodo() {
         descargas.clear();
         DescargaDAO.getInstance().eliminarTodo();
     }
 
-    public LinkedList<Descarga> obtenerDescargas() {
+    public LinkedList<Descarga> obtenerTodo() {
         return descargas;
     }
 }

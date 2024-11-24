@@ -12,29 +12,28 @@ public class HistorialService {
     private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
-    private LinkedList<EntradaHistorial> historialTotal;
+    private LinkedList<EntradaHistorial> historialCompleto;
 
     public HistorialService() {
         historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
 
-        historialTotal = new LinkedList<>();
-        historialTotal.addAll(HistorialDAO.getInstance().obtenerTodo());
+        historialCompleto = new LinkedList<>();
+        historialCompleto.addAll(HistorialDAO.getInstance().obtenerTodo());
     }
 
-    public void visitar(String url) {
+    public void agregarUrl(String url) {
         if (!historialSesion.isEmpty()) {
             pilaAtras.push(historialSesion.getLast());
         }
         historialSesion.add(url);
+        pilaAdelante = new Stack<>(); // limpieza navegacion adelante
 
         // guardar en historial general y base de datos
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationTools.dateFormat(LocalDateTime.now()));
-        historialTotal.add(entradaHistorial);
+        historialCompleto.add(entradaHistorial);
         HistorialDAO.getInstance().guardar(entradaHistorial);
-
-        pilaAdelante = new Stack<>(); // limpieza navegacion adelante
     }
 
     public String retroceder() {
@@ -74,19 +73,19 @@ public class HistorialService {
         pilaAdelante = new Stack<>();
     }
 
-    public void eliminarHistorial() {
-        historialTotal = new LinkedList<>();
+    public void eliminar() {
+        historialCompleto = new LinkedList<>();
         HistorialDAO.getInstance().eliminarTodo();
         restablecerNavegacion();
     }
 
-    public void eliminarEntradaHistorial(EntradaHistorial entradaHistorial) {
-        historialTotal.remove(entradaHistorial);
+    public void eliminarEntrada(EntradaHistorial entradaHistorial) {
+        historialCompleto.remove(entradaHistorial);
         HistorialDAO.getInstance().eliminar(entradaHistorial);
     }
 
-    public LinkedList<EntradaHistorial> obtenerHistorial() {
-        return historialTotal;
+    public LinkedList<EntradaHistorial> obtener() {
+        return historialCompleto;
     }
 
     public boolean puedeRetroceder() {
