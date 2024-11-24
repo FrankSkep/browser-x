@@ -24,7 +24,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
@@ -43,7 +42,7 @@ public class BrowserX extends JFrame {
     private final JButton avanzarBtn;
     private final JButton favoritosBtn;
 
-    private final String googleUrl = "https://www.google.com";
+    private final String googleUrl = "https://www.google.com/";
 
     // bandera para saber si la navegación fue natural o por avanzar/retroceder
     private boolean navegacionUsuario = false;
@@ -130,10 +129,14 @@ public class BrowserX extends JFrame {
                 if (newState == Worker.State.RUNNING) {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
-                        historialService.agregarUrl(finalUrl);
+                        historialService.agregarUrlNavegacion(finalUrl);
+
+                        if (!finalUrl.equals(googleUrl) && !finalUrl.equals("about:blank")) {
+                            historialService.agregarEntradaHistorial(finalUrl);
+                        }
                     }
                     navegacionUsuario = false;
-                    actualizarInterfazSwing();
+                    actualizarCampoUrl();
                     actualizarEstadoBotones();
 
                 } else if (newState == Worker.State.FAILED) {
@@ -144,9 +147,7 @@ public class BrowserX extends JFrame {
 
             // Listener para descargar archivos
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
-                String contentType = ValidationTools.getContentType(newValue);
-
-                if (ValidationTools.isValidFile(newValue) || ValidationTools.esTipoDescargable(contentType)) {
+                if (ValidationTools.isValidFile(newValue) || ValidationTools.esTipoDescargable(ValidationTools.getContentType(newValue))) {
                     descargarArchivo(newValue);
                 }
             });
@@ -171,6 +172,8 @@ public class BrowserX extends JFrame {
                 if (urlTextField.getText().equals("Ingrese una URL")) {
                     urlTextField.setText("");
                     urlTextField.setForeground(Color.BLACK);
+                } else { // seleccionar todo el texto al obtener el foco
+                    urlTextField.selectAll();
                 }
             }
 
@@ -180,14 +183,6 @@ public class BrowserX extends JFrame {
                     urlTextField.setText("Ingrese una URL");
                     urlTextField.setForeground(Color.GRAY);
                 }
-            }
-        });
-
-        // Listener para seleccionar todo el texto al hacer clic
-        urlTextField.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                urlTextField.selectAll();
             }
         });
 
@@ -308,7 +303,7 @@ public class BrowserX extends JFrame {
     }
 
     // actualizar la URL en el campo de texto
-    private void actualizarInterfazSwing() {
+    private void actualizarCampoUrl() {
         String urlActual = historialService.obtenerURLActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);

@@ -23,17 +23,12 @@ public class HistorialService {
         historialCompleto.addAll(HistorialDAO.getInstance().obtenerTodo());
     }
 
-    public void agregarUrl(String url) {
+    public void agregarUrlNavegacion(String url) {
         if (!historialSesion.isEmpty()) {
             pilaAtras.push(historialSesion.getLast());
         }
         historialSesion.add(url);
         pilaAdelante = new Stack<>(); // limpieza navegacion adelante
-
-        // guardar en historial general y base de datos
-        EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationTools.dateFormat(LocalDateTime.now()));
-        historialCompleto.add(entradaHistorial);
-        HistorialDAO.getInstance().guardar(entradaHistorial);
     }
 
     public String retroceder() {
@@ -71,6 +66,13 @@ public class HistorialService {
         historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
+    }
+
+    // guardar en historial general y base de datos
+    public void agregarEntradaHistorial(String url) {
+        EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationTools.dateFormat(LocalDateTime.now()));
+        historialCompleto.add(entradaHistorial);
+        HistorialDAO.getInstance().guardar(entradaHistorial);
     }
 
     public void eliminar() {
