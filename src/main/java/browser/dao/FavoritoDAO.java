@@ -14,8 +14,7 @@ public class FavoritoDAO {
 
     private static FavoritoDAO instance = null;
 
-    private FavoritoDAO() {
-    }
+    private FavoritoDAO() {}
 
     public static synchronized FavoritoDAO getInstance() {
         if (instance == null) {
@@ -26,6 +25,7 @@ public class FavoritoDAO {
 
     public void guardar(Favorito favorito) {
         String sql = "INSERT INTO favoritos (nombre, url) VALUES (?, ?)";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
@@ -40,6 +40,7 @@ public class FavoritoDAO {
 
     public void eliminar(String nombre) {
         String sql = "DELETE FROM favoritos WHERE nombre = ?";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
@@ -53,6 +54,7 @@ public class FavoritoDAO {
 
     public void eliminarTodo() {
         String sql = "DELETE FROM favoritos";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -65,21 +67,21 @@ public class FavoritoDAO {
 
     public Hashtable<String, String> obtenerTodo() {
         String sql = "SELECT nombre, url FROM favoritos";
+        Hashtable<String, String> favoritos = new Hashtable<>();
 
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             ResultSet rs = pstmt.executeQuery();
 
-            Hashtable<String, String> favoritos = new Hashtable<>();
             while (rs.next()) {
                 favoritos.put(rs.getString("nombre"), rs.getString("url"));
             }
-            return favoritos;
         } catch (
                 SQLException e) {
             JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return new Hashtable<>();
         }
+        return favoritos;
     }
 
 }

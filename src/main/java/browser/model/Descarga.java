@@ -2,13 +2,11 @@ package browser.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 public class Descarga {
@@ -18,9 +16,11 @@ public class Descarga {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true;}
+        if (this == o)
+            return true;
 
-        if (o == null || getClass() != o.getClass()) {return false;}
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Descarga descarga = (Descarga) o;
         return Objects.equals(nombre, descarga.nombre) &&

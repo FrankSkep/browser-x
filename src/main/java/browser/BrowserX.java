@@ -7,11 +7,11 @@ import browser.model.EntradaHistorial;
 import browser.model.Favorito;
 import browser.service.DescargaService;
 import browser.service.FavoritoService;
-import browser.util.DownloadProgressDialog;
 import browser.util.UiTool;
+import browser.util.ValidationUtil;
+import browser.util.DownloadProgressDialog;
 import browser.data_structure.LinkedList;
 import browser.service.HistorialService;
-import browser.util.ValidationUtil;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -134,7 +134,7 @@ public class BrowserX extends JFrame {
                         historialService.agregarUrlNavegacion(finalUrl);
 
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            historialService.agregarEntradaHistorial(finalUrl);
+                            historialService.guardarEnHistorial(finalUrl);
                         }
                     }
                     navegacionUsuario = false;
@@ -332,24 +332,30 @@ public class BrowserX extends JFrame {
         ImageIcon favoritosIcon = UiTool.cargarIcono(ICONS_PATH + "favoritos.png", 25, 25);
         ImageIcon descargasIcon = UiTool.cargarIcono(ICONS_PATH + "downloads.png", 25, 25);
 
-        // botones del menu
+        // opciones del menu
         JMenuItem historialOpc = new JMenuItem("Historial", historialIcon);
         JMenuItem favoritosOpc = new JMenuItem("Favoritos", favoritosIcon);
         JMenuItem descargasOpc = new JMenuItem("Descargas", descargasIcon);
+
+        // espacio entre icono y texto
         historialOpc.setIconTextGap(20);
         favoritosOpc.setIconTextGap(20);
         descargasOpc.setIconTextGap(20);
+
+        // fuente para las opciones del menu
         Font font = new Font("Arial", Font.PLAIN, 16);
         historialOpc.setFont(font);
         favoritosOpc.setFont(font);
         descargasOpc.setFont(font);
 
+        // menu emergente
         JPopupMenu menuEmergente = new JPopupMenu();
         menuEmergente.add(historialOpc);
         menuEmergente.add(favoritosOpc);
         menuEmergente.add(descargasOpc);
         menuEmergente.setPreferredSize(new Dimension(200, 150));
 
+        // mostrar menu en la posición correcta
         Point location = SwingUtilities.convertPoint(menuButton, 0, 0, this);
         int x = location.x;
         int y = location.y + menuButton.getHeight();
@@ -359,6 +365,7 @@ public class BrowserX extends JFrame {
         }
         menuEmergente.show(this, x, y);
 
+        // listeners para las opciones del menu
         historialOpc.addActionListener(e -> mostrarVentanaHistorial());
         favoritosOpc.addActionListener(e -> mostrarVentanaFavoritos());
         descargasOpc.addActionListener(e -> mostrarVentanaDescargas());
@@ -366,7 +373,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaHistorial() {
-        LinkedList<EntradaHistorial> historialCompleto = historialService.obtener();
+        LinkedList<EntradaHistorial> historialCompleto = historialService.obtenerTodo();
 
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
@@ -398,7 +405,7 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
-                    historialService.eliminar();
+                    historialService.eliminarTodo();
                     actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -448,10 +455,10 @@ public class BrowserX extends JFrame {
             String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
             if (nombre != null) {
                 if (!nombre.isEmpty() && !nombre.isBlank()) {
-                    if (favoritoService.existe(url)) {
+                    if (favoritoService.existeFavorito(url)) {
                         JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
                     } else {
-                        favoritoService.guardar(new Favorito(nombre, url));
+                        favoritoService.agregarFavorito(new Favorito(nombre, url));
                         JOptionPane.showMessageDialog(this, "Favorito agregado.");
                     }
                 } else {
@@ -464,7 +471,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de favoritos
     private void mostrarVentanaFavoritos() {
-        Hashtable<String, String> favoritosMap = favoritoService.obtener();
+        Hashtable<String, String> favoritosMap = favoritoService.obtenerTodo();
 
         if (favoritosMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
@@ -511,7 +518,7 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
-                        favoritoService.eliminar(nombreFavorito);
+                        favoritoService.eliminarFavorito(nombreFavorito);
                         tableModel.removeRow(selectedRow);
                         actualizarEstadoBotones();
                         JOptionPane.showMessageDialog(null, "Favorito eliminado.");
@@ -588,7 +595,7 @@ public class BrowserX extends JFrame {
                     String nombre = (String) tableModel.getValueAt(selectedRow, 0);
                     String url = (String) tableModel.getValueAt(selectedRow, 1);
                     String fecha = (String) tableModel.getValueAt(selectedRow, 2);
-                    descargaService.eliminar(new Descarga(nombre, url, fecha));
+                    descargaService.eliminarDescarga(new Descarga(nombre, url, fecha));
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Descarga eliminada.");
                 } else {
@@ -610,7 +617,7 @@ public class BrowserX extends JFrame {
     private void actualizarEstadoBotones() {
         retrocederBtn.setEnabled(historialService.puedeRetroceder());
         avanzarBtn.setEnabled(historialService.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existe(historialService.obtenerURLActual()));
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(historialService.obtenerURLActual()));
     }
 
     public static void main(String[] args) {

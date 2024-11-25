@@ -14,8 +14,7 @@ public class DescargaDAO {
 
     private static DescargaDAO instance = null;
 
-    private DescargaDAO() {
-    }
+    private DescargaDAO() {}
 
     public static synchronized DescargaDAO getInstance() {
         if (instance == null) {
@@ -25,8 +24,10 @@ public class DescargaDAO {
     }
 
     public void guardar(Descarga descarga) {
+        String sql = "INSERT INTO descargas (nombre, url, fecha) VALUES (?, ?, ?)";
+
         try (Connection connection = Db_Connection.getConnection();
-             var statement = connection.prepareStatement("INSERT INTO descargas (nombre, url, fecha) VALUES (?, ?, ?)")) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, descarga.getNombre());
             statement.setString(2, descarga.getUrl());
             statement.setString(3, descarga.getFecha());
@@ -39,6 +40,7 @@ public class DescargaDAO {
 
     public void eliminar(String nombre) {
         String sql = "DELETE FROM descargas WHERE nombre = ?";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);) {
             stmt.setString(1, nombre);
@@ -51,6 +53,7 @@ public class DescargaDAO {
 
     public void eliminarTodo() {
         String sql = "DELETE FROM descargas";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);) {
             stmt.executeUpdate();
@@ -62,12 +65,13 @@ public class DescargaDAO {
 
     public LinkedList<Descarga> obtenerTodo() {
         String sql = "SELECT * FROM descargas";
+        LinkedList<Descarga> descargas = new LinkedList<>();
 
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);) {
+
             ResultSet resultSet = stmt.executeQuery();
 
-            LinkedList<Descarga> descargas = new LinkedList<>();
             while (resultSet.next()) {
                 descargas.add(new Descarga(
                         resultSet.getString("nombre"),
@@ -75,11 +79,10 @@ public class DescargaDAO {
                         resultSet.getString("fecha")
                 ));
             }
-            return descargas;
         } catch (
                 Exception e) {
             JOptionPane.showMessageDialog(null, "Ocurrio un error:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        return new LinkedList<>();
+        return descargas;
     }
 }

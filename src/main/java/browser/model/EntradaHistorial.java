@@ -15,12 +15,12 @@ public class EntradaHistorial {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
+        if (obj == this)
             return true;
-        }
-        if (!(obj instanceof EntradaHistorial entradaHistorial)) {
+
+        if (!(obj instanceof EntradaHistorial entradaHistorial))
             return false;
-        }
+
         return url.equals(entradaHistorial.url) && fecha.equals(entradaHistorial.fecha);
     }
 

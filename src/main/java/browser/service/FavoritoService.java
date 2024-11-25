@@ -13,12 +13,12 @@ public class FavoritoService {
         favoritos.putAll(FavoritoDAO.getInstance().obtenerTodo());
     }
 
-    public void guardar(Favorito favorito) {
+    public void agregarFavorito(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
         FavoritoDAO.getInstance().guardar(favorito);
     }
 
-    public void eliminar(String nombre) {
+    public void eliminarFavorito(String nombre) {
         favoritos.remove(nombre);
         FavoritoDAO.getInstance().eliminar(nombre);
     }
@@ -28,11 +28,11 @@ public class FavoritoService {
         FavoritoDAO.getInstance().eliminarTodo();
     }
 
-    public Hashtable<String, String> obtener() {
+    public Hashtable<String, String> obtenerTodo() {
         return favoritos;
     }
 
-    public boolean existe(String url) {
+    public boolean existeFavorito(String url) {
         return favoritos.containsValue(url);
     }
 }

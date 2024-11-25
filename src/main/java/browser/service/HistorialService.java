@@ -69,13 +69,13 @@ public class HistorialService {
     }
 
     // guardar en historial general y base de datos
-    public void agregarEntradaHistorial(String url) {
+    public void guardarEnHistorial(String url) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
         historialCompleto.add(entradaHistorial);
         HistorialDAO.getInstance().guardar(entradaHistorial);
     }
 
-    public void eliminar() {
+    public void eliminarTodo() {
         historialCompleto = new LinkedList<>();
         HistorialDAO.getInstance().eliminarTodo();
         restablecerNavegacion();
@@ -86,7 +86,7 @@ public class HistorialService {
         HistorialDAO.getInstance().eliminar(entradaHistorial);
     }
 
-    public LinkedList<EntradaHistorial> obtener() {
+    public LinkedList<EntradaHistorial> obtenerTodo() {
         return historialCompleto;
     }
 

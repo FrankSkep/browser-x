@@ -18,7 +18,7 @@ public class DescargaService {
         DescargaDAO.getInstance().guardar(descarga);
     }
 
-    public void eliminar(Descarga descarga) {
+    public void eliminarDescarga(Descarga descarga) {
         descargas.remove(descarga);
         DescargaDAO.getInstance().eliminar(descarga.getNombre());
     }

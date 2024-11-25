@@ -12,8 +12,7 @@ public class HistorialDAO {
 
     private static HistorialDAO instance = null;
 
-    private HistorialDAO() {
-    }
+    private HistorialDAO() {}
 
     public static synchronized HistorialDAO getInstance() {
         if (instance == null) {
@@ -24,8 +23,10 @@ public class HistorialDAO {
 
     public void guardar(EntradaHistorial entradaHistorial) {
         String sql = "INSERT INTO historial(url, fecha) VALUES(?, ?)";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
+
             pstmt.setString(1, entradaHistorial.getUrl());
             pstmt.setString(2, entradaHistorial.getFecha());
             pstmt.executeUpdate();
@@ -37,8 +38,10 @@ public class HistorialDAO {
 
     public void eliminar(EntradaHistorial entradaHistorial) {
         String sql = "DELETE FROM historial WHERE url = ? AND fecha = ?";
+
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
+
             pstmt.setString(1, entradaHistorial.getUrl());
             pstmt.setString(2, entradaHistorial.getFecha());
             pstmt.executeUpdate();
@@ -60,9 +63,8 @@ public class HistorialDAO {
     }
 
     public LinkedList<EntradaHistorial> obtenerTodo() {
-        LinkedList<EntradaHistorial> historial = new LinkedList<>();
-
         String sql = "SELECT url, fecha FROM historial";
+        LinkedList<EntradaHistorial> historial = new LinkedList<>();
 
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);) {
@@ -74,8 +76,6 @@ public class HistorialDAO {
                 Exception e) {
             System.out.println(e.getMessage());
         }
-
         return historial;
     }
-
 }
