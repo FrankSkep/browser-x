@@ -302,7 +302,6 @@ public class BrowserX extends JFrame {
     private void retrocederPagina() {
         String urlAnterior = historialService.retroceder();
         if (urlAnterior != null) {
-            navegacionUsuario = true;
             cargarURL(urlAnterior);
         }
     }
@@ -379,7 +378,7 @@ public class BrowserX extends JFrame {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
         } else {
             // Crear un modelo de tabla para mostrar el historial
-            String[] columnNames = {"URL", "FECHA"};
+            String[] columnNames = {"SITIO", "FECHA"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -477,7 +476,7 @@ public class BrowserX extends JFrame {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
         } else {
             // Crear un modelo de tabla para mostrar los favoritos
-            String[] columnNames = {"Nombre", "URL"};
+            String[] columnNames = {"NOMBRE", "SITIO"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -556,7 +555,7 @@ public class BrowserX extends JFrame {
         if (historialDescargas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay descargas.");
         } else {
-            String[] columnNames = {"Nombre", "URL", "Fecha"};
+            String[] columnNames = {"NOMBRE", "SITIO", "FECHA"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
