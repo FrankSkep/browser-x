@@ -1,7 +1,5 @@
 package browser.util;
 
-import browser.data_structure.LinkedList;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -14,7 +12,7 @@ import java.util.Objects;
 
 public class UiTool {
 
-    // Redimensiona una imagen a un tamaño específico
+    // redimensiona una imagen a un tamaño específico
     private static Image redimensionarImagen(String path, int width, int height) {
         try {
             BufferedImage originalImage = ImageIO.read(new File(path));
@@ -26,7 +24,7 @@ public class UiTool {
         }
     }
 
-    // Crea un botón con un icono
+    // crea un boton con icono y margen
     public static JButton crearBotonConIcono(String text, String rutaIcono, int ancho, int alto, Integer margin) {
         ImageIcon icono = cargarIcono(rutaIcono, ancho, alto);
 
@@ -43,7 +41,7 @@ public class UiTool {
         return boton;
     }
 
-    // Crea una tabla con un modelo y datos
+    // crea una tabla e insertar datos
     public static JTable crearTabla(String titulo, String[] columnas, List<Object[]> datos) {
         DefaultTableModel model = new DefaultTableModel(null, columnas) {
             @Override
@@ -63,12 +61,12 @@ public class UiTool {
         return tabla;
     }
 
-    // Carga un icono y lo redimensiona
+    // carga un icono y lo redimensiona
     public static ImageIcon cargarIcono(String ruta, int ancho, int alto) {
         return new ImageIcon(Objects.requireNonNull(redimensionarImagen(ruta, ancho, alto)));
     }
 
-    // obtiene la ventana padre y la cierra
+    // obtiene la ventana padre de un componente y la cierra
     public static void cerrarVentana(Component componente) {
         Window window = SwingUtilities.getWindowAncestor(componente);
         if (window != null) {

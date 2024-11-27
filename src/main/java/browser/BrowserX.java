@@ -151,7 +151,7 @@ public class BrowserX extends JFrame {
             // Listener para descargar archivos
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
                 if (ValidationUtil.isValidFile(newValue) ||
-                        ValidationUtil.esTipoDescargable(ValidationUtil.getContentType(newValue))) {
+                        ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
                     descargarArchivo(newValue);
                 }
             });
@@ -325,6 +325,14 @@ public class BrowserX extends JFrame {
         }
     }
 
+    // actualiza el estado de los botones
+    private void actualizarEstadoBotones() {
+        retrocederBtn.setEnabled(navegacionService.puedeRetroceder());
+        avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerURLActual()));
+    }
+
+
     // muestra menu de opciones
     private void mostrarMenuEmergente(JButton menuButton) {
         // iconos para las opciones del menu
@@ -467,9 +475,9 @@ public class BrowserX extends JFrame {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
         } else {
 
-            List<Object[]> datos = favoritosMap.keySet().stream()
-                    .map(key -> new Object[]{key, favoritosMap.get(key)}).toList();
-            JTable favoritosTable = UiTool.crearTabla("Favoritos", new String[]{"NOMBRE", "SITIO"}, datos);
+            JTable favoritosTable = UiTool.crearTabla("Favoritos", new String[]{"NOMBRE", "SITIO"},
+                    favoritosMap.keySet().stream().map(key -> new Object[]{key, favoritosMap.get(key)}).toList());
+
             DefaultTableModel tableModel = (DefaultTableModel) favoritosTable.getModel();
 
             JScrollPane scrollPane = new JScrollPane(favoritosTable);
@@ -543,8 +551,9 @@ public class BrowserX extends JFrame {
                     return false;
                 }
             };
-            JTable descargasTable = UiTool.crearTabla("Historial de Descargas", new String[]{"NOMBRE", "SITIO", "FECHA"}, historialDescargas.stream()
-                    .map(descarga -> new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()}).toList());
+            JTable descargasTable = UiTool.crearTabla("Historial de Descargas", new String[]{"NOMBRE", "SITIO", "FECHA"},
+                    historialDescargas.stream()
+                            .map(descarga -> new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()}).toList());
 
             JScrollPane scrollPane = new JScrollPane(descargasTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
@@ -588,13 +597,6 @@ public class BrowserX extends JFrame {
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, null);
         }
-    }
-
-    // actualiza el estado de los botones de navegación
-    private void actualizarEstadoBotones() {
-        retrocederBtn.setEnabled(navegacionService.puedeRetroceder());
-        avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerURLActual()));
     }
 
     public static void main(String[] args) {

@@ -2,6 +2,7 @@ package browser.util;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -52,14 +53,16 @@ public class ValidationUtil {
         if (url == null || url.isBlank()) {
             return false;
         }
-        return !url.contains(" ") && url.contains(".");
-    }
-
-    public static boolean containsDomain(String url) {
-        if (url == null || url.isBlank()) {
+        if (url.contains(" ") || !url.contains(".")) {
             return false;
         }
-        return ALLOWED_DOMAINS.stream().anyMatch(url::endsWith);
+        try {
+            URL parsedUrl = new URL(url);
+            return ALLOWED_DOMAINS.stream().anyMatch(parsedUrl.getHost()::endsWith);
+        } catch (
+                MalformedURLException e) {
+            return false;
+        }
     }
 
     public static boolean isValidFile(String fileUrl) {
@@ -67,6 +70,12 @@ public class ValidationUtil {
             return false;
         }
         return ALLOWED_FILES.stream().anyMatch(fileUrl::endsWith);
+    }
+
+    public static boolean isValidMimeType(String contentType) {
+        if (contentType == null)
+            return false;
+        return ALLOWED_MIME_TYPES.contains(contentType);
     }
 
     public static String getContentType(String urlStr) {
@@ -82,12 +91,6 @@ public class ValidationUtil {
             System.err.println("Error al obtener el tipo de contenido: " + e.getMessage());
         }
         return contentType;
-    }
-
-    public static boolean esTipoDescargable(String contentType) {
-        if (contentType == null)
-            return false;
-        return ALLOWED_MIME_TYPES.contains(contentType);
     }
 
     public static String dateFormat(LocalDateTime fecha) {
