@@ -11,7 +11,7 @@ import browser.util.UiTool;
 import browser.util.ValidationUtil;
 import browser.util.DownloadProgressDialog;
 import browser.data_structure.LinkedList;
-import browser.service.HistorialService;
+import browser.service.NavegacionService;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -32,7 +32,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 public class BrowserX extends JFrame {
-    private final HistorialService historialService;
+    private final NavegacionService navegacionService;
     private final FavoritoService favoritoService;
     private final DescargaService descargaService;
     private WebView webView;
@@ -51,7 +51,7 @@ public class BrowserX extends JFrame {
 
     public BrowserX() {
         Db_Connection.initializeDatabase();
-        historialService = new HistorialService();
+        navegacionService = new NavegacionService();
         favoritoService = new FavoritoService();
         descargaService = new DescargaService();
 
@@ -64,7 +64,7 @@ public class BrowserX extends JFrame {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
         // icono ventana
-        ImageIcon iconoBase = new ImageIcon("src/main/resources/icons/browser-icon.png");
+        ImageIcon iconoBase = new ImageIcon(ICONS_PATH + "browser-icon.png");
         Image iconoRedimensionado = iconoBase.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         setIconImage(iconoRedimensionado);
 
@@ -131,10 +131,10 @@ public class BrowserX extends JFrame {
                 if (newState == Worker.State.RUNNING) {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
-                        historialService.agregarUrlNavegacion(finalUrl);
+                        navegacionService.agregarUrlNavegacion(finalUrl);
 
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            historialService.guardarEnHistorial(finalUrl);
+                            navegacionService.guardarEnHistorial(finalUrl);
                         }
                     }
                     navegacionUsuario = false;
@@ -299,7 +299,7 @@ public class BrowserX extends JFrame {
 
     // retroceder en el historial
     private void retrocederPagina() {
-        String urlAnterior = historialService.retroceder();
+        String urlAnterior = navegacionService.retroceder();
         if (urlAnterior != null) {
             navegacionUsuario = true;
             cargarURL(urlAnterior);
@@ -308,7 +308,7 @@ public class BrowserX extends JFrame {
 
     // avanzar en el historial
     private void avanzarPagina() {
-        String urlSiguiente = historialService.avanzar();
+        String urlSiguiente = navegacionService.avanzar();
         if (urlSiguiente != null) {
             navegacionUsuario = true;
             cargarURL(urlSiguiente);
@@ -317,7 +317,7 @@ public class BrowserX extends JFrame {
 
     // actualizar la URL en el campo de texto
     private void actualizarCampoUrl() {
-        String urlActual = historialService.obtenerURLActual();
+        String urlActual = navegacionService.obtenerURLActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
@@ -372,7 +372,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarVentanaHistorial() {
-        LinkedList<EntradaHistorial> historialCompleto = historialService.obtenerTodo();
+        LinkedList<EntradaHistorial> historialCompleto = navegacionService.obtenerHistorial();
 
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
@@ -406,7 +406,7 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
-                    historialService.eliminarTodo();
+                    navegacionService.eliminarHistorial();
                     actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -418,7 +418,7 @@ public class BrowserX extends JFrame {
                     EntradaHistorial entradaSeleccionada = new EntradaHistorial((String) tableModel.getValueAt(selectedRow, 0),
                             (String) tableModel.getValueAt(selectedRow, 1));
 
-                    historialService.eliminarEntrada(entradaSeleccionada);
+                    navegacionService.eliminarEntradaHistorial(entradaSeleccionada);
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
                 } else {
@@ -506,7 +506,6 @@ public class BrowserX extends JFrame {
             JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);
             JButton visitarBtn = UiTool.crearBotonConIcono("Abrir", ICONS_PATH + "browse.png", 20, 20, null);
             JButton cerrarBtn = UiTool.crearBotonConIcono("Cerrar", ICONS_PATH + "close.png", 20, 20, null);
-
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -622,9 +621,9 @@ public class BrowserX extends JFrame {
 
     // actualiza el estado de los botones de navegación
     private void actualizarEstadoBotones() {
-        retrocederBtn.setEnabled(historialService.puedeRetroceder());
-        avanzarBtn.setEnabled(historialService.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(historialService.obtenerURLActual()));
+        retrocederBtn.setEnabled(navegacionService.puedeRetroceder());
+        avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerURLActual()));
     }
 
     public static void main(String[] args) {

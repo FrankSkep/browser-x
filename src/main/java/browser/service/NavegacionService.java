@@ -8,13 +8,13 @@ import browser.util.ValidationUtil;
 
 import java.time.LocalDateTime;
 
-public class HistorialService {
+public class NavegacionService {
     private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
     private LinkedList<EntradaHistorial> historialCompleto;
 
-    public HistorialService() {
+    public NavegacionService() {
         historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
@@ -68,25 +68,24 @@ public class HistorialService {
         pilaAdelante = new Stack<>();
     }
 
-    // guardar en historial general y base de datos
     public void guardarEnHistorial(String url) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
         historialCompleto.add(entradaHistorial);
         HistorialDAO.getInstance().guardar(entradaHistorial);
     }
 
-    public void eliminarTodo() {
+    public void eliminarHistorial() {
         historialCompleto = new LinkedList<>();
         HistorialDAO.getInstance().eliminarTodo();
         restablecerNavegacion();
     }
 
-    public void eliminarEntrada(EntradaHistorial entradaHistorial) {
+    public void eliminarEntradaHistorial(EntradaHistorial entradaHistorial) {
         historialCompleto.remove(entradaHistorial);
         HistorialDAO.getInstance().eliminar(entradaHistorial);
     }
 
-    public LinkedList<EntradaHistorial> obtenerTodo() {
+    public LinkedList<EntradaHistorial> obtenerHistorial() {
         return historialCompleto;
     }
 
