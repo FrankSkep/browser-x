@@ -9,7 +9,6 @@ import browser.service.DescargaService;
 import browser.service.FavoritoService;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
-import browser.util.DownloadProgressDialog;
 import browser.data_structure.LinkedList;
 import browser.service.NavegacionService;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -23,14 +22,6 @@ import javafx.scene.web.WebView;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class BrowserX extends JFrame {
     private final NavegacionService navegacionService;
@@ -133,7 +124,6 @@ public class BrowserX extends JFrame {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
                         navegacionService.agregarUrlNavegacion(finalUrl);
-
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
                             navegacionService.guardarEnHistorial(finalUrl);
                         }
@@ -152,7 +142,7 @@ public class BrowserX extends JFrame {
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
                 if (ValidationUtil.isValidFile(newValue) ||
                         ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
-                    descargarArchivo(newValue);
+                    descargaService.descargarArchivo(newValue, this);
                 }
             });
 
@@ -205,65 +195,6 @@ public class BrowserX extends JFrame {
         setVisible(true);
     }
 
-    // Método para descargar el archivo
-    private void descargarArchivo(String fileUrl) {
-        DownloadProgressDialog progressDialog = new DownloadProgressDialog(this);
-
-        // Mostrar el diálogo en un hilo separado
-        SwingUtilities.invokeLater(() -> progressDialog.setVisible(true));
-
-        new Thread(() -> {
-            try {
-                URL url = new URL(fileUrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
-
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    String fileName = null;
-                    String contentDisposition = connection.getHeaderField("Content-Disposition");
-                    if (contentDisposition != null && contentDisposition.contains("filename=")) {
-                        fileName = contentDisposition.split("filename=")[1].replace("\"", "");
-                    }
-                    if (fileName == null || fileName.isBlank()) {
-                        fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-                    }
-                    if (fileName.isBlank()) {
-                        fileName = "archivo_descargado";
-                    }
-
-                    Path downloadPath = Paths.get(ValidationUtil.getDownloadFolder(), fileName);
-                    int fileSize = connection.getContentLength();
-                    try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
-                         FileOutputStream fileOut = new FileOutputStream(downloadPath.toString())) {
-
-                        byte[] buffer = new byte[1024];
-                        int bytesRead;
-                        int totalBytesRead = 0;
-
-                        while ((bytesRead = in.read(buffer, 0, 1024)) != -1) {
-                            fileOut.write(buffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-                            int progress = (int) ((totalBytesRead / (double) fileSize) * 100);
-                            SwingUtilities.invokeLater(() -> progressDialog.updateProgress(progress));
-                        }
-
-                        Platform.runLater(() -> webEngine.getHistory().go(-1));
-                        JOptionPane.showMessageDialog(this, "Archivo descargado: " + fileName);
-                        descargaService.guardarDescarga(new Descarga(fileName, fileUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
-                    }
-                } else {
-                    System.err.println("Error al descargar el archivo: " + connection.getResponseMessage());
-                }
-            } catch (
-                    Exception e) {
-                System.out.println("Error al descargar el archivo: " + e.getMessage());
-            } finally {
-                SwingUtilities.invokeLater(progressDialog::dispose);
-            }
-        }).start();
-    }
-
     // carga una URL en el WebEngine
     private void cargarURL(String url) {
         Platform.runLater(() -> webEngine.load(url));
@@ -274,7 +205,7 @@ public class BrowserX extends JFrame {
         Platform.runLater(() -> webEngine.reload());
     }
 
-    // visitar una pagina nueva
+    // visitar una nueva pagina
     private void visitarPagina() {
         String url = urlTextField.getText();
 
@@ -298,7 +229,7 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // retroceder en el historial
+    // retroceder pagina
     private void retrocederPagina() {
         String urlAnterior = navegacionService.retroceder();
         if (urlAnterior != null) {
@@ -307,7 +238,7 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // avanzar en el historial
+    // avanzar pagina
     private void avanzarPagina() {
         String urlSiguiente = navegacionService.avanzar();
         if (urlSiguiente != null) {
@@ -335,15 +266,11 @@ public class BrowserX extends JFrame {
 
     // muestra menu de opciones
     private void mostrarMenuEmergente(JButton menuButton) {
-        // iconos para las opciones del menu
-        ImageIcon historialIcon = UiTool.cargarIcono(ICONS_PATH + "record.png", 25, 25);
-        ImageIcon favoritosIcon = UiTool.cargarIcono(ICONS_PATH + "favoritos.png", 25, 25);
-        ImageIcon descargasIcon = UiTool.cargarIcono(ICONS_PATH + "downloads.png", 25, 25);
 
         // opciones del menu
-        JMenuItem historialOpc = new JMenuItem("Historial", historialIcon);
-        JMenuItem favoritosOpc = new JMenuItem("Favoritos", favoritosIcon);
-        JMenuItem descargasOpc = new JMenuItem("Descargas", descargasIcon);
+        JMenuItem historialOpc = new JMenuItem("Historial", UiTool.cargarIcono(ICONS_PATH + "record.png", 25, 25));
+        JMenuItem favoritosOpc = new JMenuItem("Favoritos", UiTool.cargarIcono(ICONS_PATH + "favoritos.png", 25, 25));
+        JMenuItem descargasOpc = new JMenuItem("Descargas", UiTool.cargarIcono(ICONS_PATH + "downloads.png", 25, 25));
 
         // espacio entre icono y texto
         historialOpc.setIconTextGap(20);
@@ -374,13 +301,13 @@ public class BrowserX extends JFrame {
         menuEmergente.show(this, x, y);
 
         // listeners para las opciones del menu
-        historialOpc.addActionListener(e -> mostrarVentanaHistorial());
-        favoritosOpc.addActionListener(e -> mostrarVentanaFavoritos());
-        descargasOpc.addActionListener(e -> mostrarVentanaDescargas());
+        historialOpc.addActionListener(e -> mostrarHistorial());
+        favoritosOpc.addActionListener(e -> mostrarFavoritos());
+        descargasOpc.addActionListener(e -> mostrarDescargas());
     }
 
     // crea y muestra ventana de historial de navegación
-    private void mostrarVentanaHistorial() {
+    private void mostrarHistorial() {
         LinkedList<EntradaHistorial> historialCompleto = navegacionService.obtenerHistorial();
 
         if (historialCompleto.isEmpty()) {
@@ -444,31 +371,8 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // agrega un favorito
-    private void agregarFavorito() {
-        String url = urlTextField.getText();
-        if (url.equals("Ingrese una URL") || url.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No hay URL para agregar a favoritos.");
-        } else {
-            String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
-            if (nombre != null) {
-                if (!nombre.isBlank()) {
-                    if (favoritoService.existeFavorito(url)) {
-                        JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
-                    } else {
-                        favoritoService.agregarFavorito(new Favorito(nombre, url));
-                        JOptionPane.showMessageDialog(this, "Favorito agregado.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
-                }
-            }
-            actualizarEstadoBotones();
-        }
-    }
-
     // crea y muestra ventana de favoritos
-    private void mostrarVentanaFavoritos() {
+    private void mostrarFavoritos() {
         Hashtable<String, String> favoritosMap = favoritoService.obtenerTodo();
 
         if (favoritosMap.isEmpty()) {
@@ -538,7 +442,7 @@ public class BrowserX extends JFrame {
     }
 
     // crea y muestra ventana de historial de navegación
-    private void mostrarVentanaDescargas() {
+    private void mostrarDescargas() {
         LinkedList<Descarga> historialDescargas = descargaService.obtenerTodo();
 
         if (historialDescargas.isEmpty()) {
@@ -596,6 +500,29 @@ public class BrowserX extends JFrame {
             JOptionPane.showOptionDialog(null, scrollPane, "Historial de Descargas",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, null);
+        }
+    }
+
+    // agrega un favorito
+    private void agregarFavorito() {
+        String url = urlTextField.getText();
+        if (url.equals("Ingrese una URL") || url.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay URL para agregar a favoritos.");
+        } else {
+            String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
+            if (nombre != null) {
+                if (!nombre.isBlank()) {
+                    if (favoritoService.existeFavorito(url)) {
+                        JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
+                    } else {
+                        favoritoService.agregarFavorito(new Favorito(nombre, url));
+                        JOptionPane.showMessageDialog(this, "Favorito agregado.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
+                }
+            }
+            actualizarEstadoBotones();
         }
     }
 
