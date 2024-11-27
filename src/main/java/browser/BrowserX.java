@@ -46,7 +46,7 @@ public class BrowserX extends JFrame {
     private final String GOOGLE_URL = "https://www.google.com/";
     private final String ICONS_PATH = "src/main/resources/icons/";
 
-    // bandera para saber si la navegación fue natural o por avanzar/retroceder
+    // bandera para saber si la navegación fue por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
     public BrowserX() {
@@ -168,8 +168,10 @@ public class BrowserX extends JFrame {
         favoritosBtn.addActionListener(e -> agregarFavorito());
         showMenuBtn.addActionListener(e -> mostrarMenuEmergente(showMenuBtn));
 
-        // Listeners para el campo de texto
+        // Listener para el campo de texto de la URL
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+
+            // Eliminar placeholder al obtener el foco
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (urlTextField.getText().equals("Ingrese una URL")) {
@@ -180,6 +182,7 @@ public class BrowserX extends JFrame {
                 }
             }
 
+            // Mostrar placeholder si el campo está vacío
             @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (urlTextField.getText().isEmpty()) {
@@ -189,7 +192,7 @@ public class BrowserX extends JFrame {
             }
         });
 
-        // Listener para la tecla Enter en el campo de texto
+        // Listener para visitar la URL al presionar Enter
         urlTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -214,12 +217,6 @@ public class BrowserX extends JFrame {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
-
-                int responseCode = connection.getResponseCode();
-                String contentType = connection.getContentType();
-
-                System.out.println("Response Code: " + responseCode);
-                System.out.println("Content Type en descargarArchivo: " + contentType);
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     String fileName = null;
@@ -279,10 +276,12 @@ public class BrowserX extends JFrame {
     // visitar una pagina nueva
     private void visitarPagina() {
         String url = urlTextField.getText();
+
         if (url.equals("Ingrese una URL")) {
             url = "";
         }
-        if (!url.isEmpty() || !url.isBlank()) {
+
+        if (!url.isBlank()) {
             if (ValidationUtil.isValidUrl(url)) {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
@@ -302,6 +301,7 @@ public class BrowserX extends JFrame {
     private void retrocederPagina() {
         String urlAnterior = historialService.retroceder();
         if (urlAnterior != null) {
+            navegacionUsuario = true;
             cargarURL(urlAnterior);
         }
     }
@@ -391,6 +391,8 @@ public class BrowserX extends JFrame {
 
             historialTable.getColumnModel().getColumn(0).setPreferredWidth(350);
 
+            historialTable.getTableHeader().setReorderingAllowed(false);
+
             // Agregar historial al modelo de la tabla
             for (EntradaHistorial entrada : historialCompleto) {
                 tableModel.addRow(new Object[]{entrada.getUrl(), entrada.getFecha()});
@@ -453,7 +455,7 @@ public class BrowserX extends JFrame {
         } else {
             String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
             if (nombre != null) {
-                if (!nombre.isEmpty() && !nombre.isBlank()) {
+                if (!nombre.isBlank()) {
                     if (favoritoService.existeFavorito(url)) {
                         JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
                     } else {
@@ -490,6 +492,9 @@ public class BrowserX extends JFrame {
             // Ajustar el ancho de las columnas
             favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150);
             favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350);
+
+            // Desactivar reordenamiento de columnas
+            favoritosTable.getTableHeader().setReorderingAllowed(false);
 
             // Agregar favoritos al modelo de la tabla
             for (String nombreFavorito : favoritosMap.keySet()) {
@@ -570,6 +575,9 @@ public class BrowserX extends JFrame {
             descargasTable.getColumnModel().getColumn(0).setPreferredWidth(200);
             descargasTable.getColumnModel().getColumn(1).setPreferredWidth(150);
             descargasTable.getColumnModel().getColumn(2).setPreferredWidth(110);
+
+            // Desactivar reordenamiento de columnas
+            descargasTable.getTableHeader().setReorderingAllowed(false);
 
             // Agregar descargas al modelo de la tabla
             for (Descarga descarga : historialDescargas) {
