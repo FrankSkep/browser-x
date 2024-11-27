@@ -1,7 +1,5 @@
 package browser.data_structure;
 
-import java.util.LinkedList;
-
 public class Hashtable<K, V> {
     private static class HashNode<K, V> {
         K key;

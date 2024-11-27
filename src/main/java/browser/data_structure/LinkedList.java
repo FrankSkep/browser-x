@@ -1,6 +1,8 @@
 package browser.data_structure;
 
 import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class LinkedList<T> implements Iterable<T> {
     private Node<T> head;
@@ -143,4 +145,10 @@ public class LinkedList<T> implements Iterable<T> {
             }
         };
     }
+
+    // método para convertir la lista en un Stream
+    public Stream<T> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
 }

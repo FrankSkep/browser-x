@@ -30,6 +30,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class BrowserX extends JFrame {
     private final NavegacionService navegacionService;
@@ -377,26 +378,14 @@ public class BrowserX extends JFrame {
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
         } else {
-            // Crear un modelo de tabla para mostrar el historial
-            String[] columnNames = {"SITIO", "FECHA"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-            JTable historialTable = new JTable(tableModel);
+
+            JTable historialTable = UiTool.crearTabla("Historial de Navegación", new String[]{"SITIO", "FECHA"}, historialCompleto.stream()
+                    .map(entrada -> new Object[]{entrada.getUrl(), entrada.getFecha()}).toList());
+            DefaultTableModel tableModel = (DefaultTableModel) historialTable.getModel();
             JScrollPane scrollPane = new JScrollPane(historialTable);
+
             scrollPane.setPreferredSize(new Dimension(500, 300));
-
             historialTable.getColumnModel().getColumn(0).setPreferredWidth(350);
-
-            historialTable.getTableHeader().setReorderingAllowed(false);
-
-            // Agregar historial al modelo de la tabla
-            for (EntradaHistorial entrada : historialCompleto) {
-                tableModel.addRow(new Object[]{entrada.getUrl(), entrada.getFecha()});
-            }
 
             JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todo", ICONS_PATH + "trash.png", 20, 20, null);
             JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);
@@ -477,30 +466,18 @@ public class BrowserX extends JFrame {
         if (favoritosMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
         } else {
-            // Crear un modelo de tabla para mostrar los favoritos
-            String[] columnNames = {"NOMBRE", "SITIO"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-            JTable favoritosTable = new JTable(tableModel);
+
+            List<Object[]> datos = favoritosMap.keySet().stream()
+                    .map(key -> new Object[]{key, favoritosMap.get(key)}).toList();
+            JTable favoritosTable = UiTool.crearTabla("Favoritos", new String[]{"NOMBRE", "SITIO"}, datos);
+            DefaultTableModel tableModel = (DefaultTableModel) favoritosTable.getModel();
+
             JScrollPane scrollPane = new JScrollPane(favoritosTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
 
             // Ajustar el ancho de las columnas
             favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150);
             favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350);
-
-            // Desactivar reordenamiento de columnas
-            favoritosTable.getTableHeader().setReorderingAllowed(false);
-
-            // Agregar favoritos al modelo de la tabla
-            for (String nombreFavorito : favoritosMap.keySet()) {
-                String urlFavorito = favoritosMap.get(nombreFavorito);
-                tableModel.addRow(new Object[]{nombreFavorito, urlFavorito});
-            }
 
             JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todos", ICONS_PATH + "trash.png", 20, 20, null);
             JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);
@@ -566,7 +543,9 @@ public class BrowserX extends JFrame {
                     return false;
                 }
             };
-            JTable descargasTable = new JTable(tableModel);
+            JTable descargasTable = UiTool.crearTabla("Historial de Descargas", new String[]{"NOMBRE", "SITIO", "FECHA"}, historialDescargas.stream()
+                    .map(descarga -> new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()}).toList());
+
             JScrollPane scrollPane = new JScrollPane(descargasTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
 
@@ -574,14 +553,6 @@ public class BrowserX extends JFrame {
             descargasTable.getColumnModel().getColumn(0).setPreferredWidth(200);
             descargasTable.getColumnModel().getColumn(1).setPreferredWidth(150);
             descargasTable.getColumnModel().getColumn(2).setPreferredWidth(110);
-
-            // Desactivar reordenamiento de columnas
-            descargasTable.getTableHeader().setReorderingAllowed(false);
-
-            // Agregar descargas al modelo de la tabla
-            for (Descarga descarga : historialDescargas) {
-                tableModel.addRow(new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()});
-            }
 
             JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todas", ICONS_PATH + "trash.png", 20, 20, null);
             JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);

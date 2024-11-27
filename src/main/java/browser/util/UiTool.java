@@ -1,11 +1,15 @@
 package browser.util;
 
+import browser.data_structure.LinkedList;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 public class UiTool {
@@ -37,6 +41,26 @@ public class UiTool {
             boton.setMargin(new Insets(3, 3, 3, 3));
         }
         return boton;
+    }
+
+    // Crea una tabla con un modelo y datos
+    public static JTable crearTabla(String titulo, String[] columnas, List<Object[]> datos) {
+        DefaultTableModel model = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable tabla = new JTable(model);
+        tabla.getTableHeader().setReorderingAllowed(false);
+        tabla.getTableHeader().setResizingAllowed(false);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        for (Object[] dato : datos) {
+            model.addRow(dato);
+        }
+        return tabla;
     }
 
     // Carga un icono y lo redimensiona
