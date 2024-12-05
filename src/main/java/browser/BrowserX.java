@@ -448,16 +448,11 @@ public class BrowserX extends JFrame {
         if (historialDescargas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay descargas.");
         } else {
-            String[] columnNames = {"NOMBRE", "SITIO", "FECHA"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
             JTable descargasTable = UiTool.crearTabla("Historial de Descargas", new String[]{"NOMBRE", "SITIO", "FECHA"},
                     historialDescargas.stream()
                             .map(descarga -> new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()}).toList());
+
+            DefaultTableModel tableModel = (DefaultTableModel) descargasTable.getModel();
 
             JScrollPane scrollPane = new JScrollPane(descargasTable);
             scrollPane.setPreferredSize(new Dimension(500, 300));
