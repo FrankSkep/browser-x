@@ -123,7 +123,9 @@ public class BrowserX extends JFrame {
                 if (newState == Worker.State.RUNNING) {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
-                        navegacionService.agregarUrlNavegacion(finalUrl);
+                        if (ValidationUtil.isDownloadUrl(finalUrl)) {
+                            navegacionService.agregarUrlNavegacion(finalUrl);
+                        }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
                             navegacionService.guardarEnHistorial(finalUrl);
                         }

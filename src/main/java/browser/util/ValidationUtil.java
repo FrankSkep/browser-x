@@ -72,6 +72,10 @@ public class ValidationUtil {
         return ALLOWED_FILES.stream().anyMatch(fileUrl::endsWith);
     }
 
+    public static boolean isDownloadUrl(String url) {
+        return isValidFile(url) || isValidMimeType(getContentType(url));
+    }
+
     public static boolean isValidMimeType(String contentType) {
         if (contentType == null)
             return false;
