@@ -121,9 +121,10 @@ public class BrowserX extends JFrame {
             // Listener para el cambio de URL en el WebView
             webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
                 if (newState == Worker.State.RUNNING) {
+
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
-                        if (ValidationUtil.isDownloadUrl(finalUrl)) {
+                        if (!ValidationUtil.isDownloadUrl(finalUrl)) {
                             navegacionService.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
