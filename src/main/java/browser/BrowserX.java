@@ -151,9 +151,11 @@ public class BrowserX extends JFrame {
 
             // Listener para descargar archivos
             webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
-                if (ValidationUtil.isValidFile(newValue) ||
-                        ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
-                    descargaService.descargarArchivo(newValue, this);
+                if (oldValue != null && !oldValue.equals(newValue)) {
+                    if (ValidationUtil.isValidFile(newValue) ||
+                            ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
+                        descargaService.descargarArchivo(newValue, this);
+                    }
                 }
             });
 
