@@ -7,6 +7,7 @@ import browser.model.EntradaHistorial;
 import browser.util.ValidationUtil;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class NavegacionService {
     private LinkedList<String> historialSesion;
@@ -95,5 +96,33 @@ public class NavegacionService {
 
     public boolean puedeAvanzar() {
         return !pilaAdelante.isEmpty();
+    }
+
+        public List<String> obtenerPilaAtras() {
+        return pilaAtras.toList();
+    }
+
+    public List<String> obtenerPilaAdelante() {
+        return pilaAdelante.toList();
+    }
+
+    public void irAtrasHasta(String url) {
+        while (!pilaAtras.isEmpty() && !historialSesion.getLast().equals(url)) {
+            pilaAdelante.push(historialSesion.removeLast());
+        }
+        if (!historialSesion.isEmpty() && !historialSesion.getLast().equals(url)) {
+            pilaAdelante.push(historialSesion.removeLast());
+        }
+        historialSesion.add(url);
+    }
+    
+    public void irAdelanteHasta(String url) {
+        while (!pilaAdelante.isEmpty() && !historialSesion.getLast().equals(url)) {
+            pilaAtras.push(historialSesion.removeLast());
+        }
+        if (!historialSesion.isEmpty() && !historialSesion.getLast().equals(url)) {
+            pilaAtras.push(historialSesion.removeLast());
+        }
+        historialSesion.add(url);
     }
 }

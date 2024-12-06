@@ -1,5 +1,8 @@
 package browser.data_structure;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Stack<T> {
     private Node<T> top;
     private int size;
@@ -48,5 +51,15 @@ public class Stack<T> {
 
     public int size() {
         return size;
+    }
+
+    public List<T> toList() {
+        List<T> list = new ArrayList<>();
+        Node<T> current = top;
+        while (current != null) {
+            list.add(current.data);
+            current = current.next;
+        }
+        return list;
     }
 }

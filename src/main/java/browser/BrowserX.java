@@ -19,6 +19,10 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -73,6 +77,26 @@ public class BrowserX extends JFrame {
         // Creación de los botones
         retrocederBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "previous-page.png", 25, 25, 3);
         avanzarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "next-page.png", 25, 25, 3);
+        retrocederBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
+                    System.out.println("Botón de retroceder clic derecho presionado");
+                    mostrarContenidoPila(navegacionService.obtenerPilaAtras(), true);
+                }
+            }
+        });
+        
+        avanzarBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
+                    System.out.println("Botón de avanzar clic derecho presionado");
+                    mostrarContenidoPila(navegacionService.obtenerPilaAdelante(), false);
+                }
+            }
+        });
+
         JButton inicioBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "home.png", 25, 25, 3);
         JButton refrescarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "refresh.png", 25, 25, 3);
         panelBotones.add(retrocederBtn);
@@ -196,6 +220,25 @@ public class BrowserX extends JFrame {
             }
         });
         setVisible(true);
+    }
+
+    private void mostrarContenidoPila(List<String> pila, boolean esRetroceso) {
+        JPopupMenu menuPila = new JPopupMenu();
+        for (String url : pila) {
+            JMenuItem item = new JMenuItem(url);
+            item.addActionListener(e -> {
+                if (esRetroceso) {
+                    navegacionService.irAtrasHasta(url);
+                } else {
+                    navegacionService.irAdelanteHasta(url);
+                }
+                actualizarEstadoBotones();
+                actualizarCampoUrl();
+                cargarURL(url);
+            });
+            menuPila.add(item);
+        }
+        menuPila.show(this, retrocederBtn.getX(), retrocederBtn.getY() + retrocederBtn.getHeight());
     }
 
     // carga una URL en el WebEngine
