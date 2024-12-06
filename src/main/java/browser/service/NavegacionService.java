@@ -24,6 +24,7 @@ public class NavegacionService {
         historialCompleto.addAll(HistorialDAO.getInstance().obtenerTodo());
     }
 
+    // agregar una URL al historial temporal de la sesión
     public void agregarUrlNavegacion(String url) {
         if (!historialSesion.isEmpty()) {
             pilaAtras.push(historialSesion.getLast());
@@ -32,30 +33,30 @@ public class NavegacionService {
         pilaAdelante = new Stack<>(); // limpieza navegacion adelante
     }
 
+    // mover entre las pilas de navegación
+    private String mover(Stack<String> origen, Stack<String> destino) {
+        if (!origen.isEmpty()) {
+            String urlActual = historialSesion.getLast();
+            destino.push(urlActual);
+            String nuevaUrl = origen.pop();
+            historialSesion.removeLast();
+            historialSesion.add(nuevaUrl);
+            return nuevaUrl;
+        }
+        return null;
+    }
+
+    // retroceder en la navegación
     public String retroceder() {
-        if (!pilaAtras.isEmpty()) {
-            String urlActual = historialSesion.getLast();
-            pilaAdelante.push(urlActual);
-            String urlAnterior = pilaAtras.pop();
-            historialSesion.removeLast();
-            historialSesion.add(urlAnterior);
-            return urlAnterior;
-        }
-        return null;
+        return mover(pilaAtras, pilaAdelante);
     }
 
+    // avanzar en la navegación
     public String avanzar() {
-        if (!pilaAdelante.isEmpty()) {
-            String urlActual = historialSesion.getLast();
-            pilaAtras.push(urlActual);
-            String urlSiguiente = pilaAdelante.pop();
-            historialSesion.removeLast();
-            historialSesion.add(urlSiguiente);
-            return urlSiguiente;
-        }
-        return null;
+        return mover(pilaAdelante, pilaAtras);
     }
 
+    // obtener la URL actual de la navegación
     public String obtenerURLActual() {
         if (historialSesion.isEmpty()) {
             return null;
@@ -63,66 +64,71 @@ public class NavegacionService {
         return historialSesion.getLast();
     }
 
+    // restablecer la navegación
     private void restablecerNavegacion() {
         historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
 
+    // guardar una URL en el historial de navegación
     public void guardarEnHistorial(String url) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
         historialCompleto.add(entradaHistorial);
         HistorialDAO.getInstance().guardar(entradaHistorial);
     }
 
+    // eliminar el historial de navegación
     public void eliminarHistorial() {
         historialCompleto = new LinkedList<>();
         HistorialDAO.getInstance().eliminarTodo();
         restablecerNavegacion();
     }
 
+    // eliminar una entrada del historial
     public void eliminarEntradaHistorial(EntradaHistorial entradaHistorial) {
         historialCompleto.remove(entradaHistorial);
         HistorialDAO.getInstance().eliminar(entradaHistorial);
     }
 
+    // obtener el historial como lista
     public LinkedList<EntradaHistorial> obtenerHistorial() {
         return historialCompleto;
     }
 
+    // verificar si se puede retroceder
     public boolean puedeRetroceder() {
         return !pilaAtras.isEmpty();
     }
 
+    // verificar si se puede avanzar
     public boolean puedeAvanzar() {
         return !pilaAdelante.isEmpty();
     }
 
-        public List<String> obtenerPilaAtras() {
+    // obtener la pila de navegación atrás como lista
+    public List<String> obtenerPilaAtrasList() {
         return pilaAtras.toList();
     }
 
-    public List<String> obtenerPilaAdelante() {
+    //
+    public List<String> obtenerPilaAdelanteList() {
         return pilaAdelante.toList();
     }
 
+    // ir atrás hasta una URL específica
     public void irAtrasHasta(String url) {
         while (!pilaAtras.isEmpty() && !historialSesion.getLast().equals(url)) {
             pilaAdelante.push(historialSesion.removeLast());
+            historialSesion.add(pilaAtras.pop());
         }
-        if (!historialSesion.isEmpty() && !historialSesion.getLast().equals(url)) {
-            pilaAdelante.push(historialSesion.removeLast());
-        }
-        historialSesion.add(url);
     }
-    
+
+    // ir adelante hasta una URL específica
     public void irAdelanteHasta(String url) {
         while (!pilaAdelante.isEmpty() && !historialSesion.getLast().equals(url)) {
             pilaAtras.push(historialSesion.removeLast());
+            historialSesion.add(pilaAdelante.pop());
         }
-        if (!historialSesion.isEmpty() && !historialSesion.getLast().equals(url)) {
-            pilaAtras.push(historialSesion.removeLast());
-        }
-        historialSesion.add(url);
     }
 }

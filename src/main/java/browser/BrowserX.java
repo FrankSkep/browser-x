@@ -77,26 +77,6 @@ public class BrowserX extends JFrame {
         // Creación de los botones
         retrocederBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "previous-page.png", 25, 25, 3);
         avanzarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "next-page.png", 25, 25, 3);
-        retrocederBtn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent evt) {
-                if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
-                    System.out.println("Botón de retroceder clic derecho presionado");
-                    mostrarContenidoPila(navegacionService.obtenerPilaAtras(), true);
-                }
-            }
-        });
-        
-        avanzarBtn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent evt) {
-                if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
-                    System.out.println("Botón de avanzar clic derecho presionado");
-                    mostrarContenidoPila(navegacionService.obtenerPilaAdelante(), false);
-                }
-            }
-        });
-
         JButton inicioBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "home.png", 25, 25, 3);
         JButton refrescarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "refresh.png", 25, 25, 3);
         panelBotones.add(retrocederBtn);
@@ -145,7 +125,6 @@ public class BrowserX extends JFrame {
             // Listener para el cambio de URL en el WebView
             webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
                 if (newState == Worker.State.RUNNING) {
-
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
                         if (!ValidationUtil.isDownloadUrl(finalUrl)) {
@@ -158,7 +137,6 @@ public class BrowserX extends JFrame {
                     navegacionUsuario = false;
                     actualizarCampoUrl();
                     actualizarEstadoBotones();
-
                 } else if (newState == Worker.State.FAILED) {
                     urlTextField.setText("");
                     JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -176,15 +154,6 @@ public class BrowserX extends JFrame {
             // carga pagina inicial (Google)
             cargarURL(GOOGLE_URL);
         });
-
-        // Listeners para los botones
-        retrocederBtn.addActionListener(e -> retrocederPagina());
-        avanzarBtn.addActionListener(e -> avanzarPagina());
-        inicioBtn.addActionListener(e -> cargarURL(GOOGLE_URL));
-        refrescarBtn.addActionListener(e -> refrescarPagina());
-        visitarBtn.addActionListener(e -> visitarPagina());
-        favoritosBtn.addActionListener(e -> agregarFavorito());
-        showMenuBtn.addActionListener(e -> mostrarMenuEmergente(showMenuBtn));
 
         // Listener para el campo de texto de la URL
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -219,6 +188,37 @@ public class BrowserX extends JFrame {
                 }
             }
         });
+
+        // Listeners para los botones
+        retrocederBtn.addActionListener(e -> retrocederPagina());
+        avanzarBtn.addActionListener(e -> avanzarPagina());
+        inicioBtn.addActionListener(e -> cargarURL(GOOGLE_URL));
+        refrescarBtn.addActionListener(e -> refrescarPagina());
+        visitarBtn.addActionListener(e -> visitarPagina());
+        favoritosBtn.addActionListener(e -> agregarFavorito());
+        showMenuBtn.addActionListener(e -> mostrarMenuEmergente(showMenuBtn));
+
+        retrocederBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
+                    System.out.println("Botón de retroceder clic derecho presionado");
+                    mostrarContenidoPila(navegacionService.obtenerPilaAtrasList(), true);
+                }
+            }
+        });
+
+        avanzarBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
+                    System.out.println("Botón de avanzar clic derecho presionado");
+                    mostrarContenidoPila(navegacionService.obtenerPilaAdelanteList(), false);
+                }
+            }
+        });
+
+
         setVisible(true);
     }
 
@@ -232,8 +232,6 @@ public class BrowserX extends JFrame {
                 } else {
                     navegacionService.irAdelanteHasta(url);
                 }
-                actualizarEstadoBotones();
-                actualizarCampoUrl();
                 cargarURL(url);
             });
             menuPila.add(item);
