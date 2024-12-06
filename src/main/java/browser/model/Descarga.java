@@ -6,6 +6,10 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+/**
+ * La clase Descarga representa una descarga realizada por el navegador.
+ * Contiene el nombre, la URL y la fecha de la descarga.
+ */
 @AllArgsConstructor
 @Getter
 @Setter

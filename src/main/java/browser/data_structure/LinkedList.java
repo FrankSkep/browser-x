@@ -4,6 +4,10 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * La clase LinkedList representa una lista doblemente enlazada genérica.
+ * @param <T> el tipo de elementos en la lista.
+ */
 public class LinkedList<T> implements Iterable<T> {
     private Node<T> head;
     private Node<T> tail;
@@ -21,13 +25,19 @@ public class LinkedList<T> implements Iterable<T> {
         }
     }
 
+    /**
+     * Constructor que inicializa una lista vacía.
+     */
     public LinkedList() {
         head = null;
         tail = null;
         size = 0;
     }
 
-    // agrega un elemento al final de la lista
+    /**
+     * Agrega un elemento al final de la lista.
+     * @param data el elemento a agregar.
+     */
     public void add(T data) {
         Node<T> newNode = new Node<>(data);
         if (isEmpty()) {
@@ -41,14 +51,21 @@ public class LinkedList<T> implements Iterable<T> {
         size++;
     }
 
-    // agrega todos los elementos de otra lista al final de la lista
+    /**
+     * Agrega todos los elementos de otra lista al final de la lista.
+     * @param otherList la lista cuyos elementos se agregarán.
+     */
     public void addAll(LinkedList<? extends T> otherList) {
         for (T item : otherList) {
             add(item);
         }
     }
 
-    // elimina un elemento de la lista
+    /**
+     * Elimina un elemento de la lista.
+     * @param data el elemento a eliminar.
+     * @return true si el elemento fue eliminado, false en caso contrario.
+     */
     public boolean remove(T data) {
         Node<T> current = head;
         while (current != null) {
@@ -73,7 +90,11 @@ public class LinkedList<T> implements Iterable<T> {
         return false;
     }
 
-    // elimina el último elemento de la lista
+    /**
+     * Elimina el último elemento de la lista.
+     * @return el último elemento de la lista.
+     * @throws RuntimeException si la lista está vacía.
+     */
     public T removeLast() {
         if (isEmpty()) {
             throw new RuntimeException("La lista está vacía");
@@ -90,7 +111,12 @@ public class LinkedList<T> implements Iterable<T> {
         return data;
     }
 
-    // obtener un elemento de la lista
+    /**
+     * Obtiene un elemento de la lista por su índice.
+     * @param index el índice del elemento a obtener.
+     * @return el elemento en el índice especificado.
+     * @throws IndexOutOfBoundsException si el índice está fuera de rango.
+     */
     public T get(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Índice fuera de rango");
@@ -102,7 +128,11 @@ public class LinkedList<T> implements Iterable<T> {
         return current.data;
     }
 
-    // retorna el último elemento
+    /**
+     * Retorna el último elemento de la lista.
+     * @return el último elemento de la lista.
+     * @throws RuntimeException si la lista está vacía.
+     */
     public T getLast() {
         if (isEmpty()) {
             throw new RuntimeException("La lista está vacía");
@@ -110,23 +140,35 @@ public class LinkedList<T> implements Iterable<T> {
         return tail.data;
     }
 
-    // retorna tamaño de la lista
+    /**
+     * Retorna el tamaño de la lista.
+     * @return el tamaño de la lista.
+     */
     public int size() {
         return size;
     }
 
-    // verifica si la lista esta vacía
+    /**
+     * Verifica si la lista está vacía.
+     * @return true si la lista está vacía, false en caso contrario.
+     */
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Elimina todos los elementos de la lista.
+     */
     public void clear() {
         head = null;
         tail = null;
         size = 0;
     }
 
-    // retorna un iterador para recorrer la lista con un foreach
+    /**
+     * Retorna un iterador para recorrer la lista con un foreach.
+     * @return un iterador para la lista.
+     */
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
@@ -146,9 +188,11 @@ public class LinkedList<T> implements Iterable<T> {
         };
     }
 
-    // método para convertir la lista en un Stream
+    /**
+     * Convierte la lista en un Stream.
+     * @return un Stream de los elementos de la lista.
+     */
     public Stream<T> stream() {
         return StreamSupport.stream(spliterator(), false);
     }
-
 }

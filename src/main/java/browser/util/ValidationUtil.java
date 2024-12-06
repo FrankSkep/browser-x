@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * Utilidad para la validación de URLs, archivos y tipos MIME.
+ */
 public class ValidationUtil {
 
     private static final List<String> ALLOWED_DOMAINS = List.of(
@@ -49,6 +52,12 @@ public class ValidationUtil {
             "text/csv"
     );
 
+    /**
+     * Verifica si una URL es válida.
+     *
+     * @param url La URL a verificar.
+     * @return true si la URL es válida, false en caso contrario.
+     */
     public static boolean isValidUrl(String url) {
         if (url == null || url.isBlank()) {
             return false;
@@ -59,12 +68,17 @@ public class ValidationUtil {
         try {
             URL parsedUrl = new URL(url);
             return ALLOWED_DOMAINS.stream().anyMatch(parsedUrl.getHost()::endsWith);
-        } catch (
-                MalformedURLException e) {
+        } catch (MalformedURLException e) {
             return false;
         }
     }
 
+    /**
+     * Verifica si un archivo es válido según su extensión.
+     *
+     * @param fileUrl La URL del archivo a verificar.
+     * @return true si el archivo es válido, false en caso contrario.
+     */
     public static boolean isValidFile(String fileUrl) {
         if (fileUrl == null || fileUrl.isBlank()) {
             return false;
@@ -72,16 +86,34 @@ public class ValidationUtil {
         return ALLOWED_FILES.stream().anyMatch(fileUrl::endsWith);
     }
 
+    /**
+     * Verifica si una URL es válida para descarga.
+     *
+     * @param url La URL a verificar.
+     * @return true si la URL es válida para descarga, false en caso contrario.
+     */
     public static boolean isDownloadUrl(String url) {
         return isValidFile(url) || isValidMimeType(getContentType(url));
     }
 
+    /**
+     * Verifica si un tipo MIME es válido.
+     *
+     * @param contentType El tipo MIME a verificar.
+     * @return true si el tipo MIME es válido, false en caso contrario.
+     */
     public static boolean isValidMimeType(String contentType) {
         if (contentType == null)
             return false;
         return ALLOWED_MIME_TYPES.contains(contentType);
     }
 
+    /**
+     * Obtiene el tipo de contenido de una URL.
+     *
+     * @param urlStr La URL de la cual obtener el tipo de contenido.
+     * @return El tipo de contenido de la URL.
+     */
     public static String getContentType(String urlStr) {
         String contentType = null;
         try {
@@ -90,13 +122,18 @@ public class ValidationUtil {
             connection.setRequestMethod("HEAD");
             connection.connect();
             contentType = connection.getContentType();
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             System.err.println("Error al obtener el tipo de contenido: " + e.getMessage());
         }
         return contentType;
     }
 
+    /**
+     * Formatea una fecha en el formato dd/MM/yyyy HH:mm.
+     *
+     * @param fecha La fecha a formatear.
+     * @return La fecha formateada como cadena.
+     */
     public static String dateFormat(LocalDateTime fecha) {
         String dia = fecha.getDayOfMonth() < 10 ? "0" + fecha.getDayOfMonth() : String.valueOf(fecha.getDayOfMonth());
         String mes = fecha.getMonthValue() < 10 ? "0" + fecha.getMonthValue() : String.valueOf(fecha.getMonthValue());
@@ -106,6 +143,11 @@ public class ValidationUtil {
         return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto;
     }
 
+    /**
+     * Obtiene la carpeta de descargas del usuario.
+     *
+     * @return La ruta de la carpeta de descargas.
+     */
     public static String getDownloadFolder() {
         String userHome = System.getProperty("user.home");
         String folderName;
@@ -122,24 +164,22 @@ public class ValidationUtil {
         return Paths.get(userHome, folderName).toString();
     }
 
+    /**
+     * Obtiene el sistema operativo del usuario.
+     *
+     * @return El nombre del sistema operativo.
+     */
     public static String getOperatingSystem() {
         String os = System.getProperty("os.name").toLowerCase();
 
         String osName = os.substring(0, 3);
 
         return switch (osName) {
-            case "win" ->
-                    "Windows";
-            case "mac" ->
-                    "MacOS";
-            case "nix",
-                 "nux",
-                 "aix" ->
-                    "Unix";
-            case "sun" ->
-                    "Solaris";
-            default ->
-                    null;
+            case "win" -> "Windows";
+            case "mac" -> "MacOS";
+            case "nix", "nux", "aix" -> "Unix";
+            case "sun" -> "Solaris";
+            default -> null;
         };
     }
 }

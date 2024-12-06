@@ -1,3 +1,7 @@
+/**
+ * Módulo principal de BrowserX.
+ * Proporciona las funcionalidades principales del navegador web.
+ */
 module BrowserX {
     requires javafx.graphics;
     requires javafx.swing;

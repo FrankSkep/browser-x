@@ -27,6 +27,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+/**
+ * La clase BrowserX representa un navegador web.
+ * Extiende JFrame para crear una interfaz gráfica de usuario.
+ */
 public class BrowserX extends JFrame {
     private final NavegacionService navegacionService;
     private final FavoritoService favoritoService;
@@ -40,6 +44,10 @@ public class BrowserX extends JFrame {
     private final JButton favoritosBtn;
 
     private final String GOOGLE_URL = "https://www.google.com/";
+
+    /**
+     * Ruta de los iconos.
+     */
     private final String ICONS_PATH = "src/main/resources/icons/";
 
     // bandera para saber si la navegación fue por avanzar/retroceder
@@ -53,8 +61,6 @@ public class BrowserX extends JFrame {
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-            // UIManager.getSystemLookAndFeelClassName() // Establece el aspecto del sistema
-            // UIManager.setLookAndFeel(new NimbusLookAndFeel()); // Establece el aspecto Nimbus
         } catch (
                 Exception e) {
             System.err.println("Ocurrio un error: " + e.getMessage());
@@ -222,6 +228,7 @@ public class BrowserX extends JFrame {
         setVisible(true);
     }
 
+    // muestra el contenido de la pila en un menú emergente
     private void mostrarContenidoPila(List<String> pila, boolean esRetroceso) {
         JPopupMenu menuPila = new JPopupMenu();
         for (String url : pila) {
@@ -306,7 +313,6 @@ public class BrowserX extends JFrame {
         avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
         favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerURLActual()));
     }
-
 
     // muestra menu de opciones
     private void mostrarMenuEmergente(JButton menuButton) {

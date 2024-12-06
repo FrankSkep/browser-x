@@ -6,6 +6,10 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+/**
+ * La clase EntradaHistorial representa una entrada en el historial de navegación.
+ * Contiene la URL y la fecha de la entrada.
+ */
 @AllArgsConstructor
 @Getter
 @Setter

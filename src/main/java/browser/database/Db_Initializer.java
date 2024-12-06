@@ -4,8 +4,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * La clase Db_Initializer proporciona métodos para inicializar las tablas en la base de datos.
+ * Contiene métodos para crear las tablas de historial, favoritos y descargas.
+ */
 public class Db_Initializer {
 
+    /**
+     * Inicializa las tablas en la base de datos.
+     * @param conn la conexión a la base de datos.
+     * @throws SQLException si ocurre un error al crear las tablas.
+     */
     public static void initializeTables(Connection conn) throws SQLException {
 
         String tablaHistorial = "CREATE TABLE IF NOT EXISTS historial ("

@@ -17,34 +17,64 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
+/**
+ * Servicio para gestionar las descargas del navegador.
+ */
 public class DescargaService {
 
     private final LinkedList<Descarga> descargas;
 
+    /**
+     * Constructor que inicializa la lista enlazada de descargas y carga los datos desde el DAO.
+     */
     public DescargaService() {
         descargas = new LinkedList<>();
         descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
     }
 
+    /**
+     * Guarda una descarga en la lista y en el DAO.
+     *
+     * @param descarga La descarga a guardar.
+     */
     private void guardarDescarga(Descarga descarga) {
         descargas.add(descarga);
         DescargaDAO.getInstance().guardar(descarga);
     }
 
+    /**
+     * Elimina una descarga de la lista y del DAO.
+     *
+     * @param descarga La descarga a eliminar.
+     */
     public void eliminarDescarga(Descarga descarga) {
         descargas.remove(descarga);
         DescargaDAO.getInstance().eliminar(descarga.getNombre());
     }
 
+    /**
+     * Elimina todas las descargas de la lista y del DAO.
+     */
     public void eliminarTodo() {
         descargas.clear();
         DescargaDAO.getInstance().eliminarTodo();
     }
 
+    /**
+     * Obtiene todas las descargas.
+     *
+     * @return Una lista enlazada con todas las descargas.
+     */
     public LinkedList<Descarga> obtenerTodo() {
         return descargas;
     }
 
+    /**
+     * Descarga un archivo desde una URL y muestra el progreso en un diálogo.
+     *
+     * @param fileUrl La URL del archivo a descargar.
+     * @param parent  El componente padre para el diálogo de progreso.
+     */
     public void descargarArchivo(String fileUrl, Component parent) {
         DownloadProgressDialog progressDialog = new DownloadProgressDialog((JFrame) parent);
 
