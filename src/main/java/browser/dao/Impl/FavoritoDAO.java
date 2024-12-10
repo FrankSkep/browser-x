@@ -1,6 +1,6 @@
 package browser.dao.Impl;
 
-import browser.dao.DAO;
+import browser.dao.IDAO;
 import browser.data_structure.LinkedList;
 import browser.database.Db_Connection;
 import browser.model.Favorito;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 /**
  * DAO para manejar las operaciones de la base de datos relacionadas con los favoritos.
  */
-public class FavoritoDAO implements DAO<Favorito> {
+public class FavoritoDAO implements IDAO<Favorito> {
 
     private static FavoritoDAO instance = null;
 

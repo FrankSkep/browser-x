@@ -1,6 +1,6 @@
 package browser.dao.Impl;
 
-import browser.dao.DAO;
+import browser.dao.IDAO;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
 
@@ -13,7 +13,7 @@ import browser.data_structure.LinkedList;
 /**
  * DAO para manejar las operaciones de la base de datos relacionadas con las descargas.
  */
-public class DescargaDAOImpl implements DAO<Descarga> {
+public class DescargaDAOImpl implements IDAO<Descarga> {
 
     private static DescargaDAOImpl instance = null;
 

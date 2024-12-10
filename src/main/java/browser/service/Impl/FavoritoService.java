@@ -9,7 +9,7 @@ import browser.service.IService;
 /**
  * Servicio para gestionar los favoritos del navegador.
  */
-public class FavoritoService implements IService<Hashtable<String, String>, Object,Favorito> {
+public class FavoritoService implements IService<Hashtable<String, String>, Favorito> {
 
     private final Hashtable<String, String> favoritos;
 
@@ -44,6 +44,7 @@ public class FavoritoService implements IService<Hashtable<String, String>, Obje
         favoritos.clear();
         FavoritoDAO.getInstance().deleteAll();
     }
+
     /**
      * Obtiene todos los favoritos.
      *
@@ -56,17 +57,7 @@ public class FavoritoService implements IService<Hashtable<String, String>, Obje
     }
 
     /**
-     * Funcion no implementada.
-     *
-     * @return El elemento seleccionado de favoritos. (Siempre null lolxd)
-     */
-    @Override
-    public Object obtenerElemento() {
-        return null;
-    }
-
-    /**
-     * Elimina un favorito por su nombre.
+     * Elimina un favorito.
      *
      * @param favorito El nombre del favorito a eliminar.
      */
@@ -75,7 +66,6 @@ public class FavoritoService implements IService<Hashtable<String, String>, Obje
         favoritos.remove(favorito.getNombre());
         FavoritoDAO.getInstance().delete(favorito);
     }
-
 
     /**
      * Verifica si un favorito con la URL especificada ya existe.

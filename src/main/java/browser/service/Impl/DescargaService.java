@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 /**
  * Servicio para gestionar las descargas del navegador.
  */
-public class DescargaService  implements IService<LinkedList<Descarga>,String,Descarga> {
+public class DescargaService implements IService<LinkedList<Descarga>, Descarga> {
 
     private final LinkedList<Descarga> descargas;
 
@@ -71,11 +71,6 @@ public class DescargaService  implements IService<LinkedList<Descarga>,String,De
     @Override
     public LinkedList<Descarga> obtenerTodo() {
         return descargas;
-    }
-
-    @Override
-    public String obtenerElemento() {
-        return "";
     }
 
     /**

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Servicio para gestionar la navegación del navegador.
  */
-public class NavegacionService implements IService<LinkedList<EntradaHistorial>, String, EntradaHistorial> {
+public class NavegacionService implements IService<LinkedList<EntradaHistorial>, EntradaHistorial> {
     private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
@@ -81,7 +81,6 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
         return mover(pilaAdelante, pilaAtras);
     }
 
-
     /**
      * Restablece la navegación, limpiando el historial de la sesión y las pilas de navegación.
      */
@@ -90,18 +89,6 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
-
-    /**
-     * Guarda una URL en el historial de navegación completo.
-     *
-     * @param url La URL a guardar.
-     */
-    public void guardarEnHistorial(String url) {
-        EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
-        historialCompleto.add(entradaHistorial);
-        HistorialDAOImpl.getInstance().save(entradaHistorial);
-    }
-
 
     /**
      * Verifica si se puede retroceder en la navegación.
@@ -164,13 +151,27 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
     }
 
     /**
+     * Obtiene la URL actual de la navegación.
+     *
+     * @return La URL actual, o null si no hay URLs en el historial de la sesión.
+     */
+    public String obtenerUrlActual() {
+        if (historialSesion.isEmpty()) {
+            return null;
+        }
+        return historialSesion.getLast();
+    }
+
+    /**
      * Agrega una entrada al historial de navegación.
      *
-     * @param elemento La entrada del historial a agregar.
+     * @param pagina La entrada del historial a agregar.
      */
     @Override
-    public void agregarElemento(EntradaHistorial elemento) {
-        historialCompleto.add(elemento);
+    public void agregarElemento(EntradaHistorial pagina) {
+        EntradaHistorial entradaHistorial = new EntradaHistorial(pagina.getUrl(), ValidationUtil.dateFormat(LocalDateTime.now()));
+        historialCompleto.add(entradaHistorial);
+        HistorialDAOImpl.getInstance().save(entradaHistorial);
     }
 
     /**
@@ -182,19 +183,6 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
     public void eliminarElemento(EntradaHistorial entradaHistorial) {
         historialCompleto.remove(entradaHistorial);
         HistorialDAOImpl.getInstance().delete(entradaHistorial);
-    }
-
-    /**
-     * Obtiene la URL actual de la navegación.
-     *
-     * @return La URL actual, o null si no hay URLs en el historial de la sesión.
-     */
-    @Override
-    public String obtenerElemento() {
-        if (historialSesion.isEmpty()) {
-            return null;
-        }
-        return historialSesion.getLast();
     }
 
     /**
@@ -212,7 +200,7 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
      */
     @Override
     public void eliminarTodo() {
-        historialCompleto = new LinkedList<>();
+        historialCompleto.clear();
         HistorialDAOImpl.getInstance().deleteAll();
         restablecerNavegacion();
     }

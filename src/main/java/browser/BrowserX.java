@@ -21,6 +21,7 @@ import javafx.scene.web.WebView;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.swing.*;
@@ -137,7 +138,7 @@ public class BrowserX extends JFrame {
                             navegacionService.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            navegacionService.guardarEnHistorial(finalUrl);
+                            navegacionService.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                         }
                     }
                     navegacionUsuario = false;
@@ -302,7 +303,7 @@ public class BrowserX extends JFrame {
 
     // actualizar la URL en el campo de texto
     private void actualizarCampoUrl() {
-        String urlActual = navegacionService.obtenerElemento();
+        String urlActual = navegacionService.obtenerUrlActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
@@ -313,7 +314,7 @@ public class BrowserX extends JFrame {
     private void actualizarEstadoBotones() {
         retrocederBtn.setEnabled(navegacionService.puedeRetroceder());
         avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerElemento()));
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerUrlActual()));
     }
 
     // muestra menu de opciones

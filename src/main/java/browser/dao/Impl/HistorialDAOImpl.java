@@ -1,6 +1,6 @@
 package browser.dao.Impl;
 
-import browser.dao.DAO;
+import browser.dao.IDAO;
 import browser.data_structure.LinkedList;
 import browser.database.Db_Connection;
 import browser.model.EntradaHistorial;
@@ -14,7 +14,7 @@ import java.sql.ResultSet;
  * para el historial de navegación en la base de datos.
  * Implementa el patrón Singleton para asegurar que solo exista una instancia de la clase.
  */
-public class HistorialDAOImpl implements DAO<EntradaHistorial> {
+public class HistorialDAOImpl implements IDAO<EntradaHistorial> {
 
     // Instancia única de la clase
     private static HistorialDAOImpl instance = null;
