@@ -36,7 +36,7 @@ public class FavoritoService {
     /**
      * Elimina un favorito por su nombre.
      *
-     * @param nombre El nombre del favorito a eliminar.
+     * @param favorito El nombre del favorito a eliminar.
      */
     public void eliminarFavorito(Favorito favorito) {
         favoritos.remove(favorito.getNombre());
