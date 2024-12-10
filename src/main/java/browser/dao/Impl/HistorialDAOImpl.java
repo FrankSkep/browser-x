@@ -34,7 +34,7 @@ public class HistorialDAOImpl extends AbstractDAO<EntradaHistorial> {
     }
 
     @Override
-    public void save(EntradaHistorial entradaHistorial) {
+    public void guardar(EntradaHistorial entradaHistorial) {
         String sql = "INSERT INTO historial (url, fecha) VALUES (?, ?)";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -48,7 +48,7 @@ public class HistorialDAOImpl extends AbstractDAO<EntradaHistorial> {
     }
 
     @Override
-    public void delete(EntradaHistorial entradaHistorial) {
+    public void eliminar(EntradaHistorial entradaHistorial) {
         String sql = "DELETE FROM historial WHERE url = ? AND fecha = ?";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

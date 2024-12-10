@@ -34,7 +34,7 @@ public class FavoritoDAOImpl extends AbstractDAO<Favorito> {
     }
 
     @Override
-    public void save(Favorito favorito) {
+    public void guardar(Favorito favorito) {
         String sql = "INSERT INTO favoritos (nombre, url) VALUES (?, ?)";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -48,7 +48,7 @@ public class FavoritoDAOImpl extends AbstractDAO<Favorito> {
     }
 
     @Override
-    public void delete(Favorito favorito) {
+    public void eliminar(Favorito favorito) {
         String sql = "DELETE FROM favoritos WHERE nombre = ?";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

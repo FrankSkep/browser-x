@@ -20,19 +20,19 @@ public abstract class AbstractDAO<T> {
      *
      * @param entity La entidad a guardar.
      */
-    public abstract void save(T entity);
+    public abstract void guardar(T entity);
 
     /**
      * Elimina una entidad de la base de datos.
      *
      * @param entity La entidad a eliminar.
      */
-    public abstract void delete(T entity);
+    public abstract void eliminar(T entity);
 
     /**
      * Elimina todos los registros de la tabla.
      */
-    public void deleteAll() {
+    public void eliminarTodo() {
         String sql = "DELETE FROM " + getTableName();
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -47,7 +47,7 @@ public abstract class AbstractDAO<T> {
      *
      * @return Una lista con todos los registros de la tabla.
      */
-    public LinkedList<T> getAll() {
+    public LinkedList<T> obtenerTodo() {
         String sql = "SELECT * FROM " + getTableName();
         LinkedList<T> entities = new LinkedList<>();
         try (Connection conn = Db_Connection.getConnection();

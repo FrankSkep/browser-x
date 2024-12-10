@@ -34,7 +34,7 @@ public class DescargaDAOImpl extends AbstractDAO<Descarga> {
     }
 
     @Override
-    public void save(Descarga descarga) {
+    public void guardar(Descarga descarga) {
         String sql = "INSERT INTO descargas (nombre, url, fecha) VALUES (?, ?, ?)";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -49,7 +49,7 @@ public class DescargaDAOImpl extends AbstractDAO<Descarga> {
     }
 
     @Override
-    public void delete(Descarga descarga) {
+    public void eliminar(Descarga descarga) {
         String sql = "DELETE FROM descargas WHERE nombre = ?";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

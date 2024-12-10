@@ -14,7 +14,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
 
     public HistorialServiceImpl() {
         historial = new LinkedList<>();
-        historial.addAll(HistorialDAOImpl.getInstance().getAll());
+        historial.addAll(HistorialDAOImpl.getInstance().obtenerTodo());
     }
 
     /**
@@ -26,7 +26,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     public void agregarElemento(EntradaHistorial pagina) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(pagina.getUrl(), ValidationUtil.dateFormat(LocalDateTime.now()));
         historial.add(entradaHistorial);
-        HistorialDAOImpl.getInstance().save(entradaHistorial);
+        HistorialDAOImpl.getInstance().guardar(entradaHistorial);
     }
 
     /**
@@ -37,7 +37,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     @Override
     public void eliminarElemento(EntradaHistorial entradaHistorial) {
         historial.remove(entradaHistorial);
-        HistorialDAOImpl.getInstance().delete(entradaHistorial);
+        HistorialDAOImpl.getInstance().eliminar(entradaHistorial);
     }
 
     /**
@@ -56,7 +56,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     @Override
     public void eliminarTodo() {
         historial.clear();
-        HistorialDAOImpl.getInstance().deleteAll();
+        HistorialDAOImpl.getInstance().eliminarTodo();
     }
 
 }

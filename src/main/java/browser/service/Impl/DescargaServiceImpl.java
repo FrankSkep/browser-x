@@ -29,7 +29,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
      */
     public DescargaServiceImpl() {
         descargas = new LinkedList<>();
-        descargas.addAll(DescargaDAOImpl.getInstance().getAll());
+        descargas.addAll(DescargaDAOImpl.getInstance().obtenerTodo());
     }
 
     /**
@@ -40,7 +40,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void agregarElemento(Descarga descarga) {
         descargas.add(descarga);
-        DescargaDAOImpl.getInstance().save(descarga);
+        DescargaDAOImpl.getInstance().guardar(descarga);
     }
 
     /**
@@ -51,7 +51,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void eliminarElemento(Descarga descarga) {
         descargas.remove(descarga);
-        DescargaDAOImpl.getInstance().delete(descarga);
+        DescargaDAOImpl.getInstance().eliminar(descarga);
     }
 
     /**
@@ -60,7 +60,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void eliminarTodo() {
         descargas.clear();
-        DescargaDAOImpl.getInstance().deleteAll();
+        DescargaDAOImpl.getInstance().eliminarTodo();
     }
 
     /**

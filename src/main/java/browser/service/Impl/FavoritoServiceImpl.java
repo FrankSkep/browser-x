@@ -18,7 +18,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
      */
     public FavoritoServiceImpl() {
         favoritos = new Hashtable<>();
-        LinkedList<Favorito> listaFavoritos = FavoritoDAOImpl.getInstance().getAll();
+        LinkedList<Favorito> listaFavoritos = FavoritoDAOImpl.getInstance().obtenerTodo();
         for (Favorito favorito : listaFavoritos) {
             favoritos.put(favorito.getNombre(), favorito.getUrl());
         }
@@ -32,7 +32,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
     @Override
     public void agregarElemento(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
-        FavoritoDAOImpl.getInstance().save(favorito);
+        FavoritoDAOImpl.getInstance().guardar(favorito);
     }
 
 
@@ -42,7 +42,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
     @Override
     public void eliminarTodo() {
         favoritos.clear();
-        FavoritoDAOImpl.getInstance().deleteAll();
+        FavoritoDAOImpl.getInstance().eliminarTodo();
     }
 
     /**
@@ -64,7 +64,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
     @Override
     public void eliminarElemento(Favorito favorito) {
         favoritos.remove(favorito.getNombre());
-        FavoritoDAOImpl.getInstance().delete(favorito);
+        FavoritoDAOImpl.getInstance().eliminar(favorito);
     }
 
     /**
