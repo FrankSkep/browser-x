@@ -18,11 +18,11 @@ public class EntradaHistorial {
     private String fecha;
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this)
+    public boolean equals(Object o) {
+        if (this == o)
             return true;
 
-        if (!(obj instanceof EntradaHistorial entradaHistorial))
+        if (!(o instanceof EntradaHistorial entradaHistorial))
             return false;
 
         return url.equals(entradaHistorial.url) && fecha.equals(entradaHistorial.fecha);

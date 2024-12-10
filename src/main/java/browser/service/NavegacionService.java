@@ -1,6 +1,6 @@
 package browser.service;
 
-import browser.dao.HistorialDAO;
+import browser.dao.Impl.HistorialDAOImpl;
 import browser.data_structure.LinkedList;
 import browser.data_structure.Stack;
 import browser.model.EntradaHistorial;
@@ -27,7 +27,7 @@ public class NavegacionService {
         pilaAdelante = new Stack<>();
 
         historialCompleto = new LinkedList<>();
-        historialCompleto.addAll(HistorialDAO.getInstance().obtenerTodo());
+        historialCompleto.addAll(HistorialDAOImpl.getInstance().getAll());
     }
 
     /**
@@ -109,7 +109,7 @@ public class NavegacionService {
     public void guardarEnHistorial(String url) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
         historialCompleto.add(entradaHistorial);
-        HistorialDAO.getInstance().guardar(entradaHistorial);
+        HistorialDAOImpl.getInstance().save(entradaHistorial);
     }
 
     /**
@@ -117,7 +117,7 @@ public class NavegacionService {
      */
     public void eliminarHistorial() {
         historialCompleto = new LinkedList<>();
-        HistorialDAO.getInstance().eliminarTodo();
+        HistorialDAOImpl.getInstance().deleteAll();
         restablecerNavegacion();
     }
 
@@ -128,7 +128,7 @@ public class NavegacionService {
      */
     public void eliminarEntradaHistorial(EntradaHistorial entradaHistorial) {
         historialCompleto.remove(entradaHistorial);
-        HistorialDAO.getInstance().eliminar(entradaHistorial);
+        HistorialDAOImpl.getInstance().delete(entradaHistorial);
     }
 
     /**

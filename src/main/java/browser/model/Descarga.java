@@ -1,22 +1,18 @@
 package browser.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Objects;
 
 /**
  * La clase Descarga representa una descarga realizada por el navegador.
  * Contiene el nombre, la URL y la fecha de la descarga.
  */
-@AllArgsConstructor
-@Getter
-@Setter
-public class Descarga {
-    private String nombre;
-    private String url;
+public class Descarga extends ElementoNavegador {
     private String fecha;
+
+    public Descarga(String nombre, String url, String fecha) {
+        super(nombre, url);
+        this.fecha = fecha;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -30,6 +26,10 @@ public class Descarga {
         return Objects.equals(nombre, descarga.nombre) &&
                 Objects.equals(url, descarga.url) &&
                 Objects.equals(fecha, descarga.fecha);
+    }
+
+    public String getFecha() {
+        return fecha;
     }
 
     @Override

@@ -1,7 +1,8 @@
 package browser.service;
 
-import browser.dao.FavoritoDAO;
+import browser.dao.Impl.FavoritoDAO;
 import browser.data_structure.Hashtable;
+import browser.data_structure.LinkedList;
 import browser.model.Favorito;
 
 /**
@@ -16,7 +17,10 @@ public class FavoritoService {
      */
     public FavoritoService() {
         favoritos = new Hashtable<>();
-        favoritos.putAll(FavoritoDAO.getInstance().obtenerTodo());
+        LinkedList<Favorito> listaFavoritos = FavoritoDAO.getInstance().getAll();
+        for (Favorito favorito : listaFavoritos) {
+            favoritos.put(favorito.getNombre(), favorito.getUrl());
+        }
     }
 
     /**
@@ -26,7 +30,7 @@ public class FavoritoService {
      */
     public void agregarFavorito(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
-        FavoritoDAO.getInstance().guardar(favorito);
+        FavoritoDAO.getInstance().save(favorito);
     }
 
     /**
@@ -34,9 +38,9 @@ public class FavoritoService {
      *
      * @param nombre El nombre del favorito a eliminar.
      */
-    public void eliminarFavorito(String nombre) {
-        favoritos.remove(nombre);
-        FavoritoDAO.getInstance().eliminar(nombre);
+    public void eliminarFavorito(Favorito favorito) {
+        favoritos.remove(favorito.getNombre());
+        FavoritoDAO.getInstance().delete(favorito);
     }
 
     /**
@@ -44,7 +48,7 @@ public class FavoritoService {
      */
     public void eliminarTodo() {
         favoritos.clear();
-        FavoritoDAO.getInstance().eliminarTodo();
+        FavoritoDAO.getInstance().deleteAll();
     }
 
     /**
@@ -52,7 +56,7 @@ public class FavoritoService {
      *
      * @return Una tabla hash con todos los favoritos.
      */
-    public Hashtable<String, String> obtenerTodo() {
+    public Hashtable<String, String> obtenerFavoritos() {
         return favoritos;
     }
 

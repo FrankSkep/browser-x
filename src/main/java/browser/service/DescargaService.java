@@ -1,11 +1,10 @@
 package browser.service;
 
-import browser.dao.DescargaDAO;
+import browser.dao.Impl.DescargaDAOImpl;
 import browser.data_structure.LinkedList;
 import browser.model.Descarga;
 import browser.util.DownloadProgressDialog;
 import browser.util.ValidationUtil;
-import javafx.application.Platform;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +28,7 @@ public class DescargaService {
      */
     public DescargaService() {
         descargas = new LinkedList<>();
-        descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
+        descargas.addAll(DescargaDAOImpl.getInstance().getAll());
     }
 
     /**
@@ -39,7 +38,7 @@ public class DescargaService {
      */
     private void guardarDescarga(Descarga descarga) {
         descargas.add(descarga);
-        DescargaDAO.getInstance().guardar(descarga);
+        DescargaDAOImpl.getInstance().save(descarga);
     }
 
     /**
@@ -49,7 +48,7 @@ public class DescargaService {
      */
     public void eliminarDescarga(Descarga descarga) {
         descargas.remove(descarga);
-        DescargaDAO.getInstance().eliminar(descarga.getNombre());
+        DescargaDAOImpl.getInstance().delete(descarga);
     }
 
     /**
@@ -57,7 +56,7 @@ public class DescargaService {
      */
     public void eliminarTodo() {
         descargas.clear();
-        DescargaDAO.getInstance().eliminarTodo();
+        DescargaDAOImpl.getInstance().deleteAll();
     }
 
     /**

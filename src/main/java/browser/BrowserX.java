@@ -425,7 +425,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de favoritos
     private void mostrarFavoritos() {
-        Hashtable<String, String> favoritosMap = favoritoService.obtenerTodo();
+        Hashtable<String, String> favoritosMap = favoritoService.obtenerFavoritos();
 
         if (favoritosMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
@@ -462,7 +462,8 @@ public class BrowserX extends JFrame {
                 if (selectedRow != -1) {
                     if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
-                        favoritoService.eliminarFavorito(nombreFavorito);
+                        String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
+                        favoritoService.eliminarFavorito(new Favorito(nombreFavorito, urlFavorito));
                         tableModel.removeRow(selectedRow);
                         actualizarEstadoBotones();
                         JOptionPane.showMessageDialog(null, "Favorito eliminado.");
