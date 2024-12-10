@@ -1,6 +1,6 @@
 package browser.service.Impl;
 
-import browser.dao.Impl.FavoritoDAO;
+import browser.dao.Impl.FavoritoDAOImpl;
 import browser.data_structure.Hashtable;
 import browser.data_structure.LinkedList;
 import browser.model.Favorito;
@@ -9,16 +9,16 @@ import browser.service.IService;
 /**
  * Servicio para gestionar los favoritos del navegador.
  */
-public class FavoritoService implements IService<Hashtable<String, String>, Favorito> {
+public class FavoritoServiceImpl implements IService<Hashtable<String, String>, Favorito> {
 
     private final Hashtable<String, String> favoritos;
 
     /**
      * Constructor que inicializa la tabla hash de favoritos y carga los datos desde el DAO.
      */
-    public FavoritoService() {
+    public FavoritoServiceImpl() {
         favoritos = new Hashtable<>();
-        LinkedList<Favorito> listaFavoritos = FavoritoDAO.getInstance().getAll();
+        LinkedList<Favorito> listaFavoritos = FavoritoDAOImpl.getInstance().getAll();
         for (Favorito favorito : listaFavoritos) {
             favoritos.put(favorito.getNombre(), favorito.getUrl());
         }
@@ -32,7 +32,7 @@ public class FavoritoService implements IService<Hashtable<String, String>, Favo
     @Override
     public void agregarElemento(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
-        FavoritoDAO.getInstance().save(favorito);
+        FavoritoDAOImpl.getInstance().save(favorito);
     }
 
 
@@ -42,7 +42,7 @@ public class FavoritoService implements IService<Hashtable<String, String>, Favo
     @Override
     public void eliminarTodo() {
         favoritos.clear();
-        FavoritoDAO.getInstance().deleteAll();
+        FavoritoDAOImpl.getInstance().deleteAll();
     }
 
     /**
@@ -64,7 +64,7 @@ public class FavoritoService implements IService<Hashtable<String, String>, Favo
     @Override
     public void eliminarElemento(Favorito favorito) {
         favoritos.remove(favorito.getNombre());
-        FavoritoDAO.getInstance().delete(favorito);
+        FavoritoDAOImpl.getInstance().delete(favorito);
     }
 
     /**

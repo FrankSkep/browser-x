@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Servicio para gestionar la navegación del navegador.
  */
-public class NavegacionService implements IService<LinkedList<EntradaHistorial>, EntradaHistorial> {
+public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistorial>, EntradaHistorial> {
     private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
@@ -22,7 +22,7 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
     /**
      * Constructor que inicializa las estructuras de datos de navegación y carga el historial completo desde el DAO.
      */
-    public NavegacionService() {
+    public NavegacionServiceImpl() {
         historialSesion = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();

@@ -5,12 +5,12 @@ import browser.database.Db_Connection;
 import browser.model.Descarga;
 import browser.model.EntradaHistorial;
 import browser.model.Favorito;
-import browser.service.Impl.DescargaService;
-import browser.service.Impl.FavoritoService;
+import browser.service.Impl.DescargaServiceImpl;
+import browser.service.Impl.FavoritoServiceImpl;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
 import browser.data_structure.LinkedList;
-import browser.service.Impl.NavegacionService;
+import browser.service.Impl.NavegacionServiceImpl;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -33,9 +33,9 @@ import java.awt.*;
  * Extiende JFrame para crear una interfaz gráfica de usuario.
  */
 public class BrowserX extends JFrame {
-    private final NavegacionService navegacionService;
-    private final FavoritoService favoritoService;
-    private final DescargaService descargaService;
+    private final NavegacionServiceImpl navegacionService;
+    private final FavoritoServiceImpl favoritoService;
+    private final DescargaServiceImpl descargaService;
     private WebView webView;
     private WebEngine webEngine;
 
@@ -56,9 +56,9 @@ public class BrowserX extends JFrame {
 
     public BrowserX() {
         Db_Connection.initializeDatabase();
-        navegacionService = new NavegacionService();
-        favoritoService = new FavoritoService();
-        descargaService = new DescargaService();
+        navegacionService = new NavegacionServiceImpl();
+        favoritoService = new FavoritoServiceImpl();
+        descargaService = new DescargaServiceImpl();
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());

@@ -20,14 +20,14 @@ import java.time.LocalDateTime;
 /**
  * Servicio para gestionar las descargas del navegador.
  */
-public class DescargaService implements IService<LinkedList<Descarga>, Descarga> {
+public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Descarga> {
 
     private final LinkedList<Descarga> descargas;
 
     /**
      * Constructor que inicializa la lista enlazada de descargas y carga los datos desde el DAO.
      */
-    public DescargaService() {
+    public DescargaServiceImpl() {
         descargas = new LinkedList<>();
         descargas.addAll(DescargaDAOImpl.getInstance().getAll());
     }

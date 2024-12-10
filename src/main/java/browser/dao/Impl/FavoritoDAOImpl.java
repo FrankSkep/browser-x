@@ -2,18 +2,18 @@ package browser.dao.Impl;
 
 import browser.dao.AbstractDAO;
 import browser.database.Db_Connection;
-import browser.model.Descarga;
+import browser.model.Favorito;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DescargaDAOImpl extends AbstractDAO<Descarga> {
+public class FavoritoDAOImpl extends AbstractDAO<Favorito> {
 
-    private static DescargaDAOImpl instance = null;
+    private static FavoritoDAOImpl instance = null;
 
-    private DescargaDAOImpl() {
+    private FavoritoDAOImpl() {
     }
 
     /**
@@ -21,26 +21,25 @@ public class DescargaDAOImpl extends AbstractDAO<Descarga> {
      *
      * @return La instancia de la clase.
      */
-    public static synchronized DescargaDAOImpl getInstance() {
+    public static synchronized FavoritoDAOImpl getInstance() {
         if (instance == null) {
-            instance = new DescargaDAOImpl();
+            instance = new FavoritoDAOImpl();
         }
         return instance;
     }
 
     @Override
     protected String getTableName() {
-        return "descargas";
+        return "favoritos";
     }
 
     @Override
-    public void save(Descarga descarga) {
-        String sql = "INSERT INTO descargas (nombre, url, fecha) VALUES (?, ?, ?)";
+    public void save(Favorito favorito) {
+        String sql = "INSERT INTO favoritos (nombre, url) VALUES (?, ?)";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, descarga.getNombre());
-            pstmt.setString(2, descarga.getUrl());
-            pstmt.setString(3, descarga.getFecha());
+            pstmt.setString(1, favorito.getNombre());
+            pstmt.setString(2, favorito.getUrl());
             pstmt.executeUpdate();
         } catch (
                 SQLException e) {
@@ -49,11 +48,11 @@ public class DescargaDAOImpl extends AbstractDAO<Descarga> {
     }
 
     @Override
-    public void delete(Descarga descarga) {
-        String sql = "DELETE FROM descargas WHERE nombre = ?";
+    public void delete(Favorito favorito) {
+        String sql = "DELETE FROM favoritos WHERE nombre = ?";
         try (Connection conn = Db_Connection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, descarga.getNombre());
+            pstmt.setString(1, favorito.getNombre());
             pstmt.executeUpdate();
         } catch (
                 SQLException e) {
@@ -62,7 +61,7 @@ public class DescargaDAOImpl extends AbstractDAO<Descarga> {
     }
 
     @Override
-    protected Descarga mapResultSetToEntity(ResultSet rs) throws SQLException {
-        return new Descarga(rs.getString("nombre"), rs.getString("url"), rs.getString("fecha"));
+    protected Favorito mapResultSetToEntity(ResultSet rs) throws SQLException {
+        return new Favorito(rs.getString("nombre"), rs.getString("url"));
     }
 }
