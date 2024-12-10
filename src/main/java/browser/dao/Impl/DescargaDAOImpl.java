@@ -31,6 +31,11 @@ public class DescargaDAOImpl implements DAO<Descarga> {
         return instance;
     }
 
+    /**
+     * Guarda una descarga en la base de datos.
+     *
+     * @param descarga La descarga a guardar.
+     */
     @Override
     public void save(Descarga descarga) {
         String sql = "INSERT INTO descargas (nombre, url, fecha) VALUES (?, ?, ?)";
@@ -46,6 +51,11 @@ public class DescargaDAOImpl implements DAO<Descarga> {
         }
     }
 
+    /**
+     * Elimina una descarga de la base de datos por su nombre.
+     *
+     * @param descarga Objeto de la descarga a eliminar.
+     */
     @Override
     public void delete(Descarga descarga) {
         String sql = "DELETE FROM descargas WHERE nombre = ?";
@@ -59,6 +69,9 @@ public class DescargaDAOImpl implements DAO<Descarga> {
         }
     }
 
+    /**
+     * Elimina todas las descargas de la base de datos.
+     */
     @Override
     public void deleteAll() {
         String sql = "DELETE FROM descargas";
@@ -71,6 +84,11 @@ public class DescargaDAOImpl implements DAO<Descarga> {
         }
     }
 
+    /**
+     * Obtiene todas las descargas de la base de datos.
+     *
+     * @return Una lista enlazada de todas las descargas.
+     */
     @Override
     public LinkedList<Descarga> getAll() {
         String sql = "SELECT * FROM descargas";

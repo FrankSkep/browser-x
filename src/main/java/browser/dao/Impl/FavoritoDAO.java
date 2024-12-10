@@ -33,6 +33,11 @@ public class FavoritoDAO implements DAO<Favorito> {
         return instance;
     }
 
+    /**
+     * Guarda un favorito en la base de datos.
+     *
+     * @param favorito El favorito a guardar.
+     */
     @Override
     public void save(Favorito favorito) {
         String sql = "INSERT INTO favoritos (nombre, url) VALUES (?, ?)";
@@ -49,6 +54,11 @@ public class FavoritoDAO implements DAO<Favorito> {
         }
     }
 
+    /**
+     * Elimina un favorito de la base de datos por su nombre.
+     *
+     * @param favorito Objeto del favorito a eliminar.
+     */
     @Override
     public void delete(Favorito favorito) {
         String sql = "DELETE FROM favoritos WHERE nombre = ?";
@@ -64,6 +74,9 @@ public class FavoritoDAO implements DAO<Favorito> {
         }
     }
 
+    /**
+     * Elimina todos los favoritos de la base de datos.
+     */
     @Override
     public void deleteAll() {
         String sql = "DELETE FROM favoritos";
@@ -78,6 +91,11 @@ public class FavoritoDAO implements DAO<Favorito> {
         }
     }
 
+    /**
+     * Obtiene todos los favoritos de la base de datos.
+     *
+     * @return una lista enlazada con todos los favoritos.
+     */
     @Override
     public LinkedList<Favorito> getAll() {
         String sql = "SELECT nombre, url FROM favoritos";

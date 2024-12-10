@@ -33,6 +33,10 @@ public class HistorialDAOImpl implements DAO<EntradaHistorial> {
         return instance;
     }
 
+    /**
+     * Guarda una entrada de historial en la base de datos.
+     * @param entradaHistorial la entrada de historial a guardar.
+     */
     @Override
     public void save(EntradaHistorial entradaHistorial) {
         String sql = "INSERT INTO historial(url, fecha) VALUES(?, ?)";
@@ -48,6 +52,10 @@ public class HistorialDAOImpl implements DAO<EntradaHistorial> {
         }
     }
 
+    /**
+     * Elimina una entrada de historial de la base de datos.
+     * @param entradaHistorial la entrada de historial a eliminar.
+     */
     @Override
     public void delete(EntradaHistorial entradaHistorial) {
         String sql = "DELETE FROM historial WHERE url = ? AND fecha = ?";
@@ -63,6 +71,9 @@ public class HistorialDAOImpl implements DAO<EntradaHistorial> {
         }
     }
 
+    /**
+     * Elimina todas las entradas de historial de la base de datos.
+     */
     @Override
     public void deleteAll() {
         String sql = "DELETE FROM historial";
@@ -74,6 +85,10 @@ public class HistorialDAOImpl implements DAO<EntradaHistorial> {
         }
     }
 
+    /**
+     * Obtiene todas las entradas de historial de la base de datos.
+     * @return una lista enlazada de todas las entradas de historial.
+     */
     @Override
     public LinkedList<EntradaHistorial> getAll() {
         String sql = "SELECT url, fecha FROM historial";
