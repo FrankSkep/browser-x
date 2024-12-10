@@ -1,9 +1,10 @@
-package browser.service;
+package browser.service.Impl;
 
 import browser.dao.Impl.FavoritoDAO;
 import browser.data_structure.Hashtable;
 import browser.data_structure.LinkedList;
 import browser.model.Favorito;
+import browser.service.IService;
 
 /**
  * Servicio para gestionar los favoritos del navegador.
@@ -67,7 +68,7 @@ public class FavoritoService implements IService<Hashtable<String, String>, Obje
     /**
      * Elimina un favorito por su nombre.
      *
-     * @param nombre El nombre del favorito a eliminar.
+     * @param favorito El nombre del favorito a eliminar.
      */
     @Override
     public void eliminarElemento(Favorito favorito) {

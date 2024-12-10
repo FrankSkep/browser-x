@@ -1,9 +1,13 @@
 package browser.service;
 
-public interface IService<T, E, E2> {
+public interface IService<T, K, V> {
     void eliminarTodo();
+
     T obtenerTodo();
-    E obtenerElemento();
-    void eliminarElemento(E2 elemento);
-    void agregarElemento(E2 elemento);
+
+    K obtenerElemento();
+
+    void eliminarElemento(V elemento);
+
+    void agregarElemento(V elemento);
 }

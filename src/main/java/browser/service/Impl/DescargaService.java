@@ -1,8 +1,9 @@
-package browser.service;
+package browser.service.Impl;
 
 import browser.dao.Impl.DescargaDAOImpl;
 import browser.data_structure.LinkedList;
 import browser.model.Descarga;
+import browser.service.IService;
 import browser.util.DownloadProgressDialog;
 import browser.util.ValidationUtil;
 
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 /**
  * Servicio para gestionar las descargas del navegador.
  */
-public class DescargaService  implements IService<LinkedList<Descarga>,String,Descarga>{
+public class DescargaService  implements IService<LinkedList<Descarga>,String,Descarga> {
 
     private final LinkedList<Descarga> descargas;
 

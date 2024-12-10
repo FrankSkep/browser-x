@@ -1,9 +1,10 @@
-package browser.service;
+package browser.service.Impl;
 
 import browser.dao.Impl.HistorialDAOImpl;
 import browser.data_structure.LinkedList;
 import browser.data_structure.Stack;
 import browser.model.EntradaHistorial;
+import browser.service.IService;
 import browser.util.ValidationUtil;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * Servicio para gestionar la navegación del navegador.
  */
-public class NavegacionService implements IService<LinkedList<EntradaHistorial>,String,EntradaHistorial>{
+public class NavegacionService implements IService<LinkedList<EntradaHistorial>, String, EntradaHistorial> {
     private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
@@ -46,7 +47,7 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
     /**
      * Mueve una URL entre las pilas de navegación.
      *
-     * @param origen La pila de origen.
+     * @param origen  La pila de origen.
      * @param destino La pila de destino.
      * @return La nueva URL después del movimiento, o null si no hay más URLs en la pila de origen.
      */
@@ -96,13 +97,10 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
      * @param url La URL a guardar.
      */
     public void guardarEnHistorial(String url) {
-        //
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
-        //
         historialCompleto.add(entradaHistorial);
         HistorialDAOImpl.getInstance().save(entradaHistorial);
     }
-
 
 
     /**
@@ -164,25 +162,26 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
             historialSesion.add(pilaAdelante.pop());
         }
     }
-    //////////
+
     /**
-     * Elimina todo el historial de navegación.
+     * Agrega una entrada al historial de navegación.
+     *
+     * @param elemento La entrada del historial a agregar.
      */
     @Override
-    public void eliminarTodo() {
-        historialCompleto = new LinkedList<>();
-        HistorialDAOImpl.getInstance().deleteAll();
-        restablecerNavegacion();
+    public void agregarElemento(EntradaHistorial elemento) {
+        historialCompleto.add(elemento);
     }
 
     /**
-     * Obtiene el historial completo de navegación.
+     * Elimina una entrada específica del historial de navegación.
      *
-     * @return Una lista enlazada con todas las entradas del historial.
+     * @param entradaHistorial La entrada del historial a eliminar.
      */
     @Override
-    public LinkedList<EntradaHistorial> obtenerTodo() {
-        return historialCompleto;
+    public void eliminarElemento(EntradaHistorial entradaHistorial) {
+        historialCompleto.remove(entradaHistorial);
+        HistorialDAOImpl.getInstance().delete(entradaHistorial);
     }
 
     /**
@@ -197,19 +196,24 @@ public class NavegacionService implements IService<LinkedList<EntradaHistorial>,
         }
         return historialSesion.getLast();
     }
+
     /**
-     * Elimina una entrada específica del historial de navegación.
+     * Obtiene el historial completo de navegación.
      *
-     * @param entradaHistorial La entrada del historial a eliminar.
+     * @return Una lista enlazada con todas las entradas del historial.
      */
     @Override
-    public void eliminarElemento(EntradaHistorial entradaHistorial) {
-        historialCompleto.remove(entradaHistorial);
-        HistorialDAOImpl.getInstance().delete(entradaHistorial);
+    public LinkedList<EntradaHistorial> obtenerTodo() {
+        return historialCompleto;
     }
 
+    /**
+     * Elimina todo el historial de navegación.
+     */
     @Override
-    public void agregarElemento(EntradaHistorial elemento) {
-        historialCompleto.add(elemento);
+    public void eliminarTodo() {
+        historialCompleto = new LinkedList<>();
+        HistorialDAOImpl.getInstance().deleteAll();
+        restablecerNavegacion();
     }
 }
