@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 /**
  * Servicio para gestionar las descargas del navegador.
  */
-public class DescargaService {
+public class DescargaService  implements IService<LinkedList<Descarga>,String,Descarga>{
 
     private final LinkedList<Descarga> descargas;
 
@@ -36,7 +36,8 @@ public class DescargaService {
      *
      * @param descarga La descarga a guardar.
      */
-    private void guardarDescarga(Descarga descarga) {
+    @Override
+    public void agregarElemento(Descarga descarga) {
         descargas.add(descarga);
         DescargaDAOImpl.getInstance().save(descarga);
     }
@@ -46,7 +47,8 @@ public class DescargaService {
      *
      * @param descarga La descarga a eliminar.
      */
-    public void eliminarDescarga(Descarga descarga) {
+    @Override
+    public void eliminarElemento(Descarga descarga) {
         descargas.remove(descarga);
         DescargaDAOImpl.getInstance().delete(descarga);
     }
@@ -54,6 +56,7 @@ public class DescargaService {
     /**
      * Elimina todas las descargas de la lista y del DAO.
      */
+    @Override
     public void eliminarTodo() {
         descargas.clear();
         DescargaDAOImpl.getInstance().deleteAll();
@@ -64,8 +67,14 @@ public class DescargaService {
      *
      * @return Una lista enlazada con todas las descargas.
      */
+    @Override
     public LinkedList<Descarga> obtenerTodo() {
         return descargas;
+    }
+
+    @Override
+    public String obtenerElemento() {
+        return "";
     }
 
     /**
@@ -117,7 +126,7 @@ public class DescargaService {
                         }
 
                         JOptionPane.showMessageDialog(parent, "Archivo descargado: " + fileName);
-                        guardarDescarga(new Descarga(fileName, fileUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
+                        agregarElemento(new Descarga(fileName, fileUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                     }
                 } else {
                     System.err.println("Error al descargar el archivo: " + connection.getResponseMessage());

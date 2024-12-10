@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Servicio para gestionar la navegación del navegador.
  */
-public class NavegacionService {
+public class NavegacionService implements IService<LinkedList<EntradaHistorial>,String,EntradaHistorial>{
     private LinkedList<String> historialSesion;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
@@ -80,17 +80,6 @@ public class NavegacionService {
         return mover(pilaAdelante, pilaAtras);
     }
 
-    /**
-     * Obtiene la URL actual de la navegación.
-     *
-     * @return La URL actual, o null si no hay URLs en el historial de la sesión.
-     */
-    public String obtenerURLActual() {
-        if (historialSesion.isEmpty()) {
-            return null;
-        }
-        return historialSesion.getLast();
-    }
 
     /**
      * Restablece la navegación, limpiando el historial de la sesión y las pilas de navegación.
@@ -107,38 +96,14 @@ public class NavegacionService {
      * @param url La URL a guardar.
      */
     public void guardarEnHistorial(String url) {
+        //
         EntradaHistorial entradaHistorial = new EntradaHistorial(url, ValidationUtil.dateFormat(LocalDateTime.now()));
+        //
         historialCompleto.add(entradaHistorial);
         HistorialDAOImpl.getInstance().save(entradaHistorial);
     }
 
-    /**
-     * Elimina todo el historial de navegación.
-     */
-    public void eliminarHistorial() {
-        historialCompleto = new LinkedList<>();
-        HistorialDAOImpl.getInstance().deleteAll();
-        restablecerNavegacion();
-    }
 
-    /**
-     * Elimina una entrada específica del historial de navegación.
-     *
-     * @param entradaHistorial La entrada del historial a eliminar.
-     */
-    public void eliminarEntradaHistorial(EntradaHistorial entradaHistorial) {
-        historialCompleto.remove(entradaHistorial);
-        HistorialDAOImpl.getInstance().delete(entradaHistorial);
-    }
-
-    /**
-     * Obtiene el historial completo de navegación.
-     *
-     * @return Una lista enlazada con todas las entradas del historial.
-     */
-    public LinkedList<EntradaHistorial> obtenerHistorial() {
-        return historialCompleto;
-    }
 
     /**
      * Verifica si se puede retroceder en la navegación.
@@ -198,5 +163,53 @@ public class NavegacionService {
             pilaAtras.push(historialSesion.removeLast());
             historialSesion.add(pilaAdelante.pop());
         }
+    }
+    //////////
+    /**
+     * Elimina todo el historial de navegación.
+     */
+    @Override
+    public void eliminarTodo() {
+        historialCompleto = new LinkedList<>();
+        HistorialDAOImpl.getInstance().deleteAll();
+        restablecerNavegacion();
+    }
+
+    /**
+     * Obtiene el historial completo de navegación.
+     *
+     * @return Una lista enlazada con todas las entradas del historial.
+     */
+    @Override
+    public LinkedList<EntradaHistorial> obtenerTodo() {
+        return historialCompleto;
+    }
+
+    /**
+     * Obtiene la URL actual de la navegación.
+     *
+     * @return La URL actual, o null si no hay URLs en el historial de la sesión.
+     */
+    @Override
+    public String obtenerElemento() {
+        if (historialSesion.isEmpty()) {
+            return null;
+        }
+        return historialSesion.getLast();
+    }
+    /**
+     * Elimina una entrada específica del historial de navegación.
+     *
+     * @param entradaHistorial La entrada del historial a eliminar.
+     */
+    @Override
+    public void eliminarElemento(EntradaHistorial entradaHistorial) {
+        historialCompleto.remove(entradaHistorial);
+        HistorialDAOImpl.getInstance().delete(entradaHistorial);
+    }
+
+    @Override
+    public void agregarElemento(EntradaHistorial elemento) {
+        historialCompleto.add(elemento);
     }
 }

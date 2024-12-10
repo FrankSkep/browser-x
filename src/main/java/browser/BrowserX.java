@@ -302,7 +302,7 @@ public class BrowserX extends JFrame {
 
     // actualizar la URL en el campo de texto
     private void actualizarCampoUrl() {
-        String urlActual = navegacionService.obtenerURLActual();
+        String urlActual = navegacionService.obtenerElemento();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
@@ -313,7 +313,7 @@ public class BrowserX extends JFrame {
     private void actualizarEstadoBotones() {
         retrocederBtn.setEnabled(navegacionService.puedeRetroceder());
         avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerURLActual()));
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerElemento()));
     }
 
     // muestra menu de opciones
@@ -360,7 +360,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarHistorial() {
-        LinkedList<EntradaHistorial> historialCompleto = navegacionService.obtenerHistorial();
+        LinkedList<EntradaHistorial> historialCompleto = navegacionService.obtenerTodo();
 
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
@@ -382,7 +382,7 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
-                    navegacionService.eliminarHistorial();
+                    navegacionService.eliminarTodo();
                     actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -394,7 +394,7 @@ public class BrowserX extends JFrame {
                     EntradaHistorial entradaSeleccionada = new EntradaHistorial((String) tableModel.getValueAt(selectedRow, 0),
                             (String) tableModel.getValueAt(selectedRow, 1));
 
-                    navegacionService.eliminarEntradaHistorial(entradaSeleccionada);
+                    navegacionService.eliminarElemento(entradaSeleccionada);
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
                 } else {
@@ -425,7 +425,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de favoritos
     private void mostrarFavoritos() {
-        Hashtable<String, String> favoritosMap = favoritoService.obtenerFavoritos();
+        Hashtable<String, String> favoritosMap = favoritoService.obtenerTodo();
 
         if (favoritosMap.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
@@ -463,7 +463,7 @@ public class BrowserX extends JFrame {
                     if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
                         String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
-                        favoritoService.eliminarFavorito(new Favorito(nombreFavorito, urlFavorito));
+                        favoritoService.eliminarElemento(new Favorito(nombreFavorito, urlFavorito));
                         tableModel.removeRow(selectedRow);
                         actualizarEstadoBotones();
                         JOptionPane.showMessageDialog(null, "Favorito eliminado.");
@@ -533,7 +533,7 @@ public class BrowserX extends JFrame {
                     String nombre = (String) tableModel.getValueAt(selectedRow, 0);
                     String url = (String) tableModel.getValueAt(selectedRow, 1);
                     String fecha = (String) tableModel.getValueAt(selectedRow, 2);
-                    descargaService.eliminarDescarga(new Descarga(nombre, url, fecha));
+                    descargaService.eliminarElemento(new Descarga(nombre, url, fecha));
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Descarga eliminada.");
                 } else {
@@ -563,7 +563,7 @@ public class BrowserX extends JFrame {
                     if (favoritoService.existeFavorito(url)) {
                         JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
                     } else {
-                        favoritoService.agregarFavorito(new Favorito(nombre, url));
+                        favoritoService.agregarElemento(new Favorito(nombre, url));
                         JOptionPane.showMessageDialog(this, "Favorito agregado.");
                     }
                 } else {

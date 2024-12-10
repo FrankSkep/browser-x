@@ -8,7 +8,7 @@ import browser.model.Favorito;
 /**
  * Servicio para gestionar los favoritos del navegador.
  */
-public class FavoritoService {
+public class FavoritoService implements IService<Hashtable<String, String>, Object,Favorito> {
 
     private final Hashtable<String, String> favoritos;
 
@@ -28,37 +28,53 @@ public class FavoritoService {
      *
      * @param favorito El favorito a agregar.
      */
-    public void agregarFavorito(Favorito favorito) {
+    @Override
+    public void agregarElemento(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
         FavoritoDAO.getInstance().save(favorito);
     }
 
-    /**
-     * Elimina un favorito por su nombre.
-     *
-     * @param favorito El nombre del favorito a eliminar.
-     */
-    public void eliminarFavorito(Favorito favorito) {
-        favoritos.remove(favorito.getNombre());
-        FavoritoDAO.getInstance().delete(favorito);
-    }
 
     /**
      * Elimina todos los favoritos.
      */
+    @Override
     public void eliminarTodo() {
         favoritos.clear();
         FavoritoDAO.getInstance().deleteAll();
     }
-
     /**
      * Obtiene todos los favoritos.
      *
      * @return Una tabla hash con todos los favoritos.
      */
-    public Hashtable<String, String> obtenerFavoritos() {
+
+    @Override
+    public Hashtable<String, String> obtenerTodo() {
         return favoritos;
     }
+
+    /**
+     * Funcion no implementada.
+     *
+     * @return El elemento seleccionado de favoritos. (Siempre null lolxd)
+     */
+    @Override
+    public Object obtenerElemento() {
+        return null;
+    }
+
+    /**
+     * Elimina un favorito por su nombre.
+     *
+     * @param nombre El nombre del favorito a eliminar.
+     */
+    @Override
+    public void eliminarElemento(Favorito favorito) {
+        favoritos.remove(favorito.getNombre());
+        FavoritoDAO.getInstance().delete(favorito);
+    }
+
 
     /**
      * Verifica si un favorito con la URL especificada ya existe.
