@@ -1,14 +1,8 @@
 /**
  * <h1>Documentación de BrowserX</h1>
  * <p>
- * Este proyecto es un navegador modular diseñado para ofrecer flexibilidad
- * y personalización.
+ * Este proyecto es un navegador web desarrollado con Java, Swing y JavaFX WebEngine.
  * </p>
- * <ul>
- *   <li>Integración con diversos servicios</li>
- *   <li>Soporte para extensiones personalizadas</li>
- *   <li>Rendimiento optimizado</li>
- * </ul>
  *
  * <h3>
  *     Para ver la documentación completa, de click: <a href="{@docRoot}/overview-tree.html">aquí</a>
