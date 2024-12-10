@@ -1,0 +1,10 @@
+module:BrowserX
+browser
+browser.dao
+browser.dao.Impl
+browser.data_structure
+browser.database
+browser.model
+browser.service
+browser.service.Impl
+browser.util
