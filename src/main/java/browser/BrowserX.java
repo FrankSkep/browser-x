@@ -7,10 +7,11 @@ import browser.model.EntradaHistorial;
 import browser.model.Favorito;
 import browser.service.Impl.DescargaServiceImpl;
 import browser.service.Impl.FavoritoServiceImpl;
+import browser.service.Impl.HistorialServiceImpl;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
 import browser.data_structure.LinkedList;
-import browser.service.Impl.NavegacionServiceImpl;
+import browser.service.NavegacionManager;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -33,7 +34,8 @@ import java.awt.*;
  * Extiende JFrame para crear una interfaz gráfica de usuario.
  */
 public class BrowserX extends JFrame {
-    private final NavegacionServiceImpl navegacionService;
+    private final NavegacionManager navegacionService;
+    private final HistorialServiceImpl historialService;
     private final FavoritoServiceImpl favoritoService;
     private final DescargaServiceImpl descargaService;
     private WebView webView;
@@ -56,7 +58,8 @@ public class BrowserX extends JFrame {
 
     public BrowserX() {
         Db_Connection.initializeDatabase();
-        navegacionService = new NavegacionServiceImpl();
+        navegacionService = new NavegacionManager();
+        historialService = new HistorialServiceImpl();
         favoritoService = new FavoritoServiceImpl();
         descargaService = new DescargaServiceImpl();
 
@@ -138,7 +141,7 @@ public class BrowserX extends JFrame {
                             navegacionService.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            navegacionService.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
+                            historialService.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                         }
                     }
                     navegacionUsuario = false;
@@ -361,7 +364,7 @@ public class BrowserX extends JFrame {
 
     // crea y muestra ventana de historial de navegación
     private void mostrarHistorial() {
-        LinkedList<EntradaHistorial> historialCompleto = navegacionService.obtenerTodo();
+        LinkedList<EntradaHistorial> historialCompleto = historialService.obtenerTodo();
 
         if (historialCompleto.isEmpty()) {
             JOptionPane.showMessageDialog(null, "El historial está vacío.");
@@ -383,7 +386,8 @@ public class BrowserX extends JFrame {
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
-                    navegacionService.eliminarTodo();
+                    historialService.eliminarTodo();
+                    navegacionService.restablecerNavegacion();
                     actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -395,7 +399,7 @@ public class BrowserX extends JFrame {
                     EntradaHistorial entradaSeleccionada = new EntradaHistorial((String) tableModel.getValueAt(selectedRow, 0),
                             (String) tableModel.getValueAt(selectedRow, 1));
 
-                    navegacionService.eliminarElemento(entradaSeleccionada);
+                    historialService.eliminarElemento(entradaSeleccionada);
                     tableModel.removeRow(selectedRow);
                     JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
                 } else {

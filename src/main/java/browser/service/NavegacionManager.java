@@ -1,34 +1,25 @@
-package browser.service.Impl;
+package browser.service;
 
-import browser.dao.Impl.HistorialDAOImpl;
 import browser.data_structure.LinkedList;
 import browser.data_structure.Stack;
-import browser.model.EntradaHistorial;
-import browser.service.IService;
-import browser.util.ValidationUtil;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Servicio para gestionar la navegación del navegador.
  */
-public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistorial>, EntradaHistorial> {
-    private LinkedList<String> historialSesion;
+public class NavegacionManager {
+    private LinkedList<String> paginasVisitadas;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
-    private LinkedList<EntradaHistorial> historialCompleto;
 
     /**
      * Constructor que inicializa las estructuras de datos de navegación y carga el historial completo desde el DAO.
      */
-    public NavegacionServiceImpl() {
-        historialSesion = new LinkedList<>();
+    public NavegacionManager() {
+        paginasVisitadas = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
-
-        historialCompleto = new LinkedList<>();
-        historialCompleto.addAll(HistorialDAOImpl.getInstance().getAll());
     }
 
     /**
@@ -37,10 +28,10 @@ public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistori
      * @param url La URL a agregar.
      */
     public void agregarUrlNavegacion(String url) {
-        if (!historialSesion.isEmpty()) {
-            pilaAtras.push(historialSesion.getLast());
+        if (!paginasVisitadas.isEmpty()) {
+            pilaAtras.push(paginasVisitadas.getLast());
         }
-        historialSesion.add(url);
+        paginasVisitadas.add(url);
         pilaAdelante = new Stack<>(); // limpieza navegacion adelante
     }
 
@@ -53,11 +44,11 @@ public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistori
      */
     private String mover(Stack<String> origen, Stack<String> destino) {
         if (!origen.isEmpty()) {
-            String urlActual = historialSesion.getLast();
+            String urlActual = paginasVisitadas.getLast();
             destino.push(urlActual);
             String nuevaUrl = origen.pop();
-            historialSesion.removeLast();
-            historialSesion.add(nuevaUrl);
+            paginasVisitadas.removeLast();
+            paginasVisitadas.add(nuevaUrl);
             return nuevaUrl;
         }
         return null;
@@ -84,8 +75,8 @@ public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistori
     /**
      * Restablece la navegación, limpiando el historial de la sesión y las pilas de navegación.
      */
-    private void restablecerNavegacion() {
-        historialSesion = new LinkedList<>();
+    public void restablecerNavegacion() {
+        paginasVisitadas = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
     }
@@ -132,9 +123,9 @@ public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistori
      * @param url La URL hasta la cual retroceder.
      */
     public void irAtrasHasta(String url) {
-        while (!pilaAtras.isEmpty() && !historialSesion.getLast().equals(url)) {
-            pilaAdelante.push(historialSesion.removeLast());
-            historialSesion.add(pilaAtras.pop());
+        while (!pilaAtras.isEmpty() && !paginasVisitadas.getLast().equals(url)) {
+            pilaAdelante.push(paginasVisitadas.removeLast());
+            paginasVisitadas.add(pilaAtras.pop());
         }
     }
 
@@ -144,9 +135,9 @@ public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistori
      * @param url La URL hasta la cual avanzar.
      */
     public void irAdelanteHasta(String url) {
-        while (!pilaAdelante.isEmpty() && !historialSesion.getLast().equals(url)) {
-            pilaAtras.push(historialSesion.removeLast());
-            historialSesion.add(pilaAdelante.pop());
+        while (!pilaAdelante.isEmpty() && !paginasVisitadas.getLast().equals(url)) {
+            pilaAtras.push(paginasVisitadas.removeLast());
+            paginasVisitadas.add(pilaAdelante.pop());
         }
     }
 
@@ -156,52 +147,9 @@ public class NavegacionServiceImpl implements IService<LinkedList<EntradaHistori
      * @return La URL actual, o null si no hay URLs en el historial de la sesión.
      */
     public String obtenerUrlActual() {
-        if (historialSesion.isEmpty()) {
+        if (paginasVisitadas.isEmpty()) {
             return null;
         }
-        return historialSesion.getLast();
-    }
-
-    /**
-     * Agrega una entrada al historial de navegación.
-     *
-     * @param pagina La entrada del historial a agregar.
-     */
-    @Override
-    public void agregarElemento(EntradaHistorial pagina) {
-        EntradaHistorial entradaHistorial = new EntradaHistorial(pagina.getUrl(), ValidationUtil.dateFormat(LocalDateTime.now()));
-        historialCompleto.add(entradaHistorial);
-        HistorialDAOImpl.getInstance().save(entradaHistorial);
-    }
-
-    /**
-     * Elimina una entrada específica del historial de navegación.
-     *
-     * @param entradaHistorial La entrada del historial a eliminar.
-     */
-    @Override
-    public void eliminarElemento(EntradaHistorial entradaHistorial) {
-        historialCompleto.remove(entradaHistorial);
-        HistorialDAOImpl.getInstance().delete(entradaHistorial);
-    }
-
-    /**
-     * Obtiene el historial completo de navegación.
-     *
-     * @return Una lista enlazada con todas las entradas del historial.
-     */
-    @Override
-    public LinkedList<EntradaHistorial> obtenerTodo() {
-        return historialCompleto;
-    }
-
-    /**
-     * Elimina todo el historial de navegación.
-     */
-    @Override
-    public void eliminarTodo() {
-        historialCompleto.clear();
-        HistorialDAOImpl.getInstance().deleteAll();
-        restablecerNavegacion();
+        return paginasVisitadas.getLast();
     }
 }
