@@ -24,6 +24,10 @@
 ### 🔍 Búsquedas
 - Integra un motor de búsqueda predeterminado basado en **Google** para realizar consultas rápidas.
 
+### Documentacion del proyecto
+
+[BrowserX Documentation](https://documentation-browserx.vercel.app/BrowserX/module-summary.html)
+
 ---
 
 ## **Requisitos**
