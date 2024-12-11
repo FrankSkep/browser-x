@@ -1,6 +1,6 @@
 package browser.service.Impl;
 
-import browser.dao.Impl.HistorialDAOImpl;
+import browser.dao.HistorialDAO;
 import browser.data_structure.LinkedList;
 import browser.model.EntradaHistorial;
 import browser.service.IService;
@@ -14,7 +14,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
 
     public HistorialServiceImpl() {
         historial = new LinkedList<>();
-        historial.addAll(HistorialDAOImpl.getInstance().obtenerTodo());
+        historial.addAll(HistorialDAO.getInstance().obtenerTodo());
     }
 
     /**
@@ -26,7 +26,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     public void agregarElemento(EntradaHistorial pagina) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(pagina.getUrl(), ValidationUtil.dateFormat(LocalDateTime.now()));
         historial.add(entradaHistorial);
-        HistorialDAOImpl.getInstance().guardar(entradaHistorial);
+        HistorialDAO.getInstance().guardar(entradaHistorial);
     }
 
     /**
@@ -37,7 +37,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     @Override
     public void eliminarElemento(EntradaHistorial entradaHistorial) {
         historial.remove(entradaHistorial);
-        HistorialDAOImpl.getInstance().eliminar(entradaHistorial);
+        HistorialDAO.getInstance().eliminar(entradaHistorial);
     }
 
     /**
@@ -56,7 +56,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     @Override
     public void eliminarTodo() {
         historial.clear();
-        HistorialDAOImpl.getInstance().eliminarTodo();
+        HistorialDAO.getInstance().eliminarTodo();
     }
 
 }

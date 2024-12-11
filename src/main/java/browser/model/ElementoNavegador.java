@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Clase que representa un elemento del navegador (historial o favoritos).
+ */
 @AllArgsConstructor
 @Getter
 @Setter

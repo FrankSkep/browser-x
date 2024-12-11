@@ -1,6 +1,6 @@
 package browser.service.Impl;
 
-import browser.dao.Impl.DescargaDAOImpl;
+import browser.dao.DescargaDAO;
 import browser.data_structure.LinkedList;
 import browser.model.Descarga;
 import browser.service.IService;
@@ -29,7 +29,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
      */
     public DescargaServiceImpl() {
         descargas = new LinkedList<>();
-        descargas.addAll(DescargaDAOImpl.getInstance().obtenerTodo());
+        descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
     }
 
     /**
@@ -40,7 +40,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void agregarElemento(Descarga descarga) {
         descargas.add(descarga);
-        DescargaDAOImpl.getInstance().guardar(descarga);
+        DescargaDAO.getInstance().guardar(descarga);
     }
 
     /**
@@ -51,7 +51,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void eliminarElemento(Descarga descarga) {
         descargas.remove(descarga);
-        DescargaDAOImpl.getInstance().eliminar(descarga);
+        DescargaDAO.getInstance().eliminar(descarga);
     }
 
     /**
@@ -60,7 +60,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void eliminarTodo() {
         descargas.clear();
-        DescargaDAOImpl.getInstance().eliminarTodo();
+        DescargaDAO.getInstance().eliminarTodo();
     }
 
     /**

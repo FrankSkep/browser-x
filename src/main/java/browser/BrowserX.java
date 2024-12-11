@@ -34,7 +34,7 @@ import java.awt.*;
  * Extiende JFrame para crear una interfaz gráfica de usuario.
  */
 public class BrowserX extends JFrame {
-    private final NavegacionManager navegacionService;
+    private final NavegacionManager navegacionmanager;
     private final HistorialServiceImpl historialService;
     private final FavoritoServiceImpl favoritoService;
     private final DescargaServiceImpl descargaService;
@@ -46,6 +46,9 @@ public class BrowserX extends JFrame {
     private final JButton avanzarBtn;
     private final JButton favoritosBtn;
 
+    /**
+     * URL de Google. (Página de inicio)
+     */
     private final String GOOGLE_URL = "https://www.google.com/";
 
     /**
@@ -58,7 +61,7 @@ public class BrowserX extends JFrame {
 
     public BrowserX() {
         Db_Connection.initializeDatabase();
-        navegacionService = new NavegacionManager();
+        navegacionmanager = new NavegacionManager();
         historialService = new HistorialServiceImpl();
         favoritoService = new FavoritoServiceImpl();
         descargaService = new DescargaServiceImpl();
@@ -138,7 +141,7 @@ public class BrowserX extends JFrame {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
                         if (!ValidationUtil.isDownloadUrl(finalUrl)) {
-                            navegacionService.agregarUrlNavegacion(finalUrl);
+                            navegacionmanager.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
                             historialService.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
@@ -215,7 +218,7 @@ public class BrowserX extends JFrame {
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
                     System.out.println("Botón de retroceder clic derecho presionado");
-                    mostrarContenidoPila(navegacionService.obtenerPilaAtrasList(), true);
+                    mostrarContenidoPila(navegacionmanager.obtenerPilaAtrasList(), true);
                 }
             }
         });
@@ -225,7 +228,7 @@ public class BrowserX extends JFrame {
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
                     System.out.println("Botón de avanzar clic derecho presionado");
-                    mostrarContenidoPila(navegacionService.obtenerPilaAdelanteList(), false);
+                    mostrarContenidoPila(navegacionmanager.obtenerPilaAdelanteList(), false);
                 }
             }
         });
@@ -241,9 +244,9 @@ public class BrowserX extends JFrame {
             JMenuItem item = new JMenuItem(url);
             item.addActionListener(e -> {
                 if (esRetroceso) {
-                    navegacionService.irAtrasHasta(url);
+                    navegacionmanager.irAtrasHasta(url);
                 } else {
-                    navegacionService.irAdelanteHasta(url);
+                    navegacionmanager.irAdelanteHasta(url);
                 }
                 cargarURL(url);
             });
@@ -288,7 +291,7 @@ public class BrowserX extends JFrame {
 
     // retroceder pagina
     private void retrocederPagina() {
-        String urlAnterior = navegacionService.retroceder();
+        String urlAnterior = navegacionmanager.retroceder();
         if (urlAnterior != null) {
             navegacionUsuario = true;
             cargarURL(urlAnterior);
@@ -297,7 +300,7 @@ public class BrowserX extends JFrame {
 
     // avanzar pagina
     private void avanzarPagina() {
-        String urlSiguiente = navegacionService.avanzar();
+        String urlSiguiente = navegacionmanager.avanzar();
         if (urlSiguiente != null) {
             navegacionUsuario = true;
             cargarURL(urlSiguiente);
@@ -306,7 +309,7 @@ public class BrowserX extends JFrame {
 
     // actualizar la URL en el campo de texto
     private void actualizarCampoUrl() {
-        String urlActual = navegacionService.obtenerUrlActual();
+        String urlActual = navegacionmanager.obtenerUrlActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
@@ -315,9 +318,9 @@ public class BrowserX extends JFrame {
 
     // actualiza el estado de los botones
     private void actualizarEstadoBotones() {
-        retrocederBtn.setEnabled(navegacionService.puedeRetroceder());
-        avanzarBtn.setEnabled(navegacionService.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionService.obtenerUrlActual()));
+        retrocederBtn.setEnabled(navegacionmanager.puedeRetroceder());
+        avanzarBtn.setEnabled(navegacionmanager.puedeAvanzar());
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionmanager.obtenerUrlActual()));
     }
 
     // muestra menu de opciones
@@ -387,7 +390,7 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
                     historialService.eliminarTodo();
-                    navegacionService.restablecerNavegacion();
+                    navegacionmanager.restablecerNavegacion();
                     actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }

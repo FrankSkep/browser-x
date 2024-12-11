@@ -1,6 +1,5 @@
-package browser.dao.Impl;
+package browser.dao;
 
-import browser.dao.AbstractDAO;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
 
@@ -9,11 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DescargaDAOImpl extends AbstractDAO<Descarga> {
+/**
+ * Data Access Object (DAO) para la entidad Descarga.
+ */
+public class DescargaDAO extends AbstractDAO<Descarga> {
 
-    private static DescargaDAOImpl instance = null;
+    private static DescargaDAO instance = null;
 
-    private DescargaDAOImpl() {
+    private DescargaDAO() {
     }
 
     /**
@@ -21,9 +23,9 @@ public class DescargaDAOImpl extends AbstractDAO<Descarga> {
      *
      * @return La instancia de la clase.
      */
-    public static synchronized DescargaDAOImpl getInstance() {
+    public static synchronized DescargaDAO getInstance() {
         if (instance == null) {
-            instance = new DescargaDAOImpl();
+            instance = new DescargaDAO();
         }
         return instance;
     }

@@ -1,6 +1,5 @@
-package browser.dao.Impl;
+package browser.dao;
 
-import browser.dao.AbstractDAO;
 import browser.database.Db_Connection;
 import browser.model.Favorito;
 
@@ -9,11 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FavoritoDAOImpl extends AbstractDAO<Favorito> {
+/**
+ * Data Access Object (DAO) para la entidad Favorito.
+ */
+public class FavoritoDAO extends AbstractDAO<Favorito> {
 
-    private static FavoritoDAOImpl instance = null;
+    private static FavoritoDAO instance = null;
 
-    private FavoritoDAOImpl() {
+    private FavoritoDAO() {
     }
 
     /**
@@ -21,9 +23,9 @@ public class FavoritoDAOImpl extends AbstractDAO<Favorito> {
      *
      * @return La instancia de la clase.
      */
-    public static synchronized FavoritoDAOImpl getInstance() {
+    public static synchronized FavoritoDAO getInstance() {
         if (instance == null) {
-            instance = new FavoritoDAOImpl();
+            instance = new FavoritoDAO();
         }
         return instance;
     }

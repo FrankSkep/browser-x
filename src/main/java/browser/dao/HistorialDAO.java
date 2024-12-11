@@ -1,6 +1,5 @@
-package browser.dao.Impl;
+package browser.dao;
 
-import browser.dao.AbstractDAO;
 import browser.database.Db_Connection;
 import browser.model.EntradaHistorial;
 
@@ -9,11 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class HistorialDAOImpl extends AbstractDAO<EntradaHistorial> {
+/**
+ * Data Access Object (DAO) para la entidad EntradaHistorial.
+ */
+public class HistorialDAO extends AbstractDAO<EntradaHistorial> {
 
-    private static HistorialDAOImpl instance = null;
+    private static HistorialDAO instance = null;
 
-    private HistorialDAOImpl() {
+    private HistorialDAO() {
     }
 
     /**
@@ -21,9 +23,9 @@ public class HistorialDAOImpl extends AbstractDAO<EntradaHistorial> {
      *
      * @return La instancia de la clase.
      */
-    public static synchronized HistorialDAOImpl getInstance() {
+    public static synchronized HistorialDAO getInstance() {
         if (instance == null) {
-            instance = new HistorialDAOImpl();
+            instance = new HistorialDAO();
         }
         return instance;
     }

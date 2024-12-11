@@ -1,6 +1,6 @@
 package browser.service.Impl;
 
-import browser.dao.Impl.FavoritoDAOImpl;
+import browser.dao.FavoritoDAO;
 import browser.data_structure.Hashtable;
 import browser.data_structure.LinkedList;
 import browser.model.Favorito;
@@ -18,7 +18,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
      */
     public FavoritoServiceImpl() {
         favoritos = new Hashtable<>();
-        LinkedList<Favorito> listaFavoritos = FavoritoDAOImpl.getInstance().obtenerTodo();
+        LinkedList<Favorito> listaFavoritos = FavoritoDAO.getInstance().obtenerTodo();
         for (Favorito favorito : listaFavoritos) {
             favoritos.put(favorito.getNombre(), favorito.getUrl());
         }
@@ -32,7 +32,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
     @Override
     public void agregarElemento(Favorito favorito) {
         favoritos.put(favorito.getNombre(), favorito.getUrl());
-        FavoritoDAOImpl.getInstance().guardar(favorito);
+        FavoritoDAO.getInstance().guardar(favorito);
     }
 
 
@@ -42,7 +42,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
     @Override
     public void eliminarTodo() {
         favoritos.clear();
-        FavoritoDAOImpl.getInstance().eliminarTodo();
+        FavoritoDAO.getInstance().eliminarTodo();
     }
 
     /**
@@ -64,7 +64,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
     @Override
     public void eliminarElemento(Favorito favorito) {
         favoritos.remove(favorito.getNombre());
-        FavoritoDAOImpl.getInstance().eliminar(favorito);
+        FavoritoDAO.getInstance().eliminar(favorito);
     }
 
     /**
