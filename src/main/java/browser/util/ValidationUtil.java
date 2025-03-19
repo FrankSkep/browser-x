@@ -68,7 +68,8 @@ public class ValidationUtil {
         try {
             URL parsedUrl = new URL(url);
             return ALLOWED_DOMAINS.stream().anyMatch(parsedUrl.getHost()::endsWith);
-        } catch (MalformedURLException e) {
+        } catch (
+                MalformedURLException e) {
             return false;
         }
     }
@@ -122,7 +123,8 @@ public class ValidationUtil {
             connection.setRequestMethod("HEAD");
             connection.connect();
             contentType = connection.getContentType();
-        } catch (IOException e) {
+        } catch (
+                IOException e) {
             System.err.println("Error al obtener el tipo de contenido: " + e.getMessage());
         }
         return contentType;
@@ -175,11 +177,18 @@ public class ValidationUtil {
         String osName = os.substring(0, 3);
 
         return switch (osName) {
-            case "win" -> "Windows";
-            case "mac" -> "MacOS";
-            case "nix", "nux", "aix" -> "Unix";
-            case "sun" -> "Solaris";
-            default -> null;
+            case "win" ->
+                    "Windows";
+            case "mac" ->
+                    "MacOS";
+            case "nix",
+                 "nux",
+                 "aix" ->
+                    "Unix";
+            case "sun" ->
+                    "Solaris";
+            default ->
+                    null;
         };
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 /**
  * La clase Stack representa una pila genérica.
  * Utiliza una estructura de nodos enlazados para almacenar los elementos.
+ *
  * @param <T> el tipo de elementos en la pila.
  */
 public class Stack<T> {
@@ -31,6 +32,7 @@ public class Stack<T> {
 
     /**
      * Inserta un elemento en la parte superior de la pila.
+     *
      * @param data el elemento a insertar.
      */
     public void push(T data) {
@@ -42,6 +44,7 @@ public class Stack<T> {
 
     /**
      * Elimina y retorna el elemento en la parte superior de la pila.
+     *
      * @return el elemento en la parte superior de la pila.
      * @throws RuntimeException si la pila está vacía.
      */
@@ -57,6 +60,7 @@ public class Stack<T> {
 
     /**
      * Retorna el elemento en la parte superior de la pila sin eliminarlo.
+     *
      * @return el elemento en la parte superior de la pila.
      * @throws RuntimeException si la pila está vacía.
      */
@@ -69,6 +73,7 @@ public class Stack<T> {
 
     /**
      * Verifica si la pila está vacía.
+     *
      * @return true si la pila está vacía, false en caso contrario.
      */
     public boolean isEmpty() {
@@ -77,6 +82,7 @@ public class Stack<T> {
 
     /**
      * Retorna el tamaño de la pila.
+     *
      * @return el número de elementos en la pila.
      */
     public int size() {
@@ -85,6 +91,7 @@ public class Stack<T> {
 
     /**
      * Convierte la pila en una lista.
+     *
      * @return una lista con los elementos de la pila.
      */
     public List<T> toList() {

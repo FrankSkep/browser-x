@@ -13,21 +13,7 @@ import java.sql.SQLException;
  */
 public class FavoritoDAO extends AbstractDAO<Favorito> {
 
-    private static FavoritoDAO instance = null;
-
-    private FavoritoDAO() {
-    }
-
-    /**
-     * Singleton para obtener la instancia de la clase.
-     *
-     * @return La instancia de la clase.
-     */
-    public static synchronized FavoritoDAO getInstance() {
-        if (instance == null) {
-            instance = new FavoritoDAO();
-        }
-        return instance;
+    public FavoritoDAO() {
     }
 
     @Override

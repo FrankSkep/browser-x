@@ -1,6 +1,10 @@
 package browser;
 
+import browser.dao.DescargaDAO;
+import browser.dao.FavoritoDAO;
+import browser.dao.HistorialDAO;
 import browser.data_structure.Hashtable;
+import browser.data_structure.LinkedList;
 import browser.database.Db_Connection;
 import browser.model.Descarga;
 import browser.model.EntradaHistorial;
@@ -8,10 +12,9 @@ import browser.model.Favorito;
 import browser.service.Impl.DescargaServiceImpl;
 import browser.service.Impl.FavoritoServiceImpl;
 import browser.service.Impl.HistorialServiceImpl;
+import browser.service.NavegacionManager;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
-import browser.data_structure.LinkedList;
-import browser.service.NavegacionManager;
 import com.formdev.flatlaf.FlatLightLaf;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -20,14 +23,13 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 
 /**
  * La clase BrowserX representa un navegador web.
@@ -62,9 +64,9 @@ public class BrowserX extends JFrame {
     public BrowserX() {
         Db_Connection.getInstance().initializeDatabase();
         navegacionmanager = new NavegacionManager();
-        historialService = new HistorialServiceImpl();
-        favoritoService = new FavoritoServiceImpl();
-        descargaService = new DescargaServiceImpl();
+        historialService = new HistorialServiceImpl(new HistorialDAO());
+        favoritoService = new FavoritoServiceImpl(new FavoritoDAO());
+        descargaService = new DescargaServiceImpl(new DescargaDAO());
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());

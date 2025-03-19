@@ -13,21 +13,7 @@ import java.sql.SQLException;
  */
 public class DescargaDAO extends AbstractDAO<Descarga> {
 
-    private static DescargaDAO instance = null;
-
-    private DescargaDAO() {
-    }
-
-    /**
-     * Singleton para obtener la instancia de la clase.
-     *
-     * @return La instancia de la clase.
-     */
-    public static synchronized DescargaDAO getInstance() {
-        if (instance == null) {
-            instance = new DescargaDAO();
-        }
-        return instance;
+    public DescargaDAO() {
     }
 
     @Override

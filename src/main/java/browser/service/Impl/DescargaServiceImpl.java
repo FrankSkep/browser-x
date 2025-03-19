@@ -23,13 +23,15 @@ import java.time.LocalDateTime;
 public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Descarga> {
 
     private final LinkedList<Descarga> descargas;
+    private final DescargaDAO descargaDAO;
 
     /**
      * Constructor que inicializa la lista enlazada de descargas y carga los datos desde el DAO.
      */
-    public DescargaServiceImpl() {
+    public DescargaServiceImpl(DescargaDAO descargaDAO) {
         descargas = new LinkedList<>();
-        descargas.addAll(DescargaDAO.getInstance().obtenerTodo());
+        this.descargaDAO = descargaDAO;
+        descargas.addAll(descargaDAO.obtenerTodo());
     }
 
     /**
@@ -40,7 +42,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void agregarElemento(Descarga descarga) {
         descargas.add(descarga);
-        DescargaDAO.getInstance().guardar(descarga);
+        descargaDAO.guardar(descarga);
     }
 
     /**
@@ -51,7 +53,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void eliminarElemento(Descarga descarga) {
         descargas.remove(descarga);
-        DescargaDAO.getInstance().eliminar(descarga);
+        descargaDAO.eliminar(descarga);
     }
 
     /**
@@ -60,7 +62,7 @@ public class DescargaServiceImpl implements IService<LinkedList<Descarga>, Desca
     @Override
     public void eliminarTodo() {
         descargas.clear();
-        DescargaDAO.getInstance().eliminarTodo();
+        descargaDAO.eliminarTodo();
     }
 
     /**

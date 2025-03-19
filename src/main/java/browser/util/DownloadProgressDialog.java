@@ -12,6 +12,7 @@ public class DownloadProgressDialog extends JDialog {
 
     /**
      * Constructor que crea un cuadro de diálogo de progreso de descarga.
+     *
      * @param parent el marco padre del cuadro de diálogo.
      */
     public DownloadProgressDialog(JFrame parent) {
@@ -26,6 +27,7 @@ public class DownloadProgressDialog extends JDialog {
 
     /**
      * Actualiza el progreso de la barra de progreso.
+     *
      * @param progress el valor del progreso a establecer (0-100).
      */
     public void updateProgress(int progress) {

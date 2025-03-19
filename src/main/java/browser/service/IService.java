@@ -8,7 +8,7 @@ package browser.service;
  * @param <K> Tipo de dato que se va a manipular.
  */
 public interface IService<T, K> {
-    
+
     void agregarElemento(K elemento);
 
     void eliminarElemento(K elemento);

@@ -11,10 +11,12 @@ import java.time.LocalDateTime;
 public class HistorialServiceImpl implements IService<LinkedList<EntradaHistorial>, EntradaHistorial> {
 
     private final LinkedList<EntradaHistorial> historial;
+    private final HistorialDAO historialDAO;
 
-    public HistorialServiceImpl() {
+    public HistorialServiceImpl(HistorialDAO historialDAO) {
         historial = new LinkedList<>();
-        historial.addAll(HistorialDAO.getInstance().obtenerTodo());
+        this.historialDAO = historialDAO;
+        historial.addAll(historialDAO.obtenerTodo());
     }
 
     /**
@@ -26,7 +28,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     public void agregarElemento(EntradaHistorial pagina) {
         EntradaHistorial entradaHistorial = new EntradaHistorial(pagina.getUrl(), ValidationUtil.dateFormat(LocalDateTime.now()));
         historial.add(entradaHistorial);
-        HistorialDAO.getInstance().guardar(entradaHistorial);
+        historialDAO.guardar(entradaHistorial);
     }
 
     /**
@@ -37,7 +39,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     @Override
     public void eliminarElemento(EntradaHistorial entradaHistorial) {
         historial.remove(entradaHistorial);
-        HistorialDAO.getInstance().eliminar(entradaHistorial);
+        historialDAO.eliminar(entradaHistorial);
     }
 
     /**
@@ -56,7 +58,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
     @Override
     public void eliminarTodo() {
         historial.clear();
-        HistorialDAO.getInstance().eliminarTodo();
+        historialDAO.eliminarTodo();
     }
 
 }

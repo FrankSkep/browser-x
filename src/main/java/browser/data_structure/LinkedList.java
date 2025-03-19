@@ -6,6 +6,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * La clase LinkedList representa una lista doblemente enlazada genérica.
+ *
  * @param <T> el tipo de elementos en la lista.
  */
 public class LinkedList<T> implements Iterable<T> {
@@ -36,6 +37,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Agrega un elemento al final de la lista.
+     *
      * @param data el elemento a agregar.
      */
     public void add(T data) {
@@ -53,6 +55,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Agrega todos los elementos de otra lista al final de la lista.
+     *
      * @param otherList la lista cuyos elementos se agregarán.
      */
     public void addAll(LinkedList<? extends T> otherList) {
@@ -63,6 +66,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Elimina un elemento de la lista.
+     *
      * @param data el elemento a eliminar.
      * @return true si el elemento fue eliminado, false en caso contrario.
      */
@@ -92,6 +96,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Elimina el último elemento de la lista.
+     *
      * @return el último elemento de la lista.
      * @throws RuntimeException si la lista está vacía.
      */
@@ -113,6 +118,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Obtiene un elemento de la lista por su índice.
+     *
      * @param index el índice del elemento a obtener.
      * @return el elemento en el índice especificado.
      * @throws IndexOutOfBoundsException si el índice está fuera de rango.
@@ -130,6 +136,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Retorna el último elemento de la lista.
+     *
      * @return el último elemento de la lista.
      * @throws RuntimeException si la lista está vacía.
      */
@@ -142,6 +149,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Retorna el tamaño de la lista.
+     *
      * @return el tamaño de la lista.
      */
     public int size() {
@@ -150,6 +158,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Verifica si la lista está vacía.
+     *
      * @return true si la lista está vacía, false en caso contrario.
      */
     public boolean isEmpty() {
@@ -167,6 +176,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Retorna un iterador para recorrer la lista con un foreach.
+     *
      * @return un iterador para la lista.
      */
     @Override
@@ -190,6 +200,7 @@ public class LinkedList<T> implements Iterable<T> {
 
     /**
      * Convierte la lista en un Stream.
+     *
      * @return un Stream de los elementos de la lista.
      */
     public Stream<T> stream() {

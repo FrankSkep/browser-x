@@ -37,7 +37,8 @@ public abstract class AbstractDAO<T> {
         try (Connection conn = Db_Connection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();
-        } catch (SQLException e) {
+        } catch (
+                SQLException e) {
             handleException(e);
         }
     }
@@ -56,7 +57,8 @@ public abstract class AbstractDAO<T> {
             while (rs.next()) {
                 entities.add(mapResultSetToEntity(rs));
             }
-        } catch (SQLException e) {
+        } catch (
+                SQLException e) {
             handleException(e);
         }
         return entities;

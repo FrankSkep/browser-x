@@ -12,6 +12,7 @@ public class Db_Initializer {
 
     /**
      * Inicializa las tablas en la base de datos.
+     *
      * @param conn la conexión a la base de datos.
      * @throws SQLException si ocurre un error al crear las tablas.
      */

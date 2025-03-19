@@ -2,6 +2,7 @@ package browser.data_structure;
 
 /**
  * La clase Hashtable representa una tabla hash genérica que utiliza encadenamiento para manejar colisiones.
+ *
  * @param <K> el tipo de las claves en la tabla hash.
  * @param <V> el tipo de los valores en la tabla hash.
  */
@@ -31,6 +32,7 @@ public class Hashtable<K, V> {
 
     /**
      * Constructor que inicializa la tabla hash con un tamaño inicial especificado.
+     *
      * @param initialCapacity el tamaño inicial de la tabla hash.
      */
     public Hashtable(int initialCapacity) {
@@ -48,7 +50,8 @@ public class Hashtable<K, V> {
 
     /**
      * Inserta una clave y un valor en la tabla hash.
-     * @param key la clave a insertar.
+     *
+     * @param key   la clave a insertar.
      * @param value el valor a insertar.
      */
     public void put(K key, V value) {
@@ -69,6 +72,7 @@ public class Hashtable<K, V> {
 
     /**
      * Inserta todas las claves y valores de otra tabla hash en esta tabla hash.
+     *
      * @param hashtable la tabla hash cuyos elementos se agregarán.
      */
     public void putAll(Hashtable<K, V> hashtable) {
@@ -81,6 +85,7 @@ public class Hashtable<K, V> {
 
     /**
      * Obtiene el valor asociado a una clave en la tabla hash.
+     *
      * @param key la clave cuyo valor se desea obtener.
      * @return el valor asociado a la clave, o null si la clave no está presente.
      */
@@ -96,6 +101,7 @@ public class Hashtable<K, V> {
 
     /**
      * Elimina una clave y su valor asociado de la tabla hash.
+     *
      * @param key la clave a eliminar.
      * @return el valor asociado a la clave eliminada, o null si la clave no está presente.
      */
@@ -118,6 +124,7 @@ public class Hashtable<K, V> {
 
     /**
      * Verifica si una clave está presente en la tabla hash.
+     *
      * @param key la clave a verificar.
      * @return true si la clave está presente, false en caso contrario.
      */
@@ -133,6 +140,7 @@ public class Hashtable<K, V> {
 
     /**
      * Verifica si un valor está presente en la tabla hash.
+     *
      * @param value el valor a verificar.
      * @return true si el valor está presente, false en caso contrario.
      */
@@ -149,6 +157,7 @@ public class Hashtable<K, V> {
 
     /**
      * Obtiene un conjunto de todas las claves en la tabla hash.
+     *
      * @return una lista enlazada de todas las claves en la tabla hash.
      */
     public LinkedList<K> keySet() {
@@ -163,6 +172,7 @@ public class Hashtable<K, V> {
 
     /**
      * Verifica si la tabla hash está vacía.
+     *
      * @return true si la tabla hash está vacía, false en caso contrario.
      */
     public boolean isEmpty() {
@@ -171,6 +181,7 @@ public class Hashtable<K, V> {
 
     /**
      * Obtiene el tamaño de la tabla hash.
+     *
      * @return el número de elementos en la tabla hash.
      */
     public int size() {

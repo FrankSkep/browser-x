@@ -13,21 +13,7 @@ import java.sql.SQLException;
  */
 public class HistorialDAO extends AbstractDAO<EntradaHistorial> {
 
-    private static HistorialDAO instance = null;
-
-    private HistorialDAO() {
-    }
-
-    /**
-     * Singleton para obtener la instancia de la clase.
-     *
-     * @return La instancia de la clase.
-     */
-    public static synchronized HistorialDAO getInstance() {
-        if (instance == null) {
-            instance = new HistorialDAO();
-        }
-        return instance;
+    public HistorialDAO() {
     }
 
     @Override
