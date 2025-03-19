@@ -34,7 +34,7 @@ public abstract class AbstractDAO<T> {
      */
     public void eliminarTodo() {
         String sql = "DELETE FROM " + getTableName();
-        try (Connection conn = Db_Connection.getConnection();
+        try (Connection conn = Db_Connection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -50,7 +50,7 @@ public abstract class AbstractDAO<T> {
     public LinkedList<T> obtenerTodo() {
         String sql = "SELECT * FROM " + getTableName();
         LinkedList<T> entities = new LinkedList<>();
-        try (Connection conn = Db_Connection.getConnection();
+        try (Connection conn = Db_Connection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {

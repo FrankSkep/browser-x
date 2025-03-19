@@ -60,7 +60,7 @@ public class BrowserX extends JFrame {
     private boolean navegacionUsuario = false;
 
     public BrowserX() {
-        Db_Connection.initializeDatabase();
+        Db_Connection.getInstance().initializeDatabase();
         navegacionmanager = new NavegacionManager();
         historialService = new HistorialServiceImpl();
         favoritoService = new FavoritoServiceImpl();
