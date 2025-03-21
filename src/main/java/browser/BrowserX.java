@@ -63,7 +63,7 @@ public class BrowserX extends JFrame {
 
     public BrowserX() {
         Db_Connection.getInstance().initializeDatabase();
-        navegacionmanager = new NavegacionManager();
+        navegacionmanager = NavegacionManager.getInstance();
         historialService = new HistorialServiceImpl(new HistorialDAO());
         favoritoService = new FavoritoServiceImpl(new FavoritoDAO());
         descargaService = new DescargaServiceImpl(new DescargaDAO());

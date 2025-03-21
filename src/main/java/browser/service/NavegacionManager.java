@@ -12,14 +12,27 @@ public class NavegacionManager {
     private LinkedList<String> paginasVisitadas;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
+    private static NavegacionManager instance;
 
     /**
-     * Constructor que inicializa las estructuras de datos de navegación y carga el historial completo desde el DAO.
+     * Constructor privado para evitar la creación de instancias.
      */
-    public NavegacionManager() {
+    private NavegacionManager() {
         paginasVisitadas = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
+    }
+
+    /**
+     * Obtiene la instancia única de NavegacionManager.
+     *
+     * @return la instancia única de NavegacionManager.
+     */
+    public static synchronized NavegacionManager getInstance() {
+        if (instance == null) {
+            instance = new NavegacionManager();
+        }
+        return instance;
     }
 
     /**
