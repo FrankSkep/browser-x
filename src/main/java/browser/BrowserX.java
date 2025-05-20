@@ -1,11 +1,7 @@
 package browser;
 
-import browser.dao.DescargaDAO;
-import browser.dao.FavoritoDAO;
-import browser.dao.HistorialDAO;
 import browser.data_structure.Hashtable;
 import browser.data_structure.LinkedList;
-import browser.database.Db_Connection;
 import browser.model.Descarga;
 import browser.model.EntradaHistorial;
 import browser.model.Favorito;
@@ -36,7 +32,7 @@ import java.util.List;
  * Extiende JFrame para crear una interfaz gráfica de usuario.
  */
 public class BrowserX extends JFrame {
-    private final NavegacionManager navegacionmanager;
+    private final NavegacionManager navegacionManager;
     private final HistorialServiceImpl historialService;
     private final FavoritoServiceImpl favoritoService;
     private final DescargaServiceImpl descargaService;
@@ -61,12 +57,12 @@ public class BrowserX extends JFrame {
     // bandera para saber si la navegación fue por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
-    public BrowserX() {
-        Db_Connection.getInstance().initializeDatabase();
-        navegacionmanager = NavegacionManager.getInstance();
-        historialService = new HistorialServiceImpl(new HistorialDAO());
-        favoritoService = new FavoritoServiceImpl(new FavoritoDAO());
-        descargaService = new DescargaServiceImpl(new DescargaDAO());
+    public BrowserX(NavegacionManager navegacionManager, HistorialServiceImpl historialService,
+                    FavoritoServiceImpl favoritoService, DescargaServiceImpl descargaService) {
+        this.navegacionManager = navegacionManager;
+        this.historialService = historialService;
+        this.favoritoService = favoritoService;
+        this.descargaService = descargaService;
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -143,7 +139,7 @@ public class BrowserX extends JFrame {
                     String finalUrl = webEngine.getLocation();
                     if (!navegacionUsuario) {
                         if (!ValidationUtil.isDownloadUrl(finalUrl)) {
-                            navegacionmanager.agregarUrlNavegacion(finalUrl);
+                            navegacionManager.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
                             historialService.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
@@ -220,7 +216,7 @@ public class BrowserX extends JFrame {
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
                     System.out.println("Botón de retroceder clic derecho presionado");
-                    mostrarContenidoPila(navegacionmanager.obtenerPilaAtrasList(), true);
+                    mostrarContenidoPila(navegacionManager.obtenerPilaAtrasList(), true);
                 }
             }
         });
@@ -230,7 +226,7 @@ public class BrowserX extends JFrame {
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
                     System.out.println("Botón de avanzar clic derecho presionado");
-                    mostrarContenidoPila(navegacionmanager.obtenerPilaAdelanteList(), false);
+                    mostrarContenidoPila(navegacionManager.obtenerPilaAdelanteList(), false);
                 }
             }
         });
@@ -246,9 +242,9 @@ public class BrowserX extends JFrame {
             JMenuItem item = new JMenuItem(url);
             item.addActionListener(e -> {
                 if (esRetroceso) {
-                    navegacionmanager.irAtrasHasta(url);
+                    navegacionManager.irAtrasHasta(url);
                 } else {
-                    navegacionmanager.irAdelanteHasta(url);
+                    navegacionManager.irAdelanteHasta(url);
                 }
                 cargarURL(url);
             });
@@ -293,7 +289,7 @@ public class BrowserX extends JFrame {
 
     // retroceder pagina
     private void retrocederPagina() {
-        String urlAnterior = navegacionmanager.retroceder();
+        String urlAnterior = navegacionManager.retroceder();
         if (urlAnterior != null) {
             navegacionUsuario = true;
             cargarURL(urlAnterior);
@@ -302,7 +298,7 @@ public class BrowserX extends JFrame {
 
     // avanzar pagina
     private void avanzarPagina() {
-        String urlSiguiente = navegacionmanager.avanzar();
+        String urlSiguiente = navegacionManager.avanzar();
         if (urlSiguiente != null) {
             navegacionUsuario = true;
             cargarURL(urlSiguiente);
@@ -311,7 +307,7 @@ public class BrowserX extends JFrame {
 
     // actualizar la URL en el campo de texto
     private void actualizarCampoUrl() {
-        String urlActual = navegacionmanager.obtenerUrlActual();
+        String urlActual = navegacionManager.obtenerUrlActual();
         if (urlActual != null) {
             urlTextField.setForeground(Color.BLACK);
             urlTextField.setText(urlActual);
@@ -320,9 +316,9 @@ public class BrowserX extends JFrame {
 
     // actualiza el estado de los botones
     private void actualizarEstadoBotones() {
-        retrocederBtn.setEnabled(navegacionmanager.puedeRetroceder());
-        avanzarBtn.setEnabled(navegacionmanager.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionmanager.obtenerUrlActual()));
+        retrocederBtn.setEnabled(navegacionManager.puedeRetroceder());
+        avanzarBtn.setEnabled(navegacionManager.puedeAvanzar());
+        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionManager.obtenerUrlActual()));
     }
 
     // muestra menu de opciones
@@ -392,7 +388,7 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
                     historialService.eliminarTodo();
-                    navegacionmanager.restablecerNavegacion();
+                    navegacionManager.restablecerNavegacion();
                     actualizarEstadoBotones();
                     JOptionPane.showMessageDialog(null, "Historial eliminado.");
                 }
@@ -490,7 +486,7 @@ public class BrowserX extends JFrame {
                     cargarURL(urlFavorito);
                     UiTool.cerrarVentana(cerrarBtn);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
+                    mostrarDialogoError("Por favor, selecciona un favorito.");
                 }
             });
 
@@ -509,7 +505,7 @@ public class BrowserX extends JFrame {
         LinkedList<Descarga> historialDescargas = descargaService.obtenerTodo();
 
         if (historialDescargas.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No hay descargas.");
+            mostrarDialogoError("No hay descargas.");
         } else {
             JTable descargasTable = UiTool.crearTabla("Historial de Descargas", new String[]{"NOMBRE", "SITIO", "FECHA"},
                     historialDescargas.stream()
@@ -533,7 +529,7 @@ public class BrowserX extends JFrame {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todas las descargas?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     UiTool.cerrarVentana(cerrarBtn);
                     descargaService.eliminarTodo();
-                    JOptionPane.showMessageDialog(null, "Descargas eliminadas.");
+                    mostrarDialogoInformacion("Descargas eliminadas.");
                 }
             });
 
@@ -545,9 +541,9 @@ public class BrowserX extends JFrame {
                     String fecha = (String) tableModel.getValueAt(selectedRow, 2);
                     descargaService.eliminarElemento(new Descarga(nombre, url, fecha));
                     tableModel.removeRow(selectedRow);
-                    JOptionPane.showMessageDialog(null, "Descarga eliminada.");
+                    mostrarDialogoInformacion("Descarga eliminada.");
                 } else {
-                    JOptionPane.showMessageDialog(null, "Por favor, selecciona una descarga.");
+                    mostrarDialogoError("Por favor, selecciona una descarga.");
                 }
             });
 
@@ -565,34 +561,34 @@ public class BrowserX extends JFrame {
     private void agregarFavorito() {
         String url = urlTextField.getText();
         if (url.equals("Ingrese una URL") || url.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No hay URL para agregar a favoritos.");
+            mostrarDialogoInformacion("No hay URL para agregar a favoritos.");
         } else {
             String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
             if (nombre != null) {
                 if (!nombre.isBlank()) {
                     if (favoritoService.existeFavorito(url)) {
-                        JOptionPane.showMessageDialog(this, "La URL ya está en favoritos.");
+                        mostrarDialogoInformacion("La URL ya está en favoritos.");
                     } else {
                         favoritoService.agregarElemento(new Favorito(nombre, url));
-                        JOptionPane.showMessageDialog(this, "Favorito agregado.");
+                        mostrarDialogoExito("Favorito agregado.");
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre válido.");
+                    mostrarDialogoInformacion("Por favor, ingresa un nombre válido.");
                 }
             }
             actualizarEstadoBotones();
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new JFXPanel(); // Inicializacion JavaFX
-            new BrowserX(); // Creacion ventana principal
-        });
+    private void mostrarDialogoExito(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+    }
 
-        // shutdown hook para asegurar que todas las tareas de JavaFX se completen antes de cerrar
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Platform.runLater(Platform::exit); // cerrar app JavaFX
-        }));
+    private void mostrarDialogoError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void mostrarDialogoInformacion(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
     }
 }
