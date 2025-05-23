@@ -5,48 +5,60 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * La clase Db_Connection proporciona métodos para establecer una conexión con la base de datos SQLite.
- * Contiene métodos para inicializar la base de datos y obtener una conexión.
+ * La clase {@code Db_Connection} implementa el patrón Singleton para gestionar
+ * la conexión con una base de datos SQLite. Utiliza el patrón
+ * Initialization-on-demand holder idiom para garantizar una instancia única,
+ * segura en entornos multi-hilo y con inicialización perezosa.
  */
 public class Db_Connection {
 
-    // Ruta de la base de datos SQLite
+    /**
+     * Ruta del archivo de base de datos SQLite.
+     */
     private static final String DATABASE_PATH = "src/main/resources/browser.db";
-    private static Db_Connection instance;
 
-    // Constructor privado para evitar la creación de instancias
+    /**
+     * Constructor privado para evitar instanciación externa.
+     */
     private Db_Connection() {
     }
 
     /**
-     * Obtiene la instancia única de Db_Connection.
-     *
-     * @return la instancia única de Db_Connection.
+     * Clase estática interna responsable de contener la instancia única de {@code Db_Connection}.
+     * Se carga en memoria solo cuando se llama a {@link #getInstance()}, garantizando
+     * inicialización perezosa y seguridad en entornos multi-hilo.
      */
-    public static synchronized Db_Connection getInstance() {
-        if (instance == null) {
-            instance = new Db_Connection();
-        }
-        return instance;
+    private static class Holder {
+        private static final Db_Connection INSTANCE = new Db_Connection();
+    }
+
+    /**
+     * Devuelve la instancia única de {@code Db_Connection}.
+     *
+     * @return instancia única de {@code Db_Connection}
+     */
+    public static Db_Connection getInstance() {
+        return Holder.INSTANCE;
     }
 
     /**
      * Inicializa la base de datos creando las tablas necesarias.
+     * Este método utiliza {@link #getConnection()} para obtener una conexión
+     * y delega la creación de tablas a {@code Db_Initializer}.
      */
     public void initializeDatabase() {
         try (Connection conn = getConnection()) {
             Db_Initializer.initializeTables(conn);
-        } catch (
-                SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Error inicializando las tablas: " + e.getMessage());
         }
     }
 
     /**
-     * Obtiene una conexión a la base de datos SQLite.
+     * Obtiene una nueva conexión a la base de datos SQLite.
      *
-     * @return una conexión a la base de datos.
-     * @throws SQLException si ocurre un error al establecer la conexión.
+     * @return conexión a la base de datos
+     * @throws SQLException si ocurre un error al establecer la conexión
      */
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:" + DATABASE_PATH);

@@ -7,12 +7,12 @@ import java.util.List;
 
 /**
  * Servicio para gestionar la navegación del navegador.
+ * Implementa el patrón Singleton usando el idiom de "Initialization-on-demand holder".
  */
 public class NavegacionManager {
     private LinkedList<String> paginasVisitadas;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
-    private static NavegacionManager instance;
 
     /**
      * Constructor privado para evitar la creación de instancias.
@@ -24,15 +24,21 @@ public class NavegacionManager {
     }
 
     /**
+     * Clase interna estática responsable de mantener la instancia única de NavegacionManager.
+     * Esta instancia se crea solo cuando se llama por primera vez a getInstance().
+     */
+    private static class Holder {
+        private static final NavegacionManager INSTANCE = new NavegacionManager();
+    }
+
+    /**
      * Obtiene la instancia única de NavegacionManager.
+     * Utiliza el patrón Singleton con inicialización perezosa y es seguro para hilos.
      *
      * @return la instancia única de NavegacionManager.
      */
-    public static synchronized NavegacionManager getInstance() {
-        if (instance == null) {
-            instance = new NavegacionManager();
-        }
-        return instance;
+    public static NavegacionManager getInstance() {
+        return Holder.INSTANCE;
     }
 
     /**
