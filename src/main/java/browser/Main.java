@@ -1,5 +1,6 @@
 package browser;
 
+import browser.controller.HistorialController;
 import browser.dao.DescargaDAO;
 import browser.dao.FavoritoDAO;
 import browser.dao.HistorialDAO;
@@ -22,11 +23,13 @@ public class Main {
             HistorialServiceImpl historialService = new HistorialServiceImpl(new HistorialDAO());
             FavoritoServiceImpl favoritoService = new FavoritoServiceImpl(new FavoritoDAO());
             DescargaServiceImpl descargaService = new DescargaServiceImpl(new DescargaDAO());
+            
+            HistorialController historialController = new HistorialController(historialService, "src/main/resources/icons/");
 
             // Inyección de dependencias en BrowserX
             new BrowserX(
                     navegacionManager,
-                    historialService,
+                    historialController,
                     favoritoService,
                     descargaService
             );

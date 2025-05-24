@@ -1,5 +1,6 @@
 package browser;
 
+import browser.controller.HistorialController;
 import browser.data_structure.Hashtable;
 import browser.data_structure.LinkedList;
 import browser.model.Descarga;
@@ -7,7 +8,6 @@ import browser.model.EntradaHistorial;
 import browser.model.Favorito;
 import browser.service.Impl.DescargaServiceImpl;
 import browser.service.Impl.FavoritoServiceImpl;
-import browser.service.Impl.HistorialServiceImpl;
 import browser.service.NavegacionManager;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class BrowserX extends JFrame {
     private final NavegacionManager navegacionManager;
-    private final HistorialServiceImpl historialService;
+    private final HistorialController historialController;
     private final FavoritoServiceImpl favoritoService;
     private final DescargaServiceImpl descargaService;
     private WebView webView;
@@ -57,19 +57,15 @@ public class BrowserX extends JFrame {
     // bandera para saber si la navegación fue por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
-    public BrowserX(NavegacionManager navegacionManager, HistorialServiceImpl historialService,
+    public BrowserX(NavegacionManager navegacionManager, HistorialController historialController,
                     FavoritoServiceImpl favoritoService, DescargaServiceImpl descargaService) {
         this.navegacionManager = navegacionManager;
-        this.historialService = historialService;
+        this.historialController = historialController;
         this.favoritoService = favoritoService;
         this.descargaService = descargaService;
 
-        try {
-            UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (
-                Exception e) {
-            System.err.println("Ocurrio un error: " + e.getMessage());
-        }
+        applyUiTheme();
+
         // icono ventana
         ImageIcon iconoBase = new ImageIcon(ICONS_PATH + "browser-icon.png");
         Image iconoRedimensionado = iconoBase.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
@@ -142,7 +138,7 @@ public class BrowserX extends JFrame {
                             navegacionManager.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            historialService.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
+                            historialController.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                         }
                     }
                     navegacionUsuario = false;
@@ -233,6 +229,15 @@ public class BrowserX extends JFrame {
 
 
         setVisible(true);
+    }
+
+    private static void applyUiTheme() {
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (
+                Exception e) {
+            System.err.println("Ocurrio un error: " + e.getMessage());
+        }
     }
 
     // muestra el contenido de la pila en un menú emergente
@@ -358,75 +363,14 @@ public class BrowserX extends JFrame {
         menuEmergente.show(this, x, y);
 
         // listeners para las opciones del menu
-        historialOpc.addActionListener(e -> mostrarHistorial());
+        historialOpc.addActionListener(e -> historialController.mostrarHistorial(
+            this,
+            this::actualizarEstadoBotones,
+            navegacionManager::restablecerNavegacion
+        ));
         favoritosOpc.addActionListener(e -> mostrarFavoritos());
+        
         descargasOpc.addActionListener(e -> mostrarDescargas());
-    }
-
-    // crea y muestra ventana de historial de navegación
-    private void mostrarHistorial() {
-        LinkedList<EntradaHistorial> historialCompleto = historialService.obtenerTodo();
-
-        if (historialCompleto.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "El historial está vacío.");
-        } else {
-
-            JTable historialTable = UiTool.crearTabla("Historial de Navegación", new String[]{"SITIO", "FECHA"}, historialCompleto.stream()
-                    .map(entrada -> new Object[]{entrada.getUrl(), entrada.getFecha()}).toList());
-            DefaultTableModel tableModel = (DefaultTableModel) historialTable.getModel();
-            JScrollPane scrollPane = new JScrollPane(historialTable);
-
-            scrollPane.setPreferredSize(new Dimension(500, 300));
-            historialTable.getColumnModel().getColumn(0).setPreferredWidth(350);
-
-            JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todo", ICONS_PATH + "trash.png", 20, 20, null);
-            JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);
-            JButton visitarBtn = UiTool.crearBotonConIcono("Abrir", ICONS_PATH + "browse.png", 20, 20, null);
-            JButton cerrarBtn = UiTool.crearBotonConIcono("Cerrar", ICONS_PATH + "close.png", 20, 20, null);
-
-            eliminarTodoBtn.addActionListener(e -> {
-                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todo el historial?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    UiTool.cerrarVentana(cerrarBtn);
-                    historialService.eliminarTodo();
-                    navegacionManager.restablecerNavegacion();
-                    actualizarEstadoBotones();
-                    JOptionPane.showMessageDialog(null, "Historial eliminado.");
-                }
-            });
-
-            eliminarBtn.addActionListener(e -> {
-                int selectedRow = historialTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    EntradaHistorial entradaSeleccionada = new EntradaHistorial((String) tableModel.getValueAt(selectedRow, 0),
-                            (String) tableModel.getValueAt(selectedRow, 1));
-
-                    historialService.eliminarElemento(entradaSeleccionada);
-                    tableModel.removeRow(selectedRow);
-                    JOptionPane.showMessageDialog(null, "Entrada de historial eliminada.");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Por favor, selecciona una entrada.");
-                }
-            });
-
-            visitarBtn.addActionListener(e -> {
-                int selectedRow = historialTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
-                    cargarURL(urlSeleccionada);
-                    UiTool.cerrarVentana(cerrarBtn);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Por favor, selecciona una URL.");
-                }
-            });
-
-            cerrarBtn.addActionListener(e -> UiTool.cerrarVentana(cerrarBtn));
-
-            // Mostrar historial y botones
-            Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
-            JOptionPane.showOptionDialog(null, scrollPane, "Historial de Navegación",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                    options, null);
-        }
     }
 
     // crea y muestra ventana de favoritos
