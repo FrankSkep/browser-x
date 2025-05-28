@@ -1,12 +1,11 @@
 package browser;
 
+import browser.controller.DescargaController;
 import browser.controller.HistorialController;
+import browser.util.Constants;
 import browser.data_structure.Hashtable;
-import browser.data_structure.LinkedList;
-import browser.model.Descarga;
 import browser.model.EntradaHistorial;
 import browser.model.Favorito;
-import browser.service.Impl.DescargaServiceImpl;
 import browser.service.Impl.FavoritoServiceImpl;
 import browser.service.NavegacionManager;
 import browser.util.UiTool;
@@ -35,7 +34,7 @@ public class BrowserX extends JFrame {
     private final NavegacionManager navegacionManager;
     private final HistorialController historialController;
     private final FavoritoServiceImpl favoritoService;
-    private final DescargaServiceImpl descargaService;
+    private final DescargaController descargaController;
     private WebView webView;
     private WebEngine webEngine;
 
@@ -44,30 +43,20 @@ public class BrowserX extends JFrame {
     private final JButton avanzarBtn;
     private final JButton favoritosBtn;
 
-    /**
-     * URL de Google. (Página de inicio)
-     */
-    private final String GOOGLE_URL = "https://www.google.com/";
-
-    /**
-     * Ruta de los iconos.
-     */
-    private final String ICONS_PATH = "src/main/resources/icons/";
-
     // bandera para saber si la navegación fue por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
     public BrowserX(NavegacionManager navegacionManager, HistorialController historialController,
-                    FavoritoServiceImpl favoritoService, DescargaServiceImpl descargaService) {
+                    FavoritoServiceImpl favoritoService, DescargaController descargaController) {
         this.navegacionManager = navegacionManager;
         this.historialController = historialController;
         this.favoritoService = favoritoService;
-        this.descargaService = descargaService;
+        this.descargaController = descargaController;
 
         applyUiTheme();
 
         // icono ventana
-        ImageIcon iconoBase = new ImageIcon(ICONS_PATH + "browser-icon.png");
+        ImageIcon iconoBase = new ImageIcon(Constants.ICONS_PATH + "browser-icon.png");
         Image iconoRedimensionado = iconoBase.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         setIconImage(iconoRedimensionado);
 
@@ -82,10 +71,10 @@ public class BrowserX extends JFrame {
         panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         // Creación de los botones
-        retrocederBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "previous-page.png", 25, 25, 3);
-        avanzarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "next-page.png", 25, 25, 3);
-        JButton inicioBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "home.png", 25, 25, 3);
-        JButton refrescarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "refresh.png", 25, 25, 3);
+        retrocederBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "previous-page.png", 25, 25, 3);
+        avanzarBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "next-page.png", 25, 25, 3);
+        JButton inicioBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "home.png", 25, 25, 3);
+        JButton refrescarBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "refresh.png", 25, 25, 3);
         panelBotones.add(retrocederBtn);
         panelBotones.add(avanzarBtn);
         panelBotones.add(inicioBtn);
@@ -94,9 +83,9 @@ public class BrowserX extends JFrame {
         // Panel para los botones de visitar y menu
         JPanel panelMenu = new JPanel();
         panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        JButton visitarBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "browse.png", 25, 25, 3);
-        favoritosBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "estrella.png", 25, 25, 3);
-        JButton showMenuBtn = UiTool.crearBotonConIcono(null, ICONS_PATH + "menu.png", 25, 25, 3);
+        JButton visitarBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "browse.png", 25, 25, 3);
+        favoritosBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "estrella.png", 25, 25, 3);
+        JButton showMenuBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "menu.png", 25, 25, 3);
         panelMenu.add(visitarBtn);
         panelMenu.add(favoritosBtn);
         panelMenu.add(showMenuBtn);
@@ -137,7 +126,7 @@ public class BrowserX extends JFrame {
                         if (!ValidationUtil.isDownloadUrl(finalUrl)) {
                             navegacionManager.agregarUrlNavegacion(finalUrl);
                         }
-                        if (!finalUrl.equals(GOOGLE_URL) && !finalUrl.equals("about:blank")) {
+                        if (!finalUrl.equals(Constants.GOOGLE_URL) && !finalUrl.equals("about:blank")) {
                             historialController.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                         }
                     }
@@ -155,13 +144,13 @@ public class BrowserX extends JFrame {
                 if (oldValue != null && !oldValue.equals(newValue)) {
                     if (ValidationUtil.isValidFile(newValue) ||
                             ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
-                        descargaService.descargarArchivo(newValue, this);
+                        descargaController.descargarArchivo(newValue, this);
                     }
                 }
             });
 
             // carga pagina inicial (Google)
-            cargarURL(GOOGLE_URL);
+            cargarURL(Constants.GOOGLE_URL);
         });
 
         // Listener para el campo de texto de la URL
@@ -170,7 +159,7 @@ public class BrowserX extends JFrame {
             // Eliminar placeholder al obtener el foco
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
-                if (urlTextField.getText().equals("Ingrese una URL")) {
+                if (urlTextField.getText().equals(Constants.PLACEHOLDER_URL)) {
                     urlTextField.setText("");
                     urlTextField.setForeground(Color.BLACK);
                 } else { // seleccionar todo el texto al obtener el foco
@@ -182,7 +171,7 @@ public class BrowserX extends JFrame {
             @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (urlTextField.getText().isEmpty()) {
-                    urlTextField.setText("Ingrese una URL");
+                    urlTextField.setText(Constants.PLACEHOLDER_URL);
                     urlTextField.setForeground(Color.GRAY);
                 }
             }
@@ -201,7 +190,7 @@ public class BrowserX extends JFrame {
         // Listeners para los botones
         retrocederBtn.addActionListener(e -> retrocederPagina());
         avanzarBtn.addActionListener(e -> avanzarPagina());
-        inicioBtn.addActionListener(e -> cargarURL(GOOGLE_URL));
+        inicioBtn.addActionListener(e -> cargarURL(Constants.GOOGLE_URL));
         refrescarBtn.addActionListener(e -> refrescarPagina());
         visitarBtn.addActionListener(e -> visitarPagina());
         favoritosBtn.addActionListener(e -> agregarFavorito());
@@ -272,7 +261,7 @@ public class BrowserX extends JFrame {
     private void visitarPagina() {
         String url = urlTextField.getText();
 
-        if (url.equals("Ingrese una URL")) {
+        if (url.equals(Constants.PLACEHOLDER_URL)) {
             url = "";
         }
 
@@ -282,7 +271,7 @@ public class BrowserX extends JFrame {
                     url = "http://" + url;
                 }
             } else {
-                url = GOOGLE_URL + "/search?q=" + url.replace(" ", "+");
+                url = Constants.GOOGLE_URL + "/search?q=" + url.replace(" ", "+");
             }
 
             String finalUrl = url;
@@ -330,9 +319,9 @@ public class BrowserX extends JFrame {
     private void mostrarMenuEmergente(JButton menuButton) {
 
         // opciones del menu
-        JMenuItem historialOpc = new JMenuItem("Historial", UiTool.cargarIcono(ICONS_PATH + "record.png", 25, 25));
-        JMenuItem favoritosOpc = new JMenuItem("Favoritos", UiTool.cargarIcono(ICONS_PATH + "favoritos.png", 25, 25));
-        JMenuItem descargasOpc = new JMenuItem("Descargas", UiTool.cargarIcono(ICONS_PATH + "downloads.png", 25, 25));
+        JMenuItem historialOpc = new JMenuItem("Historial", UiTool.cargarIcono(Constants.ICONS_PATH + "record.png", 25, 25));
+        JMenuItem favoritosOpc = new JMenuItem(Constants.TITULO_FAVORITOS, UiTool.cargarIcono(Constants.ICONS_PATH + "favoritos.png", 25, 25));
+        JMenuItem descargasOpc = new JMenuItem("Descargas", UiTool.cargarIcono(Constants.ICONS_PATH + "downloads.png", 25, 25));
 
         // espacio entre icono y texto
         historialOpc.setIconTextGap(20);
@@ -370,7 +359,7 @@ public class BrowserX extends JFrame {
         ));
         favoritosOpc.addActionListener(e -> mostrarFavoritos());
         
-        descargasOpc.addActionListener(e -> mostrarDescargas());
+        descargasOpc.addActionListener(e -> descargaController.mostrarDescargas(this));
     }
 
     // crea y muestra ventana de favoritos
@@ -381,7 +370,7 @@ public class BrowserX extends JFrame {
             JOptionPane.showMessageDialog(null, "No hay favoritos.");
         } else {
 
-            JTable favoritosTable = UiTool.crearTabla("Favoritos", new String[]{"NOMBRE", "SITIO"},
+            JTable favoritosTable = UiTool.crearTabla(Constants.TITULO_FAVORITOS, new String[]{"NOMBRE", "SITIO"},
                     favoritosMap.keySet().stream().map(key -> new Object[]{key, favoritosMap.get(key)}).toList());
 
             DefaultTableModel tableModel = (DefaultTableModel) favoritosTable.getModel();
@@ -393,10 +382,10 @@ public class BrowserX extends JFrame {
             favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150);
             favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350);
 
-            JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todos", ICONS_PATH + "trash.png", 20, 20, null);
-            JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);
-            JButton visitarBtn = UiTool.crearBotonConIcono("Abrir", ICONS_PATH + "browse.png", 20, 20, null);
-            JButton cerrarBtn = UiTool.crearBotonConIcono("Cerrar", ICONS_PATH + "close.png", 20, 20, null);
+            JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todos", Constants.ICONS_PATH + "trash.png", 20, 20, null);
+            JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", Constants.ICONS_PATH + "eliminar-uno.png", 20, 20, null);
+            JButton visitarBtn = UiTool.crearBotonConIcono("Abrir", Constants.ICONS_PATH + "browse.png", 20, 20, null);
+            JButton cerrarBtn = UiTool.crearBotonConIcono("Cerrar", Constants.ICONS_PATH + "close.png", 20, 20, null);
 
             eliminarTodoBtn.addActionListener(e -> {
                 if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -438,64 +427,7 @@ public class BrowserX extends JFrame {
 
             // Mostrar favoritos y botones
             Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
-            JOptionPane.showOptionDialog(null, scrollPane, "Favoritos",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                    options, null);
-        }
-    }
-
-    // crea y muestra ventana de historial de navegación
-    private void mostrarDescargas() {
-        LinkedList<Descarga> historialDescargas = descargaService.obtenerTodo();
-
-        if (historialDescargas.isEmpty()) {
-            mostrarDialogoError("No hay descargas.");
-        } else {
-            JTable descargasTable = UiTool.crearTabla("Historial de Descargas", new String[]{"NOMBRE", "SITIO", "FECHA"},
-                    historialDescargas.stream()
-                            .map(descarga -> new Object[]{descarga.getNombre(), descarga.getUrl(), descarga.getFecha()}).toList());
-
-            DefaultTableModel tableModel = (DefaultTableModel) descargasTable.getModel();
-
-            JScrollPane scrollPane = new JScrollPane(descargasTable);
-            scrollPane.setPreferredSize(new Dimension(500, 300));
-
-            // Ajustar el ancho de las columnas
-            descargasTable.getColumnModel().getColumn(0).setPreferredWidth(200);
-            descargasTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-            descargasTable.getColumnModel().getColumn(2).setPreferredWidth(110);
-
-            JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todas", ICONS_PATH + "trash.png", 20, 20, null);
-            JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", ICONS_PATH + "eliminar-uno.png", 20, 20, null);
-            JButton cerrarBtn = UiTool.crearBotonConIcono("Cerrar", ICONS_PATH + "close.png", 20, 20, null);
-
-            eliminarTodoBtn.addActionListener(e -> {
-                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todas las descargas?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    UiTool.cerrarVentana(cerrarBtn);
-                    descargaService.eliminarTodo();
-                    mostrarDialogoInformacion("Descargas eliminadas.");
-                }
-            });
-
-            eliminarBtn.addActionListener(e -> {
-                int selectedRow = descargasTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    String nombre = (String) tableModel.getValueAt(selectedRow, 0);
-                    String url = (String) tableModel.getValueAt(selectedRow, 1);
-                    String fecha = (String) tableModel.getValueAt(selectedRow, 2);
-                    descargaService.eliminarElemento(new Descarga(nombre, url, fecha));
-                    tableModel.removeRow(selectedRow);
-                    mostrarDialogoInformacion("Descarga eliminada.");
-                } else {
-                    mostrarDialogoError("Por favor, selecciona una descarga.");
-                }
-            });
-
-            cerrarBtn.addActionListener(e -> UiTool.cerrarVentana(cerrarBtn));
-
-            // Mostrar descargas y botones
-            Object[] options = {eliminarTodoBtn, eliminarBtn, cerrarBtn};
-            JOptionPane.showOptionDialog(null, scrollPane, "Historial de Descargas",
+            JOptionPane.showOptionDialog(null, scrollPane, Constants.TITULO_FAVORITOS,
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
                     options, null);
         }
@@ -504,7 +436,7 @@ public class BrowserX extends JFrame {
     // agrega un favorito
     private void agregarFavorito() {
         String url = urlTextField.getText();
-        if (url.equals("Ingrese una URL") || url.isEmpty()) {
+        if (url.equals(Constants.PLACEHOLDER_URL) || url.isEmpty()) {
             mostrarDialogoInformacion("No hay URL para agregar a favoritos.");
         } else {
             String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
