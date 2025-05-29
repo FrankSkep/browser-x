@@ -1,6 +1,7 @@
 package browser;
 
 import browser.controller.DescargaController;
+import browser.controller.FavoritoController;
 import browser.controller.HistorialController;
 import browser.dao.DescargaDAO;
 import browser.dao.FavoritoDAO;
@@ -11,6 +12,7 @@ import browser.service.Impl.HistorialServiceImpl;
 import browser.service.NavegacionManager;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import browser.util.Constants;
 
 import javax.swing.*;
 
@@ -20,20 +22,28 @@ public class Main {
             new JFXPanel(); // Inicialización JavaFX
 
             // Instanciación de dependencias
+
+            // DAOs
+            HistorialDAO historialDAO = new HistorialDAO();
+            FavoritoDAO favoritoDAO = new FavoritoDAO();
+            DescargaDAO descargaDAO = new DescargaDAO();
+
+            // Servicios
             NavegacionManager navegacionManager = NavegacionManager.getInstance();
-            HistorialServiceImpl historialService = new HistorialServiceImpl(new HistorialDAO());
-            FavoritoServiceImpl favoritoService = new FavoritoServiceImpl(new FavoritoDAO());
-            DescargaServiceImpl descargaService = new DescargaServiceImpl(new DescargaDAO());
+            HistorialServiceImpl historialService = new HistorialServiceImpl(historialDAO);
+            FavoritoServiceImpl favoritoService = new FavoritoServiceImpl(favoritoDAO);
+            DescargaServiceImpl descargaService = new DescargaServiceImpl(descargaDAO);
             
-            HistorialController historialController = new HistorialController(historialService, "src/main/resources/icons/");
-            
+            // Controladores
+            HistorialController historialController = new HistorialController(historialService, Constants.ICONS_PATH);
+            FavoritoController favoritoController = new FavoritoController(favoritoService);
             DescargaController descargaController = new DescargaController(descargaService);
 
             // Inyección de dependencias en BrowserX
             new BrowserX(
                     navegacionManager,
                     historialController,
-                    favoritoService,
+                    favoritoController,
                     descargaController
             );
         });

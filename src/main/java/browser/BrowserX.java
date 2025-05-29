@@ -1,12 +1,8 @@
 package browser;
 
-import browser.controller.DescargaController;
-import browser.controller.HistorialController;
+import browser.controller.*;
 import browser.util.Constants;
-import browser.data_structure.Hashtable;
 import browser.model.EntradaHistorial;
-import browser.model.Favorito;
-import browser.service.Impl.FavoritoServiceImpl;
 import browser.service.NavegacionManager;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
@@ -19,7 +15,6 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -33,7 +28,8 @@ import java.util.List;
 public class BrowserX extends JFrame {
     private final NavegacionManager navegacionManager;
     private final HistorialController historialController;
-    private final FavoritoServiceImpl favoritoService;
+    // private final FavoritoServiceImpl favoritoService;
+    private final FavoritoController favoritoController;
     private final DescargaController descargaController;
     private WebView webView;
     private WebEngine webEngine;
@@ -47,10 +43,10 @@ public class BrowserX extends JFrame {
     private boolean navegacionUsuario = false;
 
     public BrowserX(NavegacionManager navegacionManager, HistorialController historialController,
-                    FavoritoServiceImpl favoritoService, DescargaController descargaController) {
+            FavoritoController favoritoController, DescargaController descargaController) {
         this.navegacionManager = navegacionManager;
         this.historialController = historialController;
-        this.favoritoService = favoritoService;
+        this.favoritoController = favoritoController;
         this.descargaController = descargaController;
 
         applyUiTheme();
@@ -127,7 +123,8 @@ public class BrowserX extends JFrame {
                             navegacionManager.agregarUrlNavegacion(finalUrl);
                         }
                         if (!finalUrl.equals(Constants.GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            historialController.agregarElemento(new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
+                            historialController.agregarElemento(
+                                    new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                         }
                     }
                     navegacionUsuario = false;
@@ -135,7 +132,8 @@ public class BrowserX extends JFrame {
                     actualizarEstadoBotones();
                 } else if (newState == Worker.State.FAILED) {
                     urlTextField.setText("");
-                    JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             });
 
@@ -193,7 +191,10 @@ public class BrowserX extends JFrame {
         inicioBtn.addActionListener(e -> cargarURL(Constants.GOOGLE_URL));
         refrescarBtn.addActionListener(e -> refrescarPagina());
         visitarBtn.addActionListener(e -> visitarPagina());
-        favoritosBtn.addActionListener(e -> agregarFavorito());
+        favoritosBtn.addActionListener(e -> favoritoController.agregarFavorito(
+                this,
+                urlTextField.getText(),
+                this::actualizarEstadoBotones));
         showMenuBtn.addActionListener(e -> mostrarMenuEmergente(showMenuBtn));
 
         retrocederBtn.addMouseListener(new MouseAdapter() {
@@ -216,15 +217,13 @@ public class BrowserX extends JFrame {
             }
         });
 
-
         setVisible(true);
     }
 
     private static void applyUiTheme() {
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
     }
@@ -312,16 +311,19 @@ public class BrowserX extends JFrame {
     private void actualizarEstadoBotones() {
         retrocederBtn.setEnabled(navegacionManager.puedeRetroceder());
         avanzarBtn.setEnabled(navegacionManager.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoService.existeFavorito(navegacionManager.obtenerUrlActual()));
+        favoritosBtn.setEnabled(!favoritoController.existeFavorito(navegacionManager.obtenerUrlActual()));
     }
 
     // muestra menu de opciones
     private void mostrarMenuEmergente(JButton menuButton) {
 
         // opciones del menu
-        JMenuItem historialOpc = new JMenuItem("Historial", UiTool.cargarIcono(Constants.ICONS_PATH + "record.png", 25, 25));
-        JMenuItem favoritosOpc = new JMenuItem(Constants.TITULO_FAVORITOS, UiTool.cargarIcono(Constants.ICONS_PATH + "favoritos.png", 25, 25));
-        JMenuItem descargasOpc = new JMenuItem("Descargas", UiTool.cargarIcono(Constants.ICONS_PATH + "downloads.png", 25, 25));
+        JMenuItem historialOpc = new JMenuItem("Historial",
+                UiTool.cargarIcono(Constants.ICONS_PATH + "record.png", 25, 25));
+        JMenuItem favoritosOpc = new JMenuItem(Constants.TITULO_FAVORITOS,
+                UiTool.cargarIcono(Constants.ICONS_PATH + "favoritos.png", 25, 25));
+        JMenuItem descargasOpc = new JMenuItem("Descargas",
+                UiTool.cargarIcono(Constants.ICONS_PATH + "downloads.png", 25, 25));
 
         // espacio entre icono y texto
         historialOpc.setIconTextGap(20);
@@ -353,118 +355,14 @@ public class BrowserX extends JFrame {
 
         // listeners para las opciones del menu
         historialOpc.addActionListener(e -> historialController.mostrarHistorial(
-            this,
-            this::actualizarEstadoBotones,
-            navegacionManager::restablecerNavegacion
-        ));
-        favoritosOpc.addActionListener(e -> mostrarFavoritos());
-        
+                this,
+                this::actualizarEstadoBotones,
+                navegacionManager::restablecerNavegacion));
+        favoritosOpc.addActionListener(e -> favoritoController.mostrarFavoritos(
+                this,
+                this::actualizarEstadoBotones,
+                this::cargarURL));
+
         descargasOpc.addActionListener(e -> descargaController.mostrarDescargas(this));
-    }
-
-    // crea y muestra ventana de favoritos
-    private void mostrarFavoritos() {
-        Hashtable<String, String> favoritosMap = favoritoService.obtenerTodo();
-
-        if (favoritosMap.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No hay favoritos.");
-        } else {
-
-            JTable favoritosTable = UiTool.crearTabla(Constants.TITULO_FAVORITOS, new String[]{"NOMBRE", "SITIO"},
-                    favoritosMap.keySet().stream().map(key -> new Object[]{key, favoritosMap.get(key)}).toList());
-
-            DefaultTableModel tableModel = (DefaultTableModel) favoritosTable.getModel();
-
-            JScrollPane scrollPane = new JScrollPane(favoritosTable);
-            scrollPane.setPreferredSize(new Dimension(500, 300));
-
-            // Ajustar el ancho de las columnas
-            favoritosTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-            favoritosTable.getColumnModel().getColumn(1).setPreferredWidth(350);
-
-            JButton eliminarTodoBtn = UiTool.crearBotonConIcono("Eliminar todos", Constants.ICONS_PATH + "trash.png", 20, 20, null);
-            JButton eliminarBtn = UiTool.crearBotonConIcono("Eliminar", Constants.ICONS_PATH + "eliminar-uno.png", 20, 20, null);
-            JButton visitarBtn = UiTool.crearBotonConIcono("Abrir", Constants.ICONS_PATH + "browse.png", 20, 20, null);
-            JButton cerrarBtn = UiTool.crearBotonConIcono("Cerrar", Constants.ICONS_PATH + "close.png", 20, 20, null);
-
-            eliminarTodoBtn.addActionListener(e -> {
-                if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    UiTool.cerrarVentana(cerrarBtn);
-                    favoritoService.eliminarTodo();
-                    actualizarEstadoBotones();
-                    JOptionPane.showMessageDialog(null, "Favoritos eliminados.");
-                }
-            });
-
-            eliminarBtn.addActionListener(e -> {
-                int selectedRow = favoritosTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    if (JOptionPane.showConfirmDialog(null, "¿Estás seguro de eliminar todos los favoritos?", "Confirmación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                        String nombreFavorito = (String) tableModel.getValueAt(selectedRow, 0);
-                        String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
-                        favoritoService.eliminarElemento(new Favorito(nombreFavorito, urlFavorito));
-                        tableModel.removeRow(selectedRow);
-                        actualizarEstadoBotones();
-                        JOptionPane.showMessageDialog(null, "Favorito eliminado.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Por favor, selecciona un favorito.");
-                }
-            });
-
-            visitarBtn.addActionListener(e -> {
-                int selectedRow = favoritosTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    String urlFavorito = (String) tableModel.getValueAt(selectedRow, 1);
-                    cargarURL(urlFavorito);
-                    UiTool.cerrarVentana(cerrarBtn);
-                } else {
-                    mostrarDialogoError("Por favor, selecciona un favorito.");
-                }
-            });
-
-            cerrarBtn.addActionListener(e -> UiTool.cerrarVentana(cerrarBtn));
-
-            // Mostrar favoritos y botones
-            Object[] options = {eliminarTodoBtn, eliminarBtn, visitarBtn, cerrarBtn};
-            JOptionPane.showOptionDialog(null, scrollPane, Constants.TITULO_FAVORITOS,
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                    options, null);
-        }
-    }
-
-    // agrega un favorito
-    private void agregarFavorito() {
-        String url = urlTextField.getText();
-        if (url.equals(Constants.PLACEHOLDER_URL) || url.isEmpty()) {
-            mostrarDialogoInformacion("No hay URL para agregar a favoritos.");
-        } else {
-            String nombre = JOptionPane.showInputDialog(this, "Ingresa un nombre para el favorito:");
-            if (nombre != null) {
-                if (!nombre.isBlank()) {
-                    if (favoritoService.existeFavorito(url)) {
-                        mostrarDialogoInformacion("La URL ya está en favoritos.");
-                    } else {
-                        favoritoService.agregarElemento(new Favorito(nombre, url));
-                        mostrarDialogoExito("Favorito agregado.");
-                    }
-                } else {
-                    mostrarDialogoInformacion("Por favor, ingresa un nombre válido.");
-                }
-            }
-            actualizarEstadoBotones();
-        }
-    }
-
-    private void mostrarDialogoExito(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void mostrarDialogoError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private void mostrarDialogoInformacion(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
     }
 }
