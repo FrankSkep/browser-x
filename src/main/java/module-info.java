@@ -16,4 +16,5 @@ module BrowserX {
     requires java.sql;
     requires static lombok;
     requires java.naming;
+    requires org.jsoup;
 }

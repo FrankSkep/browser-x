@@ -3,6 +3,12 @@ package browser.service;
 import browser.data_structure.LinkedList;
 import browser.data_structure.Stack;
 
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+
+
 import java.util.List;
 
 /**
@@ -170,5 +176,20 @@ public class NavegacionManager {
             return null;
         }
         return paginasVisitadas.getLast();
+    }
+
+
+
+    public String obtenerTituloPorUrl(String url) {
+        try {
+            // Conectar a la URL y obtener el documento HTML
+            Document document = Jsoup.connect(url).get();
+            // Extraer y devolver el título de la página
+            return document.title();
+        } catch (Exception e) {
+            // Manejar errores y devolver un mensaje en caso de fallo
+            System.err.println("Error al obtener el título de la URL: " + e.getMessage());
+            return "Título no disponible";
+        }
     }
 }
