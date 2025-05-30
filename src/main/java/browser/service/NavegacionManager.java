@@ -10,6 +10,8 @@ import org.jsoup.nodes.Document;
 
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Servicio para gestionar la navegación del navegador.
@@ -19,6 +21,7 @@ public class NavegacionManager {
     private LinkedList<String> paginasVisitadas;
     private Stack<String> pilaAtras;
     private Stack<String> pilaAdelante;
+    private final Map<String, String> cacheTitulos;
 
     /**
      * Constructor privado para evitar la creación de instancias.
@@ -27,6 +30,7 @@ public class NavegacionManager {
         paginasVisitadas = new LinkedList<>();
         pilaAtras = new Stack<>();
         pilaAdelante = new Stack<>();
+        cacheTitulos = new ConcurrentHashMap<>();
     }
 
     /**
@@ -177,18 +181,22 @@ public class NavegacionManager {
         }
         return paginasVisitadas.getLast();
     }
-
-
-
+    /**
+     * Obtiene el título de la página web a partir de su URL.
+     *
+     * @param url La URL de la página web.
+     * @return El título de la página, o un mensaje de error si no se puede obtener.
+     */
     public String obtenerTituloPorUrl(String url) {
+        if (cacheTitulos.containsKey(url)) {
+            return cacheTitulos.get(url);
+        }
         try {
-            // Conectar a la URL y obtener el documento HTML
             Document document = Jsoup.connect(url).get();
-            // Extraer y devolver el título de la página
-            return document.title();
+            String titulo = document.title();
+            cacheTitulos.put(url, titulo);
+            return titulo;
         } catch (Exception e) {
-            // Manejar errores y devolver un mensaje en caso de fallo
-            System.err.println("Error al obtener el título de la URL: " + e.getMessage());
             return "Título no disponible";
         }
     }
