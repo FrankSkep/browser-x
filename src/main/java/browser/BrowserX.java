@@ -234,14 +234,15 @@ public class BrowserX extends JFrame {
     private void mostrarContenidoPila(List<String> pila, boolean esRetroceso) {
         JPopupMenu menuPila = new JPopupMenu();
         for (String url : pila) {
-            // Obtener el título de la página o usar un alias
-            String titulo = navegacionManager.obtenerTituloPorUrl(url); // Método que debes implementar
+            String titulo = navegacionManager.obtenerTituloPorUrl(url, () -> {
+                // Refrescar el menú cuando el título esté disponible
+                SwingUtilities.invokeLater(() -> mostrarContenidoPila(pila, esRetroceso));
+            });
             if (titulo == null || titulo.isBlank()) {
-                titulo = url.length() > 30 ? url.substring(0, 30) + "..." : url; // Recortar si es muy largo
+                titulo = url.length() > 30 ? url.substring(0, 30) + "..." : url;
             }
-
             JMenuItem item = new JMenuItem(titulo);
-            item.setToolTipText(url); // Mostrar la URL completa como tooltip
+            item.setToolTipText(url);
             item.addActionListener(e -> {
                 if (esRetroceso) {
                     navegacionManager.irAtrasHasta(url);

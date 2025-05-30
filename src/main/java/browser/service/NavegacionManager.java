@@ -187,17 +187,24 @@ public class NavegacionManager {
      * @param url La URL de la página web.
      * @return El título de la página, o un mensaje de error si no se puede obtener.
      */
-    public String obtenerTituloPorUrl(String url) {
+    public String obtenerTituloPorUrl(String url, Runnable onTitleLoaded) {
         if (cacheTitulos.containsKey(url)) {
             return cacheTitulos.get(url);
-        }
-        try {
-            Document document = Jsoup.connect(url).get();
-            String titulo = document.title();
-            cacheTitulos.put(url, titulo);
-            return titulo;
-        } catch (Exception e) {
-            return "Título no disponible";
+        } else {
+            // Lanzar carga en segundo plano
+            new Thread(() -> {
+                try {
+                    Document document = Jsoup.connect(url).get();
+                    String titulo = document.title();
+                    cacheTitulos.put(url, titulo);
+                } catch (Exception e) {
+                    cacheTitulos.put(url, "Título no disponible");
+                }
+                if (onTitleLoaded != null) {
+                    onTitleLoaded.run(); // Notificar para refrescar la UI
+                }
+            }).start();
+            return "Cargando título...";
         }
     }
 }
