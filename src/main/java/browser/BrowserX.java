@@ -14,6 +14,8 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+//importar navegacionManager
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -233,7 +235,7 @@ public class BrowserX extends JFrame {
         JPopupMenu menuPila = new JPopupMenu();
         for (String url : pila) {
             // Obtener el título de la página o usar un alias
-            String titulo = navegacionmanager.obtenerTituloPorUrl(url); // Método que debes implementar
+            String titulo = navegacionManager.obtenerTituloPorUrl(url); // Método que debes implementar
             if (titulo == null || titulo.isBlank()) {
                 titulo = url.length() > 30 ? url.substring(0, 30) + "..." : url; // Recortar si es muy largo
             }
@@ -242,9 +244,9 @@ public class BrowserX extends JFrame {
             item.setToolTipText(url); // Mostrar la URL completa como tooltip
             item.addActionListener(e -> {
                 if (esRetroceso) {
-                    navegacionmanager.irAtrasHasta(url);
+                    navegacionManager.irAtrasHasta(url);
                 } else {
-                    navegacionmanager.irAdelanteHasta(url);
+                    navegacionManager.irAdelanteHasta(url);
                 }
                 cargarURL(url);
             });
