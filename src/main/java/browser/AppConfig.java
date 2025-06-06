@@ -24,11 +24,12 @@ public class AppConfig {
         FavoritoController favoritoController = new FavoritoController(favoritoService);
         DescargaController descargaController = new DescargaController(descargaService);
 
-        return new BrowserX(
-            navegacionManager,
-            historialController,
-            favoritoController,
-            descargaController
-        );
+        // Builder para construir BrowserX
+        return new BrowserXBuilder()
+                .setNavegacionManager(navegacionManager)
+                .setHistorialController(historialController)
+                .setFavoritoController(favoritoController)
+                .setDescargaController(descargaController)
+                .build();
     }
 }
