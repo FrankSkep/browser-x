@@ -207,7 +207,7 @@ public class BrowserX extends JFrame {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
-                    mostrarContenidoPila(navegacionManager.obtenerPilaAtrasList(), true);
+                    mostrarMenuNavegacion(navegacionManager.obtenerPilaAtrasList(), true);
                 }
             }
         });
@@ -216,7 +216,7 @@ public class BrowserX extends JFrame {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
-                    mostrarContenidoPila(navegacionManager.obtenerPilaAdelanteList(), false);
+                    mostrarMenuNavegacion(navegacionManager.obtenerPilaAdelanteList(), false);
                 }
             }
         });
@@ -232,12 +232,12 @@ public class BrowserX extends JFrame {
     }
 
     // muestra el contenido de la pila en un menú emergente
-    private void mostrarContenidoPila(List<String> pila, boolean esRetroceso) {
+    private void mostrarMenuNavegacion(List<String> pila, boolean esRetroceso) {
         JPopupMenu menuPila = new JPopupMenu();
         for (String url : pila) {
             String titulo = navegacionManager.obtenerTituloPorUrl(url, () -> {
                 // Refrescar el menú cuando el título esté disponible
-                SwingUtilities.invokeLater(() -> mostrarContenidoPila(pila, esRetroceso));
+                SwingUtilities.invokeLater(() -> mostrarMenuNavegacion(pila, esRetroceso));
             });
             if (titulo == null || titulo.isBlank()) {
                 titulo = url.length() > 30 ? url.substring(0, 30) + "..." : url;
@@ -257,24 +257,18 @@ public class BrowserX extends JFrame {
         menuPila.show(this, retrocederBtn.getX(), retrocederBtn.getY() + retrocederBtn.getHeight());
     }
 
-    // carga una URL en el WebEngine
     private void cargarURL(String url) {
         Platform.runLater(() -> webEngine.load(url));
     }
 
-    // refrescar la página actual
     private void refrescarPagina() {
         Platform.runLater(() -> webEngine.reload());
     }
 
-    // visitar una nueva pagina
-    private void visitarPagina() {
-        String url = urlTextField.getText();
-
+    private String formatearUrl(String url) {
         if (url.equals(Constants.PLACEHOLDER_URL)) {
             url = "";
         }
-
         if (!url.isBlank()) {
             if (ValidationUtil.isValidUrl(url)) {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -283,15 +277,19 @@ public class BrowserX extends JFrame {
             } else {
                 url = Constants.GOOGLE_URL + "/search?q=" + url.replace(" ", "+");
             }
+        }
+        return url;
+    }
 
-            String finalUrl = url;
-            cargarURL(finalUrl);
+    private void visitarPagina() {
+        String url = formatearUrl(urlTextField.getText());
+        if (!url.isBlank()) {
+            cargarURL(url);
         } else {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese una URL.");
         }
     }
 
-    // retroceder pagina
     private void retrocederPagina() {
         String urlAnterior = navegacionManager.retroceder();
         if (urlAnterior != null) {
@@ -300,7 +298,6 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // avanzar pagina
     private void avanzarPagina() {
         String urlSiguiente = navegacionManager.avanzar();
         if (urlSiguiente != null) {
@@ -309,7 +306,6 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // actualizar la URL en el campo de texto
     private void actualizarCampoUrl() {
         String urlActual = navegacionManager.obtenerUrlActual();
         if (urlActual != null) {
@@ -318,7 +314,6 @@ public class BrowserX extends JFrame {
         }
     }
 
-    // actualiza el estado de los botones
     private void actualizarEstadoBotones() {
         retrocederBtn.setEnabled(navegacionManager.puedeRetroceder());
         avanzarBtn.setEnabled(navegacionManager.puedeAvanzar());
