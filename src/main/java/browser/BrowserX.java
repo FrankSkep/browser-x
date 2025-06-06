@@ -1,9 +1,11 @@
 package browser;
 
-import browser.controller.*;
-import browser.util.Constants;
+import browser.controller.DescargaController;
+import browser.controller.FavoritoController;
+import browser.controller.HistorialController;
 import browser.model.EntradaHistorial;
 import browser.service.NavegacionManager;
+import browser.util.Constants;
 import browser.util.UiTool;
 import browser.util.ValidationUtil;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -13,6 +15,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -33,39 +36,48 @@ public class BrowserX extends JFrame {
     private WebView webView;
     private WebEngine webEngine;
 
-    private final JTextField urlTextField;
-    private final JButton retrocederBtn;
-    private final JButton avanzarBtn;
-    private final JButton favoritosBtn;
+    private JTextField urlTextField;
+    private JButton retrocederBtn;
+    private JButton avanzarBtn;
+    private JButton favoritosBtn;
 
     // bandera para saber si la navegación fue por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
     public BrowserX(NavegacionManager navegacionManager, HistorialController historialController,
-            FavoritoController favoritoController, DescargaController descargaController) {
+                    FavoritoController favoritoController, DescargaController descargaController) {
         this.navegacionManager = navegacionManager;
         this.historialController = historialController;
         this.favoritoController = favoritoController;
         this.descargaController = descargaController;
 
         applyUiTheme();
+        setWindowProperties();
+        JPanel panelSuperior = crearPanelSuperior();
+        add(panelSuperior, BorderLayout.NORTH);
 
-        // icono ventana
+        JFXPanel fxPanel = new JFXPanel();
+        add(fxPanel, BorderLayout.CENTER);
+
+        actualizarEstadoBotones();
+        inicializarJavaFX(fxPanel);
+        inicializarListeners();
+        setVisible(true);
+    }
+
+    private void setWindowProperties() {
         ImageIcon iconoBase = new ImageIcon(Constants.ICONS_PATH + "browser-icon.png");
         Image iconoRedimensionado = iconoBase.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         setIconImage(iconoRedimensionado);
-
         setTitle("BrowserX");
         setSize(1280, 760);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+    }
 
-        // Panel para botones de navegacion
-        JPanel panelBotones = new JPanel();
-        panelBotones.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-        // Creación de los botones
+    private JPanel crearPanelSuperior() {
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT));
         retrocederBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "previous-page.png", 25, 25, 3);
         avanzarBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "next-page.png", 25, 25, 3);
         JButton inicioBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "home.png", 25, 25, 3);
@@ -75,9 +87,7 @@ public class BrowserX extends JFrame {
         panelBotones.add(inicioBtn);
         panelBotones.add(refrescarBtn);
 
-        // Panel para los botones de visitar y menu
-        JPanel panelMenu = new JPanel();
-        panelMenu.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        JPanel panelMenu = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton visitarBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "browse.png", 25, 25, 3);
         favoritosBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "estrella.png", 25, 25, 3);
         JButton showMenuBtn = UiTool.crearBotonConIcono(null, Constants.ICONS_PATH + "menu.png", 25, 25, 3);
@@ -85,86 +95,85 @@ public class BrowserX extends JFrame {
         panelMenu.add(favoritosBtn);
         panelMenu.add(showMenuBtn);
 
-        // Panel para el campo de texto y los botones de visitar y menu
-        JPanel panelURL = new JPanel();
-        panelURL.setLayout(new BorderLayout());
+        JPanel panelURL = new JPanel(new BorderLayout());
         urlTextField = new JTextField();
         panelURL.add(urlTextField, BorderLayout.CENTER);
         panelURL.add(panelMenu, BorderLayout.EAST);
 
-        // Panel superior para la URL y botones de navegación
-        JPanel panelSuperior = new JPanel();
-        panelSuperior.setLayout(new BorderLayout());
+        JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.add(panelBotones, BorderLayout.WEST);
         panelSuperior.add(panelURL, BorderLayout.CENTER);
 
-        add(panelSuperior, BorderLayout.NORTH);
+        // Guardar referencias para listeners
+        this.inicioBtn = inicioBtn;
+        this.refrescarBtn = refrescarBtn;
+        this.visitarBtn = visitarBtn;
+        this.showMenuBtn = showMenuBtn;
 
-        // Panel central para mostrar el WebView embebido de JavaFX en Swing
-        JFXPanel fxPanel = new JFXPanel();
-        add(fxPanel, BorderLayout.CENTER);
+        return panelSuperior;
+    }
 
-        // Actualizar el estado de los botones de retroceder y avanzar
-        actualizarEstadoBotones();
+    // Declarar estos botones como atributos privados si se usan en listeners
+    private JButton inicioBtn;
+    private JButton refrescarBtn;
+    private JButton visitarBtn;
+    private JButton showMenuBtn;
 
-        // Inicializar JavaFX
+    private void inicializarJavaFX(JFXPanel fxPanel) {
         Platform.runLater(() -> {
             webView = new WebView();
             webEngine = webView.getEngine();
             fxPanel.setScene(new Scene(webView));
-
-            // Listener para el cambio de URL en el WebView
-            webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
-                if (newState == Worker.State.RUNNING) {
-                    String finalUrl = webEngine.getLocation();
-                    if (!navegacionUsuario) {
-                        if (!ValidationUtil.isDownloadUrl(finalUrl)) {
-                            navegacionManager.agregarUrlNavegacion(finalUrl);
-                        }
-                        if (!finalUrl.equals(Constants.GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                            historialController.agregarElemento(
-                                    new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
-                        }
-                    }
-                    navegacionUsuario = false;
-                    actualizarCampoUrl();
-                    actualizarEstadoBotones();
-                } else if (newState == Worker.State.FAILED) {
-                    urlTextField.setText("");
-                    JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            });
-
-            // Listener para descargar archivos
-            webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
-                if (oldValue != null && !oldValue.equals(newValue)) {
-                    if (ValidationUtil.isValidFile(newValue) ||
-                            ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
-                        descargaController.descargarArchivo(newValue, this);
-                    }
-                }
-            });
-
-            // carga pagina inicial (Google)
+            inicializarWebEngineListeners();
             cargarURL(Constants.GOOGLE_URL);
         });
+    }
 
-        // Listener para el campo de texto de la URL
+    private void inicializarWebEngineListeners() {
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
+            if (newState == Worker.State.RUNNING) {
+                String finalUrl = webEngine.getLocation();
+                if (!navegacionUsuario) {
+                    if (!ValidationUtil.isDownloadUrl(finalUrl)) {
+                        navegacionManager.agregarUrlNavegacion(finalUrl);
+                    }
+                    if (!finalUrl.equals(Constants.GOOGLE_URL) && !finalUrl.equals("about:blank")) {
+                        historialController.agregarElemento(
+                                new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
+                    }
+                }
+                navegacionUsuario = false;
+                actualizarCampoUrl();
+                actualizarEstadoBotones();
+            } else if (newState == Worker.State.FAILED) {
+                urlTextField.setText("");
+                JOptionPane.showMessageDialog(this, "No se pudo cargar la página, verifica la URL.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null && !oldValue.equals(newValue)) {
+                if (ValidationUtil.isValidFile(newValue) ||
+                        ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
+                    descargaController.descargarArchivo(newValue, this);
+                }
+            }
+        });
+    }
+
+    private void inicializarListeners() {
         urlTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-
-            // Eliminar placeholder al obtener el foco
             @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (urlTextField.getText().equals(Constants.PLACEHOLDER_URL)) {
                     urlTextField.setText("");
                     urlTextField.setForeground(Color.BLACK);
-                } else { // seleccionar todo el texto al obtener el foco
+                } else {
                     urlTextField.selectAll();
                 }
             }
 
-            // Mostrar placeholder si el campo está vacío
             @Override
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (urlTextField.getText().isEmpty()) {
@@ -174,7 +183,6 @@ public class BrowserX extends JFrame {
             }
         });
 
-        // Listener para visitar la URL al presionar Enter
         urlTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -184,7 +192,6 @@ public class BrowserX extends JFrame {
             }
         });
 
-        // Listeners para los botones
         retrocederBtn.addActionListener(e -> retrocederPagina());
         avanzarBtn.addActionListener(e -> avanzarPagina());
         inicioBtn.addActionListener(e -> cargarURL(Constants.GOOGLE_URL));
@@ -200,7 +207,6 @@ public class BrowserX extends JFrame {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && retrocederBtn.isEnabled()) {
-                    System.out.println("Botón de retroceder clic derecho presionado");
                     mostrarContenidoPila(navegacionManager.obtenerPilaAtrasList(), true);
                 }
             }
@@ -210,19 +216,17 @@ public class BrowserX extends JFrame {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON3 && avanzarBtn.isEnabled()) {
-                    System.out.println("Botón de avanzar clic derecho presionado");
                     mostrarContenidoPila(navegacionManager.obtenerPilaAdelanteList(), false);
                 }
             }
         });
-
-        setVisible(true);
     }
 
     private static void applyUiTheme() {
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             System.err.println("Ocurrio un error: " + e.getMessage());
         }
     }
