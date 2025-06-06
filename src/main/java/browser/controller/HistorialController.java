@@ -4,19 +4,16 @@ import browser.data_structure.LinkedList;
 import browser.model.EntradaHistorial;
 import browser.service.Impl.HistorialServiceImpl;
 import browser.util.UiTool;
+import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+@RequiredArgsConstructor
 public class HistorialController {
     private final HistorialServiceImpl historialService;
     private final String ICONS_PATH;
-
-    public HistorialController(HistorialServiceImpl historialService, String iconsPath) {
-        this.historialService = historialService;
-        this.ICONS_PATH = iconsPath;
-    }
 
     public void agregarElemento(EntradaHistorial entradaHistorial) {
         historialService.agregarElemento(entradaHistorial);

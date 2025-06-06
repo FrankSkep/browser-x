@@ -5,17 +5,15 @@ import browser.service.Impl.DescargaServiceImpl;
 import browser.util.Constants;
 import browser.util.UiTool;
 import browser.data_structure.LinkedList;
+import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+@RequiredArgsConstructor
 public class DescargaController {
     private final DescargaServiceImpl descargaService;
-
-    public DescargaController(DescargaServiceImpl descargaService) {
-        this.descargaService = descargaService;
-    }
 
     public void mostrarDescargas(JFrame parent) {
         LinkedList<Descarga> historialDescargas = descargaService.obtenerTodo();

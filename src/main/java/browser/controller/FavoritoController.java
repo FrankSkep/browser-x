@@ -5,17 +5,15 @@ import browser.model.Favorito;
 import browser.service.Impl.FavoritoServiceImpl;
 import browser.util.Constants;
 import browser.util.UiTool;
+import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+@RequiredArgsConstructor
 public class FavoritoController {
     private final FavoritoServiceImpl favoritoService;
-
-    public FavoritoController(FavoritoServiceImpl favoritoService) {
-        this.favoritoService = favoritoService;
-    }
 
     public void mostrarFavoritos(JFrame parent, Runnable actualizarEstadoBotones, java.util.function.Consumer<String> cargarURL) {
         var favoritosMap = favoritoService.obtenerTodo();
