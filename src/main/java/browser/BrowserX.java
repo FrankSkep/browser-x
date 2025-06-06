@@ -13,9 +13,6 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-
-//importar navegacionManager
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -367,7 +364,8 @@ public class BrowserX extends JFrame {
         historialOpc.addActionListener(e -> historialController.mostrarHistorial(
                 this,
                 this::actualizarEstadoBotones,
-                navegacionManager::restablecerNavegacion));
+                navegacionManager::restablecerNavegacion,
+                this::cargarURL));
         favoritosOpc.addActionListener(e -> favoritoController.mostrarFavoritos(
                 this,
                 this::actualizarEstadoBotones,

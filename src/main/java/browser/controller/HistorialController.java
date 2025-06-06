@@ -19,7 +19,7 @@ public class HistorialController {
         historialService.agregarElemento(entradaHistorial);
     }
 
-    public void mostrarHistorial(JFrame parent, Runnable actualizarEstadoBotones, Runnable restablecerNavegacion) {
+    public void mostrarHistorial(JFrame parent, Runnable actualizarEstadoBotones, Runnable restablecerNavegacion, java.util.function.Consumer<String> cargarURL) {
         LinkedList<EntradaHistorial> historialCompleto = historialService.obtenerTodo();
 
         if (historialCompleto.isEmpty()) {
@@ -66,8 +66,13 @@ public class HistorialController {
                 if (selectedRow != -1) {
                     String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
                     UiTool.cerrarVentana(cerrarBtn);
-                    // Aquí puedes notificar a BrowserX para cargar la URL
-                    // Por ejemplo, usando un Consumer<String> pasado al constructor
+                    
+                    if(cargarURL != null) {
+                        cargarURL.accept(urlSeleccionada);
+                    } else {
+                        JOptionPane.showMessageDialog(parent, "No se ha definido una acción para cargar la URL.");
+                    }
+
                 } else {
                     JOptionPane.showMessageDialog(parent, "Por favor, selecciona una URL.");
                 }

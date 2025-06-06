@@ -11,18 +11,18 @@ import browser.service.IService;
  */
 public class FavoritoServiceImpl implements IService<Hashtable<String, String>, Favorito> {
 
-    private final Hashtable<String, String> favoritos;
+    private final Hashtable<String, String> favoritosHashtable;
     private final FavoritoDAO favoritoDAO;
 
     /**
      * Constructor que inicializa la tabla hash de favoritos y carga los datos desde el DAO.
      */
     public FavoritoServiceImpl(FavoritoDAO favoritoDAO) {
-        favoritos = new Hashtable<>();
+        favoritosHashtable = new Hashtable<>();
         this.favoritoDAO = favoritoDAO;
         LinkedList<Favorito> listaFavoritos = favoritoDAO.obtenerTodo();
         for (Favorito favorito : listaFavoritos) {
-            favoritos.put(favorito.getNombre(), favorito.getUrl());
+            favoritosHashtable.put(favorito.getNombre(), favorito.getUrl());
         }
     }
 
@@ -33,7 +33,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
      */
     @Override
     public void agregarElemento(Favorito favorito) {
-        favoritos.put(favorito.getNombre(), favorito.getUrl());
+        favoritosHashtable.put(favorito.getNombre(), favorito.getUrl());
         favoritoDAO.guardar(favorito);
     }
 
@@ -43,7 +43,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
      */
     @Override
     public void eliminarTodo() {
-        favoritos.clear();
+        favoritosHashtable.clear();
         favoritoDAO.eliminarTodo();
     }
 
@@ -55,7 +55,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
 
     @Override
     public Hashtable<String, String> obtenerTodo() {
-        return favoritos;
+        return favoritosHashtable;
     }
 
     /**
@@ -65,7 +65,7 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
      */
     @Override
     public void eliminarElemento(Favorito favorito) {
-        favoritos.remove(favorito.getNombre());
+        favoritosHashtable.remove(favorito.getNombre());
         favoritoDAO.eliminar(favorito);
     }
 
@@ -76,6 +76,6 @@ public class FavoritoServiceImpl implements IService<Hashtable<String, String>, 
      * @return true si el favorito existe, false en caso contrario.
      */
     public boolean existeFavorito(String url) {
-        return favoritos.containsValue(url);
+        return favoritosHashtable.containsValue(url);
     }
 }

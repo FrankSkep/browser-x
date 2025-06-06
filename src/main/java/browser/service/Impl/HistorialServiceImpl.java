@@ -4,19 +4,16 @@ import browser.dao.HistorialDAO;
 import browser.data_structure.LinkedList;
 import browser.model.EntradaHistorial;
 import browser.service.IService;
-import browser.util.ValidationUtil;
-
-import java.time.LocalDateTime;
 
 public class HistorialServiceImpl implements IService<LinkedList<EntradaHistorial>, EntradaHistorial> {
 
-    private final LinkedList<EntradaHistorial> historial;
+    private final LinkedList<EntradaHistorial> historialList;
     private final HistorialDAO historialDAO;
 
     public HistorialServiceImpl(HistorialDAO historialDAO) {
-        historial = new LinkedList<>();
+        historialList = new LinkedList<>();
         this.historialDAO = historialDAO;
-        historial.addAll(historialDAO.obtenerTodo());
+        historialList.addAll(historialDAO.obtenerTodo());
     }
 
     /**
@@ -26,9 +23,8 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
      */
     @Override
     public void agregarElemento(EntradaHistorial pagina) {
-        EntradaHistorial entradaHistorial = new EntradaHistorial(pagina.getUrl(), ValidationUtil.dateFormat(LocalDateTime.now()));
-        historial.add(entradaHistorial);
-        historialDAO.guardar(entradaHistorial);
+        historialList.add(pagina);
+        historialDAO.guardar(pagina);
     }
 
     /**
@@ -38,7 +34,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
      */
     @Override
     public void eliminarElemento(EntradaHistorial entradaHistorial) {
-        historial.remove(entradaHistorial);
+        historialList.remove(entradaHistorial);
         historialDAO.eliminar(entradaHistorial);
     }
 
@@ -49,7 +45,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
      */
     @Override
     public LinkedList<EntradaHistorial> obtenerTodo() {
-        return historial;
+        return historialList;
     }
 
     /**
@@ -57,7 +53,7 @@ public class HistorialServiceImpl implements IService<LinkedList<EntradaHistoria
      */
     @Override
     public void eliminarTodo() {
-        historial.clear();
+        historialList.clear();
         historialDAO.eliminarTodo();
     }
 

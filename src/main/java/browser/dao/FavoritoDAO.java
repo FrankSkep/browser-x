@@ -2,6 +2,7 @@ package browser.dao;
 
 import browser.database.Db_Connection;
 import browser.model.Favorito;
+import lombok.NoArgsConstructor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,10 +12,8 @@ import java.sql.SQLException;
 /**
  * Data Access Object (DAO) para la entidad Favorito.
  */
+@NoArgsConstructor
 public class FavoritoDAO extends AbstractDAO<Favorito> {
-
-    public FavoritoDAO() {
-    }
 
     @Override
     protected String getTableName() {
