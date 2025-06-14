@@ -11,10 +11,21 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+/**
+ * Controlador encargado de gestionar las descargas en la aplicación.
+ * Permite mostrar el historial de descargas y gestionar la eliminación de elementos.
+ */
 @RequiredArgsConstructor
-public class DescargaController {
+public class DescargaUIController {
+    /** Servicio para la gestión de descargas. */
     private final DescargaServiceImpl descargaService;
 
+    /**
+     * Muestra una ventana con el historial de descargas.
+     * Permite eliminar descargas individuales o todas, y cerrar la ventana.
+     *
+     * @param parent ventana principal sobre la que se muestra el historial
+     */
     public void mostrarDescargas(JFrame parent) {
         LinkedList<Descarga> historialDescargas = descargaService.obtenerTodo();
 
@@ -65,6 +76,12 @@ public class DescargaController {
         }
     }
 
+    /**
+     * Inicia la descarga de un archivo desde la URL especificada.
+     *
+     * @param url    URL del archivo a descargar
+     * @param parent ventana principal para mostrar mensajes o diálogos
+     */
     public void descargarArchivo(String url, JFrame parent) {
         descargaService.descargarArchivo(url, parent);
     }

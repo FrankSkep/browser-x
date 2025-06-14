@@ -10,15 +10,35 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+/**
+ * Controlador encargado de gestionar el historial de navegación en la aplicación.
+ * Permite mostrar, agregar y eliminar entradas del historial.
+ */
 @RequiredArgsConstructor
-public class HistorialController {
+public class HistorialUIController {
+    /** Servicio para la gestión del historial. */
     private final HistorialServiceImpl historialService;
+    /** Ruta de los iconos utilizados en la interfaz. */
     private final String ICONS_PATH;
 
+    /**
+     * Agrega una nueva entrada al historial.
+     *
+     * @param entradaHistorial entrada a agregar al historial
+     */
     public void agregarElemento(EntradaHistorial entradaHistorial) {
         historialService.agregarElemento(entradaHistorial);
     }
 
+    /**
+     * Muestra una ventana con el historial de navegación.
+     * Permite eliminar entradas individuales o todo el historial, abrir una URL o cerrar la ventana.
+     *
+     * @param parent ventana principal sobre la que se muestra el historial
+     * @param actualizarEstadoBotones acción para actualizar el estado de los botones
+     * @param restablecerNavegacion acción para restablecer la navegación
+     * @param cargarURL consumidor para cargar una URL seleccionada (puede ser null)
+     */
     public void mostrarHistorial(JFrame parent, Runnable actualizarEstadoBotones, Runnable restablecerNavegacion, java.util.function.Consumer<String> cargarURL) {
         LinkedList<EntradaHistorial> historialCompleto = historialService.obtenerTodo();
 
@@ -66,7 +86,7 @@ public class HistorialController {
                 if (selectedRow != -1) {
                     String urlSeleccionada = (String) tableModel.getValueAt(selectedRow, 0);
                     UiTool.cerrarVentana(cerrarBtn);
-                    
+
                     if(cargarURL != null) {
                         cargarURL.accept(urlSeleccionada);
                     } else {

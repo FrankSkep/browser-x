@@ -11,10 +11,23 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+/**
+ * Controlador encargado de gestionar los favoritos en la aplicación.
+ * Permite mostrar, agregar, eliminar y consultar favoritos.
+ */
 @RequiredArgsConstructor
-public class FavoritoController {
+public class FavoritoUIController {
+    /** Servicio para la gestión de favoritos. */
     private final FavoritoServiceImpl favoritoService;
 
+    /**
+     * Muestra una ventana con la lista de favoritos.
+     * Permite eliminar, abrir o cerrar la ventana de favoritos.
+     *
+     * @param parent ventana principal sobre la que se muestra el diálogo
+     * @param actualizarEstadoBotones acción para actualizar el estado de los botones (puede ser null)
+     * @param cargarURL consumidor para cargar una URL seleccionada (puede ser null)
+     */
     public void mostrarFavoritos(JFrame parent, Runnable actualizarEstadoBotones, java.util.function.Consumer<String> cargarURL) {
         var favoritosMap = favoritoService.obtenerTodo();
 
@@ -77,6 +90,13 @@ public class FavoritoController {
         }
     }
 
+    /**
+     * Agrega una nueva URL a la lista de favoritos.
+     *
+     * @param parent ventana principal para mostrar mensajes
+     * @param url URL a agregar como favorito
+     * @param actualizarEstadoBotones acción para actualizar el estado de los botones (puede ser null)
+     */
     public void agregarFavorito(JFrame parent, String url, Runnable actualizarEstadoBotones) {
         if (url == null || url.isBlank()) {
             JOptionPane.showMessageDialog(parent, "No hay URL para agregar a favoritos.", "Información", JOptionPane.INFORMATION_MESSAGE);
@@ -96,18 +116,37 @@ public class FavoritoController {
         }
     }
 
+    /**
+     * Verifica si una URL ya existe en la lista de favoritos.
+     *
+     * @param url URL a verificar
+     * @return true si la URL ya es un favorito, false en caso contrario
+     */
     public boolean existeFavorito(String url) {
         return favoritoService.existeFavorito(url);
     }
 
+    /**
+     * Obtiene todos los favoritos almacenados.
+     *
+     * @return tabla hash con los nombres y URLs de los favoritos
+     */
     public Hashtable<String, String> obtenerFavoritos() {
         return favoritoService.obtenerTodo();
     }
 
+    /**
+     * Elimina un favorito específico.
+     *
+     * @param favorito favorito a eliminar
+     */
     public void eliminarFavorito(Favorito favorito) {
         favoritoService.eliminarElemento(favorito);
     }
 
+    /**
+     * Elimina todos los favoritos almacenados.
+     */
     public void eliminarTodo() {
         favoritoService.eliminarTodo();
     }

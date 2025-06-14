@@ -6,7 +6,17 @@ import browser.service.Impl.*;
 import browser.service.NavegacionManager;
 import browser.util.Constants;
 
+/**
+ * Clase de configuración de la aplicación.
+ * Se encarga de instanciar y ensamblar los componentes principales del navegador.
+ */
 public class AppConfig {
+
+    /**
+     * Crea e inicializa una instancia de {@link BrowserX} con sus dependencias.
+     *
+     * @return una instancia completamente configurada de {@link BrowserX}
+     */
     public static BrowserX createBrowserX() {
         // DAOs
         HistorialDAO historialDAO = new HistorialDAO();
@@ -20,16 +30,16 @@ public class AppConfig {
         DescargaServiceImpl descargaService = new DescargaServiceImpl(descargaDAO);
 
         // Controladores
-        HistorialController historialController = new HistorialController(historialService, Constants.ICONS_PATH);
-        FavoritoController favoritoController = new FavoritoController(favoritoService);
-        DescargaController descargaController = new DescargaController(descargaService);
+        HistorialUIController historialUIController = new HistorialUIController(historialService, Constants.ICONS_PATH);
+        FavoritoUIController favoritoUIController = new FavoritoUIController(favoritoService);
+        DescargaUIController descargaUIController = new DescargaUIController(descargaService);
 
         // Builder para construir BrowserX
         return new BrowserXBuilder()
                 .setNavegacionManager(navegacionManager)
-                .setHistorialController(historialController)
-                .setFavoritoController(favoritoController)
-                .setDescargaController(descargaController)
+                .setHistorialController(historialUIController)
+                .setFavoritoController(favoritoUIController)
+                .setDescargaController(descargaUIController)
                 .build();
     }
 }

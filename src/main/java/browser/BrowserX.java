@@ -1,8 +1,8 @@
 package browser;
 
-import browser.controller.DescargaController;
-import browser.controller.FavoritoController;
-import browser.controller.HistorialController;
+import browser.controller.DescargaUIController;
+import browser.controller.FavoritoUIController;
+import browser.controller.HistorialUIController;
 import browser.model.EntradaHistorial;
 import browser.service.NavegacionManager;
 import browser.util.Constants;
@@ -29,10 +29,10 @@ import java.util.List;
  */
 public class BrowserX extends JFrame {
     private final NavegacionManager navegacionManager;
-    private final HistorialController historialController;
+    private final HistorialUIController historialUIController;
     // private final FavoritoServiceImpl favoritoService;
-    private final FavoritoController favoritoController;
-    private final DescargaController descargaController;
+    private final FavoritoUIController favoritoUIController;
+    private final DescargaUIController descargaUIController;
     private WebView webView;
     private WebEngine webEngine;
 
@@ -44,12 +44,12 @@ public class BrowserX extends JFrame {
     // bandera para saber si la navegación fue por avanzar/retroceder
     private boolean navegacionUsuario = false;
 
-    public BrowserX(NavegacionManager navegacionManager, HistorialController historialController,
-                    FavoritoController favoritoController, DescargaController descargaController) {
+    public BrowserX(NavegacionManager navegacionManager, HistorialUIController historialUIController,
+                    FavoritoUIController favoritoUIController, DescargaUIController descargaUIController) {
         this.navegacionManager = navegacionManager;
-        this.historialController = historialController;
-        this.favoritoController = favoritoController;
-        this.descargaController = descargaController;
+        this.historialUIController = historialUIController;
+        this.favoritoUIController = favoritoUIController;
+        this.descargaUIController = descargaUIController;
 
         applyUiTheme();
         setWindowProperties();
@@ -138,7 +138,7 @@ public class BrowserX extends JFrame {
                         navegacionManager.agregarUrlNavegacion(finalUrl);
                     }
                     if (!finalUrl.equals(Constants.GOOGLE_URL) && !finalUrl.equals("about:blank")) {
-                        historialController.agregarElemento(
+                        historialUIController.agregarElemento(
                                 new EntradaHistorial(finalUrl, ValidationUtil.dateFormat(LocalDateTime.now())));
                     }
                 }
@@ -156,7 +156,7 @@ public class BrowserX extends JFrame {
             if (oldValue != null && !oldValue.equals(newValue)) {
                 if (ValidationUtil.isValidFile(newValue) ||
                         ValidationUtil.isValidMimeType(ValidationUtil.getContentType(newValue))) {
-                    descargaController.descargarArchivo(newValue, this);
+                    descargaUIController.descargarArchivo(newValue, this);
                 }
             }
         });
@@ -197,7 +197,7 @@ public class BrowserX extends JFrame {
         inicioBtn.addActionListener(e -> cargarURL(Constants.GOOGLE_URL));
         refrescarBtn.addActionListener(e -> refrescarPagina());
         visitarBtn.addActionListener(e -> visitarPagina());
-        favoritosBtn.addActionListener(e -> favoritoController.agregarFavorito(
+        favoritosBtn.addActionListener(e -> favoritoUIController.agregarFavorito(
                 this,
                 urlTextField.getText(),
                 this::actualizarEstadoBotones));
@@ -317,7 +317,7 @@ public class BrowserX extends JFrame {
     private void actualizarEstadoBotones() {
         retrocederBtn.setEnabled(navegacionManager.puedeRetroceder());
         avanzarBtn.setEnabled(navegacionManager.puedeAvanzar());
-        favoritosBtn.setEnabled(!favoritoController.existeFavorito(navegacionManager.obtenerUrlActual()));
+        favoritosBtn.setEnabled(!favoritoUIController.existeFavorito(navegacionManager.obtenerUrlActual()));
     }
 
     // muestra menu de opciones
@@ -360,16 +360,16 @@ public class BrowserX extends JFrame {
         menuEmergente.show(this, x, y);
 
         // listeners para las opciones del menu
-        historialOpc.addActionListener(e -> historialController.mostrarHistorial(
+        historialOpc.addActionListener(e -> historialUIController.mostrarHistorial(
                 this,
                 this::actualizarEstadoBotones,
                 navegacionManager::restablecerNavegacion,
                 this::cargarURL));
-        favoritosOpc.addActionListener(e -> favoritoController.mostrarFavoritos(
+        favoritosOpc.addActionListener(e -> favoritoUIController.mostrarFavoritos(
                 this,
                 this::actualizarEstadoBotones,
                 this::cargarURL));
 
-        descargasOpc.addActionListener(e -> descargaController.mostrarDescargas(this));
+        descargasOpc.addActionListener(e -> descargaUIController.mostrarDescargas(this));
     }
 }
